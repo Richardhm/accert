@@ -26,14 +26,6 @@ class FinanceiroController extends Controller
     public function index()
     {
 
-
-
-
-
-
-
-
-
           // $qtd_individual_atrasado = Contrato
           //       ::where("plano_id",1)
           //       ->where("financeiro_id","!=",12)
@@ -2241,7 +2233,7 @@ class FinanceiroController extends Controller
             $contratos = Contrato
                 ::where("plano_id",1)
                 ->where("financeiro_id",7)
-                
+
                 ->whereHas('comissao.comissoesLancadas',function($query){
                     //$query->where("status_financeiro","=",0);
                     //$query->where("status_gerente",0);
@@ -3185,12 +3177,6 @@ class FinanceiroController extends Controller
                     if($rowNumber >= 2) {
                        $cpf = mb_strlen($cells[6]->getValue()) == 11 ? $cells[6]->getValue() : str_pad($cells[6]->getValue(), 11, "000", STR_PAD_LEFT);
                        $user_id = User::where('codigo_vendedor',$cells[0]->getValue())->first()->id;
-
-
-
-
-
-
                        $nascimento = ($cells[9]->getValue())->format('Y-m-d');
                        //$nascimento = implode("-",array_reverse(explode("/",$cells[9]->getValue())));
                        $criacao =  implode("-",array_reverse(explode("/",$cells[19]->getValue())));

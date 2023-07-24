@@ -13,152 +13,160 @@
 
 	<div style="background-color:#123449;border-radius:5px;padding:10px 5px;">
 		<form action="" method="post" class="px-3" name="cadastrar_pessoa_fisica_formulario_individual" id="cadastrar_pessoa_fisica_formulario_individual">
-            @csrf              
-            
+            @csrf
+
             <input type="hidden" name="tipo_cadastro" value="administrador_cadastro">
 
 
             <!-- Primeiro Linha -->
             <div class="d-flex">
-                    
+
                 <div style="flex-basis:12%;margin-right: 1%;">
                     <div class="form-group">
-                        <span for="tabela_origem" class="text-white">Vendedor:</span>
+                        <span for="tabela_origem" class="text-white" style="font-size:0.8em;">Vendedor:</span>
                         <select name="users_individual" id="users_individual" class="form-control form-control-sm change_valores">
                             <option value="">----Corretor----</option>
                             @foreach($users as $u)
                                 <option value="{{$u->id}}">{{$u->name}}</option>
                             @endforeach
-                        </select>   
-                       
+                        </select>
+
                     </div>
                 </div>
 
                 <div style="flex-basis:13%;margin-right: 1%;">
                     <div class="form-group">
-                        <span for="tabela_origem" class="text-white">Tabela Origem:</span>
+                        <span for="tabela_origem" class="text-white" style="font-size:0.8em;">Tabela Origem:</span>
                         <select name="tabela_origem_individual" id="tabela_origem_individual" class="form-control form-control-sm change_valores">
                             <option value="">--Tabela Origem--</option>
                             @foreach($origem_tabela as $o)
                                 <option value="{{$o->id}}">{{$o->nome}}</option>
                             @endforeach
-                        </select>   
-                       
+                        </select>
+
                     </div>
                 </div>
 
 
                 <div style="flex-basis:18%">
                     <div class="form-group">
-                        <span for="nome" class="text-white">Titular:</span>
-                        <input type="text" name="nome_individual" id="nome_individual" class="form-control form-control-sm" placeholder="Nome" value="">
-                        
+                        <span for="nome" class="text-white" style="font-size:0.8em;">Titular:</span>
+                        <input type="text" style="font-size:0.8em;" name="nome_individual" id="nome_individual" class="form-control form-control-sm" placeholder="Nome" value="">
+
                     </div>
                 </div>
 
                 <div style="flex-basis:10%;margin:0% 1%;">
                     <div class="form-group">
-                        <span for="cpf" class="text-white">CPF:</span>
-                        <input type="text" name="cpf_individual" id="cpf_individual" class="form-control form-control-sm" value="{{old('cpf')}}" placeholder="XXX.XXXX.XXX-XX">
+                        <span for="cpf" class="text-white" style="font-size:0.8em;">CPF:</span>
+                        <input type="text" style="font-size:0.8em;" name="cpf_individual" id="cpf_individual" class="form-control form-control-sm" value="{{old('cpf')}}" placeholder="XXX.XXXX.XXX-XX">
                         <div class="errorcpf"></div>
-                        
+
                     </div>
                 </div>
 
                 <div style="flex-basis:10%;margin-right:1%;">
                     <div class="form-group">
-                        <span for="data_nascimento" class="text-white">Data Nascimento:</span>
-                        <input type="date" name="data_nascimento_individual" value="{{old('data_nascimento')}}" id="data_nascimento_individual" class="form-control  form-control-sm">
-                        
+                        <span for="data_nascimento" class="text-white" style="font-size:0.8em;">Data Nascimento:</span>
+                        <input type="date" style="font-size:0.8em;" name="data_nascimento_individual" value="{{old('data_nascimento')}}" id="data_nascimento_individual" class="form-control  form-control-sm">
+
                     </div>
                 </div>
 
                 <div style="flex-basis:16%;margin-right:1%;">
                     <div class="form-group">
-                        <span for="email" class="text-white">Email:</span>
-                        <input type="email" name="email_individual" id="email_individual" placeholder="Email" class="form-control  form-control-sm" value="">
-                        
+                        <span for="email" class="text-white" style="font-size:0.8em;">Email:</span>
+                        <input type="email" style="font-size:0.8em;" name="email_individual" id="email_individual" placeholder="Email" class="form-control  form-control-sm" value="">
+
                     </div>
-                </div>    
+                </div>
 
                 <div class="form-group" style="flex-basis:11%;margin-right: 1%;">
-                    <span for="telefone" class="text-white">Celular:</span>
-                    <input type="text" name="celular_individual" id="celular_individual" value="{{old('celular_individual')}}" placeholder="Celular" class="form-control  form-control-sm" value="">
+                    <span for="telefone" class="text-white" style="font-size:0.8em;">Celular:</span>
+                    <input type="text" style="font-size:0.8em;" name="celular_individual" id="celular_individual" value="{{old('celular_individual')}}" placeholder="Celular" class="form-control  form-control-sm" value="">
                 </div>
-                
+
                 <div class="form-group" style="flex-basis:11%;">
-                    <span for="telefone" class="text-white">Telefone:</span>
-                    <input type="text" name="telefone_individual" id="telefone_individual" value="{{old('telefone_individual')}}" placeholder="Telefone" class="form-control  form-control-sm" value="">
+                    <span for="telefone" class="text-white" style="font-size:0.8em;">Telefone:</span>
+                    <input type="text" style="font-size:0.8em;" name="telefone_individual" id="telefone_individual" value="{{old('telefone_individual')}}" placeholder="Telefone" class="form-control  form-control-sm" value="">
                 </div>
 
 
 
-            </div>    
+            </div>
             <!-- Fim Primeiro Linha -->
 
-            <!-- Segunda Linha -->                
-            <div class="d-flex">   
+            <!-- Segunda Linha -->
+            <div class="d-flex" style="margin-bottom:0;margin-top:0;">
 
                 <div style="flex-basis:8%;">
                     <div class="form-group">
-                        <span for="cep" class="text-white">CEP:</span>
-                        <input type="text" name="cep_individual" id="cep_individual" value="{{old('cep')}}" placeholder="CEP" class="form-control  form-control-sm" value="">
-                        
+                        <span for="cep" class="text-white" style="font-size:0.8em;">CEP:</span>
+                        <input type="text" style="font-size:0.8em;" name="cep_individual" id="cep_individual" value="{{old('cep')}}" placeholder="CEP" class="form-control  form-control-sm" value="">
+
                     </div>
                 </div>
 
 
 
-                <div class="form-group" style="flex-basis:13%;margin:0% 1%;">
-                    <span for="rua" class="text-white">Cidade:</span>
-                    <input type="text" name="cidade_origem_individual" id="cidade_origem_individual" value="{{old('cidade_origem')}}" placeholder="Cidade" class="form-control  form-control-sm" value="">
-                    
+                <div style="flex-basis:13%;margin:0% 1%;">
+                    <span for="rua" class="text-white" style="font-size:0.8em;">Cidade:</span>
+                    <input type="text" style="font-size:0.8em;" name="cidade_origem_individual" id="cidade_origem_individual" value="{{old('cidade_origem')}}" placeholder="Cidade" class="form-control  form-control-sm" value="">
+
                 </div>
 
 
 
-                <div class="form-group" style="flex-basis:12%;">
-                    <span for="bairro" class="text-white">Bairro:</span>
-                    <input type="text" name="bairro_individual" id="bairro_individual" value="{{old('bairro')}}" placeholder="Bairro" class="form-control  form-control-sm" value="">
+                <div style="flex-basis:12%;">
+                    <span for="bairro" class="text-white" style="font-size:0.8em;">Bairro:</span>
+                    <input type="text" style="font-size:0.8em;" name="bairro_individual" id="bairro_individual" value="{{old('bairro')}}" placeholder="Bairro" class="form-control  form-control-sm" value="">
                 </div>
 
-               
 
 
-                <div class="form-group" style="flex-basis:12%;margin:0 1%;">
-                    <span for="rua" class="text-white">Rua:</span>
-                    <input type="text" name="rua_individual" id="rua_individual" value="{{old('rua')}}" placeholder="Logradouro(Rua)" class="form-control  form-control-sm" value="">
+
+                <div style="flex-basis:12%;margin:0 1%;">
+                    <span for="rua" class="text-white" style="font-size:0.8em;">Rua:</span>
+                    <input type="text" style="font-size:0.8em;" name="rua_individual" id="rua_individual" value="{{old('rua')}}" placeholder="Logradouro(Rua)" class="form-control  form-control-sm" value="">
                     <div class="errorlogradouro"></div>
                 </div>
 
-                 <div class="form-group" style="flex-basis:15%;">
-                    <span for="bairro" class="text-white">Complemento:</span>
-                    <input type="text" name="complemento_individual" id="complemento_individual" value="{{old('complemento')}}" placeholder="Complemento(Opcional)" class="form-control  form-control-sm" value="">
+                 <div style="flex-basis:15%;">
+                    <span for="bairro" class="text-white" style="font-size:0.8em;">Complemento:</span>
+                    <input type="text" style="font-size:0.8em;" name="complemento_individual" id="complemento_individual" value="{{old('complemento')}}" placeholder="Complemento(Opcional)" class="form-control  form-control-sm" value="">
                     <div class="errorcomplemento"></div>
                 </div>
 
-                
 
-                <div class="form-group" style="flex-basis:5%;margin:0 1%;">
-                    <span for="uf" class="text-white">UF:</span>
-                    <input type="text" name="uf_individual" id="uf_individual" value="{{old('uf')}}" placeholder="UF" class="form-control  form-control-sm" value="">
+
+                <div style="flex-basis:4%;margin:0 1%;">
+                    <span for="uf" class="text-white" style="font-size:0.8em;">UF:</span>
+                    <input type="text" style="font-size:0.8em;" name="uf_individual" id="uf_individual" value="{{old('uf')}}" placeholder="UF" class="form-control  form-control-sm" value="">
                     <div class="erroruf"></div>
                 </div>
 
 
-               
 
-                <div style="flex-basis:10%;">
-                    <div class="form-group">
-                        <span for="codigo_externo" class="text-white">Codigo Externo:</span>
-                        <input type="text" name="codigo_externo_individual" id="codigo_externo_individual_cadastrar" value="{{old('codigo_externo')}}" class="form-control  form-control-sm" placeholder="COD.">
+
+                <div style="flex-basis:7%;margin-right:1%;">
+
+                        <span for="codigo_externo" class="text-white" style="font-size:0.8em;">Cod. Externo:</span>
+                        <input type="text" style="font-size:0.8em;" name="codigo_externo_individual" id="codigo_externo_individual_cadastrar" value="{{old('codigo_externo')}}" class="form-control  form-control-sm" placeholder="COD.">
                         <div class="errorcodigo"></div>
-                    </div>
-                </div>  
+
+                </div>
+
+                <div style="flex-basis:7%;">
+
+                    <span for="vencimento" class="text-white" style="font-size:0.8em;">Vencimento:</span>
+                    <input type="number" style="font-size:0.8em;" name="vencimento" id="vencimento" value="{{old('vencimento')}}" class="form-control  form-control-sm" placeholder="Dia">
+                    <div class="errorcodigo"></div>
+
+                </div>
 
                 <div style="flex-basis:9%;margin:0 1% 0 1%">
-                    <div class="form-group d-flex justify-content-center flex-column">
-                        <span class="text-white">Coparticipação:</span>
+                    <div class="d-flex justify-content-center flex-column">
+                        <span class="text-white" style="font-size:0.8em;">Coparticipação:</span>
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-outline-light" id="coparticipacao_sim" style="padding:0.21rem 0.75rem;">
                                 <input type="radio" name="coparticipacao_individual" id="coparticipacao_radio_sim_cadastro"  value="sim" {{old('coparticipacao') == "sim" ? 'checked' : ''}}> Sim
@@ -166,16 +174,16 @@
                             <label class="btn btn-outline-light" id="coparticipacao_nao" style="padding:0.21rem 0.75rem;">
                                 <input type="radio" name="coparticipacao_individual" id="coparticipacao_radio_nao_cadastro" value="nao" {{old('coparticipacao') == "nao" ? 'checked' : ''}}> Não
                             </label>
-                            
+
                         </div>
                         <div class='errorcoparticipacao'></div>
                     </div>
-                </div>        
+                </div>
 
                 <div style="flex-basis:9%;">
-                    <div class="form-group  d-flex justify-content-center flex-column">
-                        <span for="odonto" class="text-white">Odonto:</span>
-                        
+                    <div class="d-flex justify-content-center flex-column">
+                        <span for="odonto" class="text-white" style="font-size:0.8em;">Odonto:</span>
+
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-outline-light" id="odonto_sim" style="padding:0.21rem 0.75rem;">
                                 <input type="radio" name="odonto_individual" id="odonto_radio_sim_cadastro" value="sim" {{old('odonto') == "sim" ? 'checked' : ''}}> Sim
@@ -183,38 +191,40 @@
                             <label class="btn btn-outline-light" id="odonto_nao" style="padding:0.21rem 0.75rem;">
                                 <input type="radio" name="odonto_individual" id="odonto_radio_nao_cadastro" value="nao" {{old('odonto') == "nao" ? 'checked' : ''}}> Não
                             </label>
-                            
+
                         </div>
                         <div class='errorodonto'></div>
                     </div>
-                </div>   
+                </div>
 
 
 
             </div>
+
+
             <!-- Fim Segunda Linha -->
 
 
             <div class="d-flex">
                 <div style="flex-basis: 10%;">
-                    <input type="checkbox" id="dependente_individual" name="dependente_individual"><span class="text-white">Responsável</span>    
+                    <input type="checkbox" id="dependente_individual" name="dependente_individual"><span class="text-white">Responsável</span>
                 </div>
-                
+
                 <div style="flex-basis: 90%;" class="d-none" id="container_responsavel">
-                    <div class="d-flex">   
+                    <div class="d-flex">
                         <div style="flex-basis:30%;margin-right:1%;display:flex;">
-                            
+
                                 <span style="flex-basis:30%;" for="responsavel_financeiro_individual_cadastro" class="text-white">Responsável:</span>
                                 <input style="flex-basis:70%" type="text" name="responsavel_financeiro_individual_cadastro" id="responsavel_financeiro_individual_cadastro" value="" class="form-control  form-control-sm" placeholder="Nome do Responsavel">
-                                
-                            
-                        </div>  
+
+
+                        </div>
                         <div style="flex-basis:70%;display: flex;">
-                            
+
                                 <span style="flex-basis:17%;" for="cpf_financeiro_individual_cadastro" class="text-white">CPF Responsável:</span>
                                 <input style="flex-basis:30%" type="text" name="cpf_financeiro_individual_cadastro" id="cpf_financeiro_individual_cadastro" value="" class="form-control  form-control-sm" placeholder="CPF Responsavel">
-                                
-                            
+
+
                         </div>
                     </div>
                 </div>
@@ -222,9 +232,9 @@
 
             <!--Faixas Etarias--->
            <section>
-                <div class="errorfaixas"></div>                   
+                <div class="errorfaixas"></div>
                     <div class="d-flex">
-                        
+
                         <div style="flex-basis:10%;">
                             <span for="" class="text-white">0-18:</span>
                             <div class="border border-white rounded">
@@ -237,8 +247,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
 
                         <div style="flex-basis:10%;margin:0 10px;">
@@ -253,8 +263,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;">
                             <span for="" class="text-white">24-28:</span>
@@ -268,8 +278,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;margin:0 10px;">
                             <span for="" class="text-white">29-33:</span>
@@ -283,8 +293,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;">
                             <span for="" class="text-white">34-38:</span>
@@ -298,8 +308,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>              
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;margin:0 10px;">
                             <span for="" class="text-white">39-43:</span>
@@ -313,8 +323,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;">
                             <span for="" class="text-white">44-48:</span>
@@ -328,8 +338,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;margin:0 10px;">
                             <span for="" class="text-white">49-53:</span>
@@ -343,8 +353,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;margin:0 10px 0 0;">
                             <span for="" class="text-white">54-58:</span>
@@ -358,8 +368,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;">
                             <span for="" class="text-white">59+</span>
@@ -369,19 +379,19 @@
                                     <button type="button" class="minus d-flex justify-content-center align-items-center bg-danger" id="faixa-59" style="border:none;background:#FF0000;width:30%;max-height:30px;" aria-label="−" tabindex="0">
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">－</span>
                                     </button>
-                                    
+
                                     <input type="tel" data-change="change_faixa_59" name="faixas_etarias[10]" value="{{isset($colunas) && in_array(10,$colunas) ? $faixas[array_search(10, array_column($faixas, 'faixa_etaria_id'))]['faixa_quantidade'] : ''}}" id="faixa-input-59_individual" class="text-center font-weight-bold faixas_etarias d-flex" style="border:none;width:40%;font-size:1.2em;max-height:30px;" value="" step="1" min="0" />
-                                    
+
                                     <button type="button" class="plus d-flex justify-content-center align-items-center" style="border:none;background:rgb(17,117,185);width:30%;max-height:30px;" aria-label="+" tabindex="0">
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
+                            </div>
                         </div>
 
                     </div>
-                    <!--Fim Faixa Etaria-->                      
-                </section> 
+                    <!--Fim Faixa Etaria-->
+                </section>
                 <div class="form-row mt-3">
                     <div class="col-12 d-flex rounded">
                         <button id="mostrar_plano_individual" class="w-100">
@@ -390,16 +400,16 @@
                     </div>
                 </div>
                 <div id="resultado_individual">
-                </div>    
+                </div>
             </form>
 
 	</div>
-	
+
 @stop
 
 
 @section('js')
-	<script src="{{asset('js/jquery.mask.min.js')}}"></script>   
+	<script src="{{asset('js/jquery.mask.min.js')}}"></script>
 	<script>
 		$(function(){
 
@@ -407,13 +417,11 @@
                 $('#email_individual').val($('#email_individual').val().toLowerCase());
             });
 
-            
-
 			function adicionaZero(numero){
-                if (numero <= 9) 
+                if (numero <= 9)
                     return "0" + numero;
                 else
-                    return numero; 
+                    return numero;
             }
 
 			$('#cnpj').mask('00.000.000/0000-00');
@@ -430,17 +438,17 @@
             $('#valor_plano_odonto').mask("#.##0,00", {reverse: true});
             $('#cpf_individual').mask('000.000.000-00');
 
-            $('#cpf_financeiro_individual_cadastro').mask('000.000.000-00');            
-            
-            $('#cpf_coletivo').mask('000.000.000-00');  
-            $('#cep_individual').mask('00000-000');          
-            $('#cep_coletivo').mask('00000-000');      
+            $('#cpf_financeiro_individual_cadastro').mask('000.000.000-00');
+
+            $('#cpf_coletivo').mask('000.000.000-00');
+            $('#cep_individual').mask('00000-000');
+            $('#cep_coletivo').mask('00000-000');
 
 			$.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
-            });    
+            });
 
 			$("body").on('change','#dependente_individual',function(){
                 if($(this).is(':checked')) {
@@ -484,11 +492,11 @@
             $("body").on('change','input[name="adesao"]',function(){
                 let valor_adesao = $(this).val();
                 $(this).closest('form').find('#valor_adesao').val(valor_adesao);
-                
+
             });
 
 			$("body").find('form[name="cadastrar_pessoa_fisica_formulario_individual"]').on("click","#mostrar_plano_individual",function(){
-                
+
                 if($("#users_individual").val() == "") {
                     toastr["error"]("Corretor é campo obrigatório")
                     toastr.options = {
@@ -664,7 +672,7 @@
                     }
                     return false;
                  }
-                                 
+
                  if($("#cep_individual").val() == "") {
                     toastr["error"]("Cep é campo obrigatório")
                     toastr.options = {
@@ -816,8 +824,8 @@
                         "showMethod": "fadeIn",
                         "hideMethod": "fadeOut"
                     }
-                    return false;  
-                } 
+                    return false;
+                }
 
                 if(!$('input:radio[name=odonto_individual]').is(':checked')) {
                     toastr["error"]("Odonto é campo obrigatório")
@@ -838,19 +846,19 @@
                         "showMethod": "fadeIn",
                         "hideMethod": "fadeOut"
                     }
-                    return false;  
-                } 
+                    return false;
+                }
 
                 if(
-                    $("#faixa-input-0-18_individual").val() == "" && 
-                    $("#faixa-input-19-23_individual").val() == "" && 
-                    $("#faixa-input-24-28_individual").val() == "" && 
-                    $("#faixa-input-29-33_individual").val() == "" && 
-                    $("#faixa-input-34-38_individual").val() == "" && 
-                    $("#faixa-input-39-43_individual").val() == "" && 
-                    $("#faixa-input-44-48_individual").val() == "" && 
-                    $("#faixa-input-49-53_individual").val() == "" && 
-                    $("#faixa-input-54-58_individual").val() == "" && 
+                    $("#faixa-input-0-18_individual").val() == "" &&
+                    $("#faixa-input-19-23_individual").val() == "" &&
+                    $("#faixa-input-24-28_individual").val() == "" &&
+                    $("#faixa-input-29-33_individual").val() == "" &&
+                    $("#faixa-input-34-38_individual").val() == "" &&
+                    $("#faixa-input-39-43_individual").val() == "" &&
+                    $("#faixa-input-44-48_individual").val() == "" &&
+                    $("#faixa-input-49-53_individual").val() == "" &&
+                    $("#faixa-input-54-58_individual").val() == "" &&
                     $("#faixa-input-59_individual").val() == ""
                 ) {
                     toastr["error"]("Preencher pelo menos 1 faixa etaria")
@@ -871,10 +879,10 @@
                         "showMethod": "fadeIn",
                         "hideMethod": "fadeOut"
                     }
-                    return false;  
-                }    
+                    return false;
+                }
 
-                    
+
 
                 $.ajax({
                     url:"{{route('contratos.montarPlanosIndividual')}}",
@@ -898,7 +906,7 @@
                         }]
                     },
                     success:function(res) {
-                        
+
                         $("#resultado_individual").slideUp().html(res).delay(100).slideToggle(100,function(){
                             $('body,html').animate({
                                 scrollTop:$(window).scrollTop() + $(window).height(),
@@ -906,14 +914,14 @@
                         });
 
                         $("body").find('.vigente').datepicker({
-                            onSelect: function() { 
-                                var dateObject = $(this).datepicker('getDate'); 
-                                let dataFormatada = (dateObject.getFullYear() + "-" + adicionaZero(((dateObject.getMonth() + 1))) + "-" + adicionaZero((dateObject.getDate()))) ;     
-                                $("form[name='cadastrar_pessoa_fisica_formulario_individual']").find("#data_vigencia").attr("value",dataFormatada);   
+                            onSelect: function() {
+                                var dateObject = $(this).datepicker('getDate');
+                                let dataFormatada = (dateObject.getFullYear() + "-" + adicionaZero(((dateObject.getMonth() + 1))) + "-" + adicionaZero((dateObject.getDate()))) ;
+                                $("form[name='cadastrar_pessoa_fisica_formulario_individual']").find("#data_vigencia").attr("value",dataFormatada);
                             }
                         });
-                    }  
-                });   
+                    }
+                });
 
 
                 return false;
@@ -921,9 +929,9 @@
 
 			 /** Quando clicar no card pegar os campos valor do plano e tipo(Apartamento,Enfermaria...) */
             $('body').on('click','.valores-acomodacao',function(e){
-                
+
                 let valor_plano = $(this).find('.valor_plano').text().replace("R$ ","");
-                
+
                 let tipo = $(this).find('.tipo').text();
                 $("#valor").val(valor_plano);
                 $("#acomodacao").val(tipo);
@@ -945,7 +953,7 @@
                 });
                 if($(e.target).is('.form-control')) {
                     return;
-                } 
+                }
             });
 
             $("#cep_individual").change(function(){
@@ -955,16 +963,16 @@
                     headers: {'content-type': 'application/json;charset=utf-8'}
                 }
                 fetch(url,options).then(response => response.json()).then(
-                    data => {       
+                    data => {
                         $("#rua_individual").val(data.logradouro);
                         $("#bairro_individual").val(data.bairro);
                         $("#uf_individual").val(data.uf);
                         $("#cidade_origem_individual").val(data.localidade);
-                    }                    
+                    }
                 )
                 if($(this).val() != "") {
                     $(".errorcep").html('');
-                }   
+                }
             });
 
 
@@ -995,7 +1003,7 @@
                                 "showMethod": "fadeIn",
                                 "hideMethod": "fadeOut"
                             }
-                            return false;  
+                            return false;
                         }
 
                         if($("#data_boleto").val() == "") {
@@ -1017,7 +1025,7 @@
                                 "showMethod": "fadeIn",
                                 "hideMethod": "fadeOut"
                             }
-                            return false;      
+                            return false;
                         }
 
                         if($("#valor_adesao").val() == "") {
@@ -1039,26 +1047,28 @@
                                 "showMethod": "fadeIn",
                                 "hideMethod": "fadeOut"
                             }
-                            return false;            
+                            return false;
                         }
                     },
-                    
+
                     success:function(res) {
-                        
-                        if(res == "contratos") {
-                            $(location).prop('href','/admin/contratos');
-                            return true;
-                        } else {
-                            $(location).prop('href','/admin/contrato');
-                            return true;
-                        }  
+
+                        console.log(res);
+
+                        // if(res == "contratos") {
+                        //     $(location).prop('href','/admin/contratos');
+                        //     return true;
+                        // } else {
+                        //     $(location).prop('href','/admin/contrato');
+                        //     return true;
+                        // }
                     }
                 })
                 return false;
             });
 
 			 function montarValoresIndividual(data) {
-                
+
                 $.ajax({
                     url:"{{route('contratos.montarPlanosIndividual')}}",
                     method:"POST",
@@ -1071,15 +1081,15 @@
                         });
 
                         $("body").find('.vigente').datepicker({
-                            onSelect: function() { 
-                                var dateObject = $(this).datepicker('getDate'); 
-                                let dataFormatada = (dateObject.getFullYear() + "-" + adicionaZero(((dateObject.getMonth() + 1))) + "-" + adicionaZero((dateObject.getDate()))) ;     
-                                $("form[name='cadastrar_pessoa_fisica_formulario_individual']").find("#data_vigencia").attr("value",dataFormatada);   
+                            onSelect: function() {
+                                var dateObject = $(this).datepicker('getDate');
+                                let dataFormatada = (dateObject.getFullYear() + "-" + adicionaZero(((dateObject.getMonth() + 1))) + "-" + adicionaZero((dateObject.getDate()))) ;
+                                $("form[name='cadastrar_pessoa_fisica_formulario_individual']").find("#data_vigencia").attr("value",dataFormatada);
                             }
                         });
 
                     }
-                });    
+                });
             }
 
 

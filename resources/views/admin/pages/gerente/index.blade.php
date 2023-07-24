@@ -1010,8 +1010,8 @@
                         <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
                             Salario:
                         </span>
-                            <span style="display:flex;flex-basis:50%;font-size:0.7em;">
-                            <input type="text" name="salario" id="salario" class="form-control form-control-sm salario_usuario" style="text-align:right;height:20px;">
+                            <span style="display:flex;flex-basis:50%;">
+                            <input type="text" name="salario" id="salario" class="form-control form-control-sm salario_usuario" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
 
                         </li>
@@ -1019,8 +1019,8 @@
                         <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
                             Comissão:
                         </span>
-                            <span style="display:flex;flex-basis:50%;font-size:0.7em;">
-                            <input type="text" name="comissao" id="comissao" class="form-control form-control-sm" readonly placeholder="Comissão" value="0" style="text-align:right;height:20px;">
+                            <span style="display:flex;flex-basis:50%;">
+                            <input type="text" name="comissao" id="comissao" class="form-control form-control-sm" readonly placeholder="Comissão" value="0" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
                         </li>
                         <li style="display:flex;justify-content: space-between;margin:5px 0;">
@@ -1028,16 +1028,16 @@
                             Premiação:
                         </span>
                             <span style="display:flex;flex-basis:50%;">
-                            <input type="text" name="premiacao" id="premiacao" class="form-control form-control-sm premiacao_usuario" style="text-align:right;height:20px;">
+                            <input type="text" name="premiacao" id="premiacao" class="form-control form-control-sm premiacao_usuario" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
                         </li>
                         <li style="display:flex;justify-content: space-between;margin:5px 0;">
-                        <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
+                        <span style="display:flex;flex-basis:50%;align-self: center;color:#FFF;font-size:0.7em;">
                             Desconto:
                         </span>
 
-                            <span style="display:flex;flex-basis:50%;font-size: 0.7em;">
-                            <input type="text" disabled id="valor_total_desconto" name="desconto" id="desconto" class="form-control form-control-sm desconto_usuario" style="text-align:right;height:20px;">
+                            <span style="display:flex;flex-basis:50%;">
+                            <input type="text" disabled id="valor_total_desconto" name="desconto" id="desconto" class="form-control form-control-sm desconto_usuario" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
                         </li>
 
@@ -1046,7 +1046,7 @@
                             Total:
                             </span>
                             <span style="display:flex;flex-basis:50%;">
-                                <input type="text" disabled name="total_campo" id="total_campo" class="form-control form-control-sm total_campo" style="text-align:right;height:20px;">
+                                <input type="text" disabled name="total_campo" id="total_campo" class="form-control form-control-sm total_campo" style="text-align:right;height:20px;font-size:0.8em;">
                             </span>
                         </li>
 
@@ -1057,22 +1057,21 @@
                 <div style="background-color: #123449;padding:3px;margin-top:5px;">
                     <p style="color:white;border-bottom:1px solid white;text-align: center;margin:0;padding: 0;">Planos</p>
                     <ul style="margin:0 0 0 0;padding:0;">
-                        <li style="display:flex;justify-content: space-between;" id="listar_individual_apto">
-                            <span style="display:flex;flex-basis:60%;font-size:0.7em;color:#FFF;">Individual</span>
-                            <span style="display:flex;flex-basis:10%;font-size:0.7em;color:#FFF;" id="total_quantidade_individual">0</span>
-                            <span style="display:flex;flex-basis:30%;justify-content:flex-end;font-size:0.7em;color:#FFF;"><span id="valor_total_individual">0</span></span>
+                        <li style="display:flex;justify-content: space-between;" data-plano="1" id="listar_individual_apto_total">
+                            <span style="display:flex;flex-basis:60%;font-size:0.7em;">Individual</span>
+                            <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_individual_total">{{$total_individual_quantidade}}</span>
+                            <span style="display:flex;flex-basis:30%;justify-content:flex-end;font-size:0.7em;"><span id="valor_total_individual_total">{{$total_individual}}</span></span>
                         </li>
-                        <li style="display:flex;justify-content: space-between;" id="listar_coletivo_apto">
-                            <span style="display:flex;flex-basis:60%;font-size:0.7em;color:#FFF;">Coletivo</span>
-                            <span style="display:flex;flex-basis:10%;font-size:0.7em;color:#FFF;" id="total_quantidade_coletivo">0</span>
-                            <span style="display:flex;flex-basis:30%;justify-content:flex-end;font-size:0.7em;color:#FFF;"><span id="valor_total_coletivo">0</span></span>
+                        <li style="display:flex;justify-content: space-between;" data-plano="3" id="listar_coletivo_apto_total">
+                            <span style="display:flex;flex-basis:60%;font-size:0.7em;">Coletivo</span>
+                            <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_coletivo_total">{{$total_coletivo_quantidade}}</span>
+                            <span style="display:flex;flex-basis:30%;justify-content:flex-end;font-size:0.7em;"><span id="valor_total_coletivo_total">{{$total_coletivo}}</span></span>
                         </li>
-                        <li style="display:flex;justify-content: space-between;" id="listar_empresarial_apto">
-                            <span style="display:flex;flex-basis:60%;font-size:0.7em;color:#FFF;">Empresarial</span>
-                            <span style="display:flex;flex-basis:10%;font-size:0.7em;color:#FFF;" id="total_quantidade_empresarial">0</span>
-                            <span style="display:flex;flex-basis:30%;justify-content: flex-end;font-size:0.7em;color:#FFF;"><span id="valor_total_empresarial">0</span></span>
+                        <li style="display:flex;justify-content: space-between;" data-plano="0" id="listar_empresarial_apto_total">
+                            <span style="display:flex;flex-basis:60%;font-size:0.7em;">Empresarial</span>
+                            <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_empresarial_total">{{$total_empresarial_quantidade}}</span>
+                            <span style="display:flex;flex-basis:30%;justify-content: flex-end;font-size:0.7em;"><span id="valor_total_empresarial_total">{{$total_empresarial}}</span></span>
                         </li>
-
                     </ul>
                 </div>
 
@@ -1106,26 +1105,6 @@
                         </ul>
 
                     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             </div>
 
            <section style="flex-basis:12%;margin-right: 1%;">
@@ -1136,15 +1115,14 @@
                             <option value="{{$u->id}}" data-name="{{$u->name}}">{{$u->name}}</option>
                         @endforeach
                     </select>
-
                     <div style="border-top:1px solid white;margin-bottom:5px;"></div>
                     <ul style="margin:0;padding:0;">
                         <li style="display:flex;justify-content: space-between;">
                         <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
                             Salario:
                         </span>
-                            <span style="display:flex;flex-basis:50%;font-size:0.8em;">
-                            <input type="text" name="salario_vendedor" id="salario_vendedor" class="form-control form-control-sm salario_usuario_vendedor" style="text-align:right;height:20px;">
+                            <span style="display:flex;flex-basis:50%;">
+                            <input type="text" name="salario_vendedor" id="salario_vendedor" class="form-control form-control-sm salario_usuario_vendedor" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
 
                         </li>
@@ -1153,7 +1131,7 @@
                             Comissão:
                         </span>
                             <span style="display:flex;flex-basis:50%;">
-                            <input type="text" name="comissao_vendedor" id="comissao_vendedor" class="form-control form-control-sm" readonly placeholder="Comissão" value="0" style="text-align:right;height:20px;">
+                            <input type="text" name="comissao_vendedor" id="comissao_vendedor" class="form-control form-control-sm" readonly placeholder="Comissão" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
                         </li>
                         <li style="display:flex;justify-content: space-between;margin:5px 0;">
@@ -1161,7 +1139,7 @@
                             Premiação:
                         </span>
                             <span style="display:flex;flex-basis:50%;">
-                            <input type="text" name="premiacao_vendedor" id="premiacao_vendedor" class="form-control form-control-sm premiacao_usuario_vendedor" style="text-align:right;height:20px;">
+                            <input type="text" name="premiacao_vendedor" id="premiacao_vendedor" class="form-control form-control-sm premiacao_usuario_vendedor" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
                         </li>
                         <li style="display:flex;justify-content: space-between;margin:5px 0;">
@@ -1170,7 +1148,7 @@
                         </span>
 
                             <span style="display:flex;flex-basis:50%;">
-                            <input type="text" disabled id="valor_total_desconto_vendedor" name="desconto_vendedor" class="form-control form-control-sm desconto_usuario_vendedor" style="text-align:right;height:20px;">
+                            <input type="text" disabled id="valor_total_desconto_vendedor" name="desconto_vendedor" class="form-control form-control-sm desconto_usuario_vendedor" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
                         </li>
 
@@ -1179,13 +1157,45 @@
                             Total:
                             </span>
                             <span style="display:flex;flex-basis:50%;">
-                                <input type="text" disabled name="total_campo_vendedor" id="total_campo_vendedor" class="form-control form-control-sm total_campo_vendedor" style="text-align:right;height:20px;">
+                                <input type="text" disabled name="total_campo_vendedor" id="total_campo_vendedor" class="form-control form-control-sm total_campo_vendedor" style="text-align:right;height:20px;font-size:0.8em;">
                             </span>
                         </li>
 
                     </ul>
 
                 </div>
+
+
+               <div style="background-color: #123449;padding:3px;margin-top:5px;">
+                   <p style="color:white;border-bottom:1px solid white;text-align: center;margin:0;padding: 0;">Planos</p>
+                   <ul style="margin:0 0 0 0;padding:0;">
+                       <li style="display:flex;justify-content: space-between;" id="listar_individual_apto">
+                           <span style="display:flex;flex-basis:60%;font-size:0.7em;">Individual</span>
+                           <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_individual">0</span>
+                           <span style="display:flex;flex-basis:30%;justify-content:flex-end;font-size:0.7em;"><span id="valor_total_individual">0</span></span>
+                       </li>
+                       <li style="display:flex;justify-content: space-between;" id="listar_coletivo_apto">
+                           <span style="display:flex;flex-basis:60%;font-size:0.7em;">Coletivo</span>
+                           <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_coletivo">0</span>
+                           <span style="display:flex;flex-basis:30%;justify-content:flex-end;font-size:0.7em;"><span id="valor_total_coletivo">0</span></span>
+                       </li>
+                       <li style="display:flex;justify-content: space-between;" id="listar_empresarial_apto">
+                           <span style="display:flex;flex-basis:60%;font-size:0.7em;">Empresarial</span>
+                           <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_empresarial">0</span>
+                           <span style="display:flex;flex-basis:30%;justify-content: flex-end;font-size:0.7em;"><span id="valor_total_empresarial">0</span></span>
+                       </li>
+                   </ul>
+               </div>
+
+
+
+
+
+
+
+
+
+
 
                <div style="background-color:#123449;border-radius:5px;padding:3px;margin:5px 0;">
                    <p class="border-bottom text-center" style="margin:0;padding:0;color:white;">Recebidas</p>
@@ -1205,21 +1215,20 @@
                    </ul>
                </div>
 
-
-
-
-
-                <button class="btn btn-block mt-2" id="finalizar_folha" style="background-color:#123449;color:white;font-size: 0.7em;">
+                <button class="btn btn-block mt-2" id="finalizar_folha" style="background-color:#2D7BAC;color:white;font-size: 0.7em;">
                     Finalizar
-                    <!-- <span class="total_a_pagar"></span> -->
                 </button>
+
+               <button class="btn btn-block btn-warning mt-2" id="all_cadastrados" style="color:white;font-size: 0.7em;">
+                   Cadastrados
+               </button>
 
            </section>
 
 
            <section style="flex-basis:75%;">
                <div style="color:#FFF;border-radius:5px;" id="tabela_aptos_a_pagar" class="dsnone">
-                   <div style="background-color:#123449;border-radius:5px;">
+                   <div class="p-2" style="background-color:#123449;border-radius:5px;">
                        <table id="tabela_aptos_a_pagar_table" class="table table-sm listaraptosapagar w-100">
                            <thead>
                            <tr>
@@ -1265,7 +1274,7 @@
 
                <div style="color:#FFF;" id="listar_a_receber" class="dsnone">
                    <div style="background-color:#123449;border-radius:5px;">
-                       <table id="tabela_mes_diferente" class="table table-sm listarcomissaomesdiferente p-3" >
+                       <table id="tabela_mes_diferente" class="table table-sm listarcomissaomesdiferente" >
                            <thead>
                            <tr>
                                <th>Admin</th>
@@ -1288,6 +1297,31 @@
                        </table>
                    </div>
                </div>
+
+
+               <div style="color:#FFF;" id="listar_cadastrados" class="dsnone">
+                   <div style="background-color:#123449;border-radius:5px;">
+                       <table id="tabela_cadastrados" class="table table-sm listarcadastrados" >
+                           <thead>
+                           <tr>
+                               <th>Admin</th>
+                               <th>Cliente</th>
+                               <th>Corretor</th>
+                               <th>Plano</th>
+                               <th>Estagio</th>
+
+                           </tr>
+                           </thead>
+                           <tbody></tbody>
+                       </table>
+                   </div>
+               </div>
+
+
+
+
+
+
            </section>
        </main>
     </section>
@@ -1388,7 +1422,6 @@
     <script>
         $(function(){
 
-
             function total_mes_atual() {
                 let mes_atual = $("#mes_folha").val();
 
@@ -1408,60 +1441,14 @@
             }
 
 
-
-
-
-            function empresarial_a_receber() {
-                let id = $("#corretor_escolhido").val();
-                $("#listar_individual_apto").removeClass('ativo');
-                $("#listar_coletivo_apto").removeClass('ativo');
-                $(".individual_recebidas").removeClass('ativo');
-                $(".coletivo_recebidas").removeClass('ativo');
-                $(".individual_a_receber").removeClass('ativo');
-                $(this).addClass('ativo');
-                if(id) {
-                    $("#listar_individual_apto").removeClass("ativo");
-                    if($("#listar_a_receber").is(":visible")) {
-                        $("#title_comissao_diferente").html("<h4>A Receber Coletivo</h4>")
-                        listarcomissaomesdfirente.ajax.url(`{{ url('/admin/gerente/coletivo/listar/${id}') }}`).load();
-                    } else {
-                        if($("#tabela_principal").is(":visible")) {
-                            $("#tabela_principal").slideUp(1000,function(){
-                                $("#listar_a_receber").slideDown('slow',function(){
-                                    $("#title_comissao_diferente").html("<h4>A Receber Coletivo</h4>")
-                                    listarcomissaomesdfirente.ajax.url(`{{ url('/admin/gerente/coletivo/listar/${id}') }}`).load();
-                                });
-                            });
-                        }
-
-                        if($("#tabela_aptos_a_pagar").is(":visible")) {
-                            $("#tabela_aptos_a_pagar").slideUp(1000,function(){
-                                $("#listar_a_receber").slideDown('slow',function(){
-                                    $("#title_comissao_diferente").html("<h4>A Receber Coletivo</h4>")
-                                    listarcomissaomesdfirente.ajax.url(`{{ url('/admin/gerente/coletivo/listar/${id}') }}`).load();
-                                });
-                            });
-                        }
-                    }
-                } else {
-                    $("#listar_coletivo_apto").removeClass("ativo");
-                    $(".listar li").removeClass("ativo");
-                    $("#listar_individual_apto").removeClass("ativo");
-                    toastr["error"]("Escolha um Corretor")
-                    toastr.options = {
-                        'time-out': 3000,
-                        'close-button':true,
-                        'position-class':'toast-top-full-width',
-                        'class' : 'fullwidth',
-                        'fixed': false
-                    }
-                }
-            }
-
-
-
-
             function coletivo_a_receber() {
+
+                $(".estilizar_search input[type='search']").val('');
+                listarcomissaomesdfirente.search('').draw();
+                listarcomissaomesrecebidas.search('').draw();
+                listaraptosapagar.search('').draw();
+
+
                 let id = $("#corretor_escolhido").val();
                 $("#listar_individual_apto").removeClass('ativo');
                 $("#listar_coletivo_apto").removeClass('ativo');
@@ -1470,6 +1457,12 @@
                 $(".individual_a_receber").removeClass('ativo');
                 $(".empresarial_a_receber").removeClass('ativo');
                 $(".empresarial_recebidas").removeClass('ativo');
+
+                $("#listar_individual_apto_total").removeClass('ativo');
+                $("#listar_coletivo_apto_total").removeClass('ativo');
+                $("#listar_empresarial_apto_total").removeClass('ativo');
+
+
                 $(this).addClass('ativo');
                 if(id) {
                     $("#listar_individual_apto").removeClass("ativo");
@@ -1494,6 +1487,18 @@
                                 });
                             });
                         }
+
+                        if($("#listar_cadastrados").is(":visible")) {
+                            $("#listar_cadastrados").slideUp(1000,function(){
+                                $("#listar_a_receber").slideDown('slow',function(){
+                                    $("#title_comissao_diferente").html("<h4>A Receber Coletivo</h4>")
+                                    listarcomissaomesdfirente.ajax.url(`{{ url('/admin/gerente/coletivo/listar/${id}') }}`).load();
+                                });
+                            });
+                        }
+
+
+
                     }
                 } else {
                     $("#listar_coletivo_apto").removeClass("ativo");
@@ -1511,12 +1516,12 @@
             }
             $(".coletivo_a_receber").on('click',coletivo_a_receber);
 
-
-
-
-
-
             function individual_a_receber() {
+                $(".estilizar_search input[type='search']").val('');
+                listarcomissaomesdfirente.search('').draw();
+                listarcomissaomesrecebidas.search('').draw();
+                listaraptosapagar.search('').draw();
+
                 let id = $("#corretor_escolhido").val();
                 $("#listar_individual_apto").removeClass('ativo');
                 $("#listar_coletivo_apto").removeClass('ativo');
@@ -1525,7 +1530,9 @@
                 $(".coletivo_a_receber").removeClass('ativo');
                 $(".empresarial_a_receber").removeClass('ativo');
                 $(".empresarial_recebidas").removeClass('ativo');
-
+                $("#listar_individual_apto_total").removeClass('ativo');
+                $("#listar_coletivo_apto_total").removeClass('ativo');
+                $("#listar_empresarial_apto_total").removeClass('ativo');
 
                 $(this).addClass('ativo');
                 if(id) {
@@ -1534,10 +1541,11 @@
                         $("#title_comissao_diferente").html("<h4>A Receber Individual</h4>")
                         listarcomissaomesdfirente.ajax.url(`{{ url('/admin/gerente/listagem/comissao_mes_diferente/${id}') }}`).load();
                     } else {
+
                         if($("#tabela_principal").is(":visible")) {
                             $("#tabela_principal").slideUp(1000,function(){
                                 $("#listar_a_receber").slideDown('slow',function(){
-                                    $("#title_comissao_diferente").html("<h4 class='px-3 mt-3'>A Receber Individual</h4>")
+                                    $("#title_comissao_diferente").html("<h4>A Receber Individual</h4>")
                                     listarcomissaomesdfirente.ajax.url(`{{ url('/admin/gerente/listagem/comissao_mes_diferente/${id}') }}`).load();
                                 });
                             });
@@ -1551,6 +1559,20 @@
                                 });
                             });
                         }
+
+                        if($("#listar_cadastrados").is(":visible")) {
+                            $("#listar_cadastrados").slideUp(1000,function(){
+                                $("#listar_a_receber").slideDown('slow',function(){
+                                    $("#title_comissao_diferente").html("<h4>A Receber Individual</h4>")
+                                    listarcomissaomesdfirente.ajax.url(`{{ url('/admin/gerente/listagem/comissao_mes_diferente/${id}') }}`).load();
+                                });
+                            });
+                        }
+
+
+
+
+
                     }
                 } else {
                     $("#listar_coletivo_apto").removeClass("ativo");
@@ -1602,11 +1624,8 @@
                 $("#corretor_escolhido").val(id);
                 $("#list_user ul li").removeClass('user_destaque_ativo');
                 $(this).closest("li").addClass('user_destaque_ativo');
-
-
                 if($("#mes_folha").val() != null) {
                     let mes = $("#mes_folha").val();
-
                     $.ajax({
                        url:"{{route('gerente.listagem.confirmadas.especifica')}}",
                        data:"mes="+mes+"&id="+id,
@@ -1621,6 +1640,8 @@
                            $("#total_quantidade_individual").text(res.total_individual_quantidade);
                            $("#total_quantidade_coletivo").text(res.total_coletivo_quantidade);
                            $("#valor_total_individual").text(res.total_individual);
+                           $("#total_quantidade_empresarial").text(res.total_empresarial_quantidade);
+                           $("#valor_total_empresarial").text(res.total_empresarial);
                            $("#valor_total_coletivo").text(res.total_coletivo);
                            $("#valores_confirmados").val(res.id_confirmados);
                            $(".total_a_pagar").text(res.total);
@@ -1630,7 +1651,6 @@
                                listaraptosapagar.clear().draw();
                            });
                            total_mes_atual();
-
                        }
                     });
                 }
@@ -1709,9 +1729,6 @@
                 let selectedOptionText = $('#escolher_vendedor option:selected').text();
                 let selectMesText = $("#mes_folha option:selected").text();
                 $(".btn_usuario").text("Finalizar folha de "+selectedOptionText+" do mes "+selectMesText);
-
-
-
 
             });
 
@@ -2028,7 +2045,6 @@
                    method:"POST",
                    data:"id="+id+"&mes="+mes,
                     success:function(res) {
-                        console.log(res);
                         $("#total_quantidade_individual").text(res.total_individual_quantidade);
                         $("#total_quantidade_coletivo").text(res.total_coletivo_quantidade);
                         $("#valor_total_individual").text(res.total_individual);
@@ -2078,9 +2094,6 @@
                 id_confirmados = id_confirmados.filter(valor => valor !== id);
                 let valores_confirmados = id_confirmados.join(",");
                 $("#valores_confirmados").val(valores_confirmados);
-
-
-
 
                 let linha = $(this).closest('tr');
 
@@ -2141,19 +2154,31 @@
 
                     } else {
 
+                        let total_quantidade_empresarial = $("#total_quantidade_empresarial").text();
+                        total_quantidade_empresarial -= 1;
+                        $("#total_quantidade_empresarial").text(total_quantidade_empresarial);
+
+                        let comissao_vendedor = $("#comissao_vendedor").val().replace(/\./g, '').replaceAll(',', '.').trim();
+                        let comissao_vendedor_calculado = comissao_vendedor - valor;
+                        $("#comissao_vendedor").val(comissao_vendedor_calculado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace("R$",""));
+
+
+                        let valor_total_empresarial = $("#valor_total_empresarial").text().replace("R$","").replace(/\./g, '').replaceAll(',', '.').trim();
+                        let valor_total_empresarial_calculado = valor_total_empresarial - valor;
+
+                        $("#valor_total_empresarial").html(valor_total_empresarial_calculado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace("R$",""))
+
+                        let total_campo_vendedor = $("#total_campo_vendedor").val().replace(/\./g, '').replaceAll(',', '.').trim();
+                        let total_campo_vendedor_calculado = total_campo_vendedor - valor;
+                        $("#total_campo_vendedor").val(total_campo_vendedor_calculado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace("R$",""));
+
                     }
-
-
                     listaraptosapagar.row(linha).remove().draw();
-
-
                     let salario = $("#salario_vendedor").val();
                     let premiacao = $("#premiacao_vendedor").val();
                     let comissao = $("#comissao_vendedor").val().trim();
                     let desconto = $("#valor_total_desconto_vendedor").val();
                     let total = $("#total_campo_vendedor").val().trim();
-
-
                     $.ajax({
                         url:"{{route('gerente.mudar.para_a_nao_pago')}}",
                         method:"POST",
@@ -2168,12 +2193,11 @@
                             "&total="+total+
                             "&id_confirmados="+id_confirmados,
                         success:function(res) {
-                            console.log(res);
-                            // if(res == true) {
-                            //     listaraptosapagar.ajax.reload();
-                            //     listarcomissaomesrecebidas.ajax.reload();
-                            //     listarcomissaomesdfirente.ajax.reload();
-                            // }
+                            if(res == true) {
+                                 listaraptosapagar.ajax.reload();
+                                 listarcomissaomesrecebidas.ajax.reload();
+                                 listarcomissaomesdfirente.ajax.reload();
+                            }
                         }
                     });
 
@@ -2207,6 +2231,69 @@
                 //console.log(id_confirmados);
 
             });
+
+            var listarcadastrados = $(".listarcadastrados").DataTable({
+                dom: '<"d-flex justify-content-between"<"#title_cadastrados"><"estilizar_search"f>><t><"d-flex justify-content-between align-items-center"<"por_pagina"l><"estilizar_pagination"p>>',
+                "language": {
+                    "url": "{{asset('traducao/pt-BR.json')}}"
+                },
+                ajax: {
+                    "url":`{{ route('gerente.tabelas.vazias') }}`,
+                    "dataSrc": "",
+                },
+                "lengthMenu": [50,100,150,200,300,500],
+
+                "ordering": false,
+                "paging": true,
+                "searching": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+
+                columns: [
+                    {data:"administradora",name:"administradora"},
+                    {data:"cliente",name:"cliente"},
+                    {data:"corretor",name:"corretor"},
+                    {data:"estagio",name:"estagio"},
+                    {data:"plano",name:"plano"},
+
+                ],
+                "initComplete": function( settings, json ) {
+                    $('#title_cadastrados').html("<h4>Cadastrados</h4>");
+                }
+
+            });
+
+            var tabela_de_cadastrados = $('#tabela_cadastrados').DataTable();
+
+            $("body").on('click','#all_cadastrados',function(){
+
+                $(".listar listar_a_receber_ul li").removeClass('ativo');
+                $(".listar li").removeClass('ativo');
+                $(".listar_individual_apto li").removeClass('ativo');
+
+
+                if($("#listar_a_receber").is(":visible")) {
+                    $("#listar_a_receber").slideUp(1000,function(){
+                        tabela_de_cadastrados.ajax.url(`{{ route('listar.gerente.cadastrados') }}`).load();
+                        $("#listar_cadastrados").slideDown(1000,function(){});
+                    })
+                }
+                if($("#tabela_principal").is(":visible")) {
+                    $("#tabela_principal").slideUp(1000,function(){
+                        tabela_de_cadastrados.ajax.url(`{{ route('listar.gerente.cadastrados') }}`).load();
+                        $("#listar_cadastrados").slideDown(1000,function(){});
+                    })
+                }
+                if($("#tabela_aptos_a_pagar").is(":visible")) {
+                    $("#tabela_aptos_a_pagar").slideUp(1000,function(){
+                        tabela_de_cadastrados.ajax.url(`{{ route('listar.gerente.cadastrados') }}`).load();
+                        $("#listar_cadastrados").slideDown(1000,function(){});
+                    })
+                }
+            });
+
+
 
             var listaraptosapagar = $(".listaraptosapagar").DataTable({
                 dom: '<"d-flex justify-content-between"<"#title_individual_confirmados"><"estilizar_search"f>><t><"d-flex justify-content-between align-items-center"<"por_pagina"l><"estilizar_pagination"p>>',
@@ -2421,8 +2508,8 @@
                         $('#title_recebidas').html("<h4>Recebidas - Coletivo</h4>");
                         listarcomissaomesrecebidas.ajax.url(`{{ url('/admin/gerente/listagem/recebidas/coletivo/${id}') }}`).load();
                     } else {
-                        if($("#listar_a_receber").is(':visible')) {
 
+                        if($("#listar_a_receber").is(':visible')) {
                             $("#listar_a_receber").slideUp('slow',function(){
                                 $("#tabela_principal").slideDown('slow',function(){
                                     $('#title_recebidas').html("<h4>Recebidas - Coletivo</h4>");
@@ -2430,6 +2517,7 @@
                                 });
                             })
                         }
+
                         if($("#tabela_aptos_a_pagar").is(":visible")) {
                             $("#tabela_aptos_a_pagar").slideUp('slow',function(){
                                 $("#tabela_principal").slideDown('slow',function(){
@@ -2438,6 +2526,16 @@
                                 });
                             })
                         }
+
+                        if($("#listar_cadastrados").is(":visible")) {
+                            $("#listar_cadastrados").slideUp(1000,function(){
+                                $("#listar_a_receber").slideDown('slow',function(){
+                                    $("#title_comissao_diferente").html("<h4>Recebidas - Coletivo</h4>")
+                                    listarcomissaomesrecebidas.ajax.url(`{{ url('/admin/gerente/listagem/recebidas/coletivo/${id}') }}`).load();
+                                });
+                            });
+                        }
+
                     }
                 } else {
                     $("#listar_coletivo_apto").removeClass("ativo");
@@ -2493,6 +2591,18 @@
                                 });
                             })
                         }
+
+                        if($("#listar_cadastrados").is(":visible")) {
+                            $("#listar_cadastrados").slideUp(1000,function(){
+                                $("#tabela_principal").slideDown('slow',function(){
+                                    $("#title_recebidas").html("<h4>Recebidas Empresarial</h4>")
+                                    listarcomissaomesrecebidas.ajax.url(`{{ url('/admin/gerente/listagem/empresarial/recebidas/${id}') }}`).load();
+                                });
+                            });
+                        }
+
+
+
                     }
 
 
@@ -2540,27 +2650,20 @@
                                 listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/empresarial/confirmadas/${id}') }}`).load();
                                 $("#tabela_aptos_a_pagar").slideDown('slow');
                             } else {
-                                listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/empresarial/confirmadas/${id}') }}`).load();
+                                listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/empresarial/confirmadas/${id}/${mes}') }}`).load();
                                 $("#tabela_aptos_a_pagar").slideDown('slow');
                             }
                         });
                     }
                     if($("#listar_a_receber").is(':visible')) {
                         $("#listar_a_receber").slideUp('fast',function(){
-                            listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/empresarial/confirmadas/${id}') }}`).load();
+                            listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/empresarial/confirmadas/${id}/${mes}') }}`).load();
                             $("#tabela_aptos_a_pagar").slideDown('slow');
                         });
                     } else {
                         $("#title_individual_confirmados").html("<h4>Recebidas - Empresarial</h4>");
-                        listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/confirmadas/${id}/${mes}') }}`).load();
+                        listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/empresarial/confirmadas/${id}/${mes}') }}`).load();
                     }
-
-
-
-
-
-
-
                 } else {
                     $("#listar_coletivo_apto").removeClass("ativo");
                     $(".listar li").removeClass("ativo");
@@ -2579,6 +2682,100 @@
 
             });
 
+            function listar_apto_total() {
+                let mes = $("#mes_folha").val();
+                let plano = $(this).attr('data-plano');
+
+                tabela.column(8).visible(false);
+
+                if(mes) {
+                    $("#listar_coletivo_apto").removeClass("ativo");
+                    $("#listar_empresarial_apto").removeClass("ativo");
+                    $(".listar li").removeClass("ativo");
+                    $("#listar_individual_apto").removeClass("ativo");
+
+                    $("#listar_individual_apto_total").addClass("ativo");
+
+
+                    if($("#listar_a_receber").is(":visible")) {
+                        $("#listar_a_receber").slideUp(1000,function(){
+                            listaraptosapagar.ajax.url(`{{ url('/admin/gerente/mes/fechados/confirmados/${mes}/${plano}') }}`).load();
+                            $("#tabela_aptos_a_pagar").slideDown('slow');
+                        })
+                    }
+                    if($("#tabela_principal").is(":visible")) {
+                        $("#tabela_principal").slideUp(1000,function(){
+                            listaraptosapagar.ajax.url(`{{ url('/admin/gerente/mes/fechados/confirmados/${mes}/${plano}') }}`).load();
+                            $("#tabela_aptos_a_pagar").slideDown('slow');
+                            //$("#listar_a_receber").slideDown('slow',function(){
+                            //$("#title_comissao_diferente").html("<h4>A Receber Coletivo</h4>")
+                            //listarcomissaomesdfirente.ajax.url(`{{ url('/admin/gerente/coletivo/listar/${id}') }}`).load();
+                            //});
+                        });
+                    }
+                    if($("#tabela_aptos_a_pagar").is(":visible")) {
+                        listaraptosapagar.ajax.url(`{{ url('/admin/gerente/mes/fechados/confirmados/${mes}/${plano}') }}`).load();
+                        $("#tabela_aptos_a_pagar").slideDown('slow');
+                        //console.log("Tabela Aptos a pagar");
+                    }
+                }
+            }
+
+            function listar_apto_total() {
+                let mes = $("#mes_folha").val();
+                let plano = $(this).attr('data-plano');
+
+                tabela.column(8).visible(false);
+
+                if(mes) {
+                    $("#listar_coletivo_apto").removeClass("ativo");
+                    $("#listar_empresarial_apto").removeClass("ativo");
+                    $(".listar li").removeClass("ativo");
+                    $("#listar_individual_apto").removeClass("ativo");
+
+                    let id = $(this).attr('id');
+
+                    if(id == "listar_individual_apto_total") {
+                        $("#listar_coletivo_apto_total").removeClass("ativo");
+                        $("#listar_empresarial_apto_total").removeClass("ativo");
+                        $("#listar_individual_apto_total").addClass("ativo");
+                    } else if(id == "listar_coletivo_apto_total") {
+                        $("#listar_empresarial_apto_total").removeClass("ativo");
+                        $("#listar_individual_apto_total").removeClass("ativo");
+                        $("#listar_coletivo_apto_total").addClass("ativo");
+                    } else {
+                        $("#listar_individual_apto_total").removeClass("ativo");
+                        $("#listar_coletivo_apto_total").removeClass("ativo");
+                        $("#listar_empresarial_apto_total").addClass("ativo");
+                    }
+
+                    if($("#listar_a_receber").is(":visible")) {
+                        $("#listar_a_receber").slideUp(1000,function(){
+                            listaraptosapagar.ajax.url(`{{ url('/admin/gerente/mes/fechados/confirmados/${mes}/${plano}') }}`).load();
+                            $("#tabela_aptos_a_pagar").slideDown('slow');
+                        })
+                    }
+                    if($("#tabela_principal").is(":visible")) {
+                        $("#tabela_principal").slideUp(1000,function(){
+                            listaraptosapagar.ajax.url(`{{ url('/admin/gerente/mes/fechados/confirmados/${mes}/${plano}') }}`).load();
+                            $("#tabela_aptos_a_pagar").slideDown('slow');
+
+                        });
+                    }
+                    if($("#tabela_aptos_a_pagar").is(":visible")) {
+                        listaraptosapagar.ajax.url(`{{ url('/admin/gerente/mes/fechados/confirmados/${mes}/${plano}') }}`).load();
+                        $("#tabela_aptos_a_pagar").slideDown('slow');
+                    }
+                }
+            }
+
+
+
+
+
+            $("#listar_individual_apto_total").on('click',listar_apto_total);
+            $("#listar_coletivo_apto_total").on('click',listar_apto_total);
+            $("#listar_empresarial_apto_total").on('click',listar_apto_total);
 
 
 
@@ -2588,6 +2785,8 @@
                 if(id) {
 
                     $("#listar_coletivo_apto").removeClass("ativo");
+                    $("#listar_empresarial_apto").removeClass("ativo");
+
                     $(".listar li").removeClass("ativo");
                     $("#listar_individual_apto").addClass("ativo");
                     if($("#tabela_principal").is(':visible')) {
@@ -2672,19 +2871,27 @@
                 let valor = $(this).val();
                 let valor_plano = $(this).attr('data-valor-plano');
                 let default_corretor = $(this).attr('data-id');
+                let self = $(this);
                 $.ajax({
                     url:"{{route('gerente.mudar.valor.corretor')}}",
                     method:"POST",
                     data:"id="+id+"&valor="+valor+"&valor_plano="+valor_plano+"&default_corretor="+default_corretor+"&acao=porcentagem",
                     success:function(res) {
-                        $(".comissao_pagando").val(res.valor);
-                        $(".comissao_paga_change").val(res.porcentagem);
+                        self.closest('tr').find('.comissao_pagando').val(res.valor)
+                        self.val(res.porcentagem)
+
                         listarcomissaomesrecebidas.ajax.reload();
                     }
                 });
             });
 
             function empresarial_a_receber() {
+
+                $(".estilizar_search input[type='search']").val('');
+                listarcomissaomesdfirente.search('').draw();
+                listarcomissaomesrecebidas.search('').draw();
+                listaraptosapagar.search('').draw();
+
                 let id = $("#corretor_escolhido").val();
                 $("#listar_individual_apto").removeClass("ativo");
                 $("#listar_coletivo_apto").removeClass("ativo");
@@ -2698,6 +2905,7 @@
                         $("#title_comissao_diferente").html("<h4>A Receber Empresarial</h4>")
                         listarcomissaomesdfirente.ajax.url(`{{ url('/admin/gerente/empresarial/listar/${id}') }}`).load();
                     } else {
+
                         if($("#tabela_principal").is(":visible")) {
                             $("#tabela_principal").slideUp(1000,function(){
                                 $("#listar_a_receber").slideDown('slow',function(){
@@ -2714,6 +2922,19 @@
                                 });
                             });
                         }
+
+                        if($("#listar_cadastrados").is(":visible")) {
+                            $("#listar_cadastrados").slideUp(1000,function(){
+                                $("#listar_a_receber").slideDown('slow',function(){
+                                    $("#title_comissao_diferente").html("<h4>A Receber Empresarial</h4>")
+                                    listarcomissaomesdfirente.ajax.url(`{{ url('/admin/gerente/empresarial/listar/${id}') }}`).load();
+                                });
+                            });
+                        }
+
+
+
+
                     }
                 } else {
                     $("#listar_coletivo_apto").removeClass("ativo");
@@ -2737,6 +2958,7 @@
             $(".empresarial_a_receber").on('click',empresarial_a_receber);
 
             $("body").on('change',".pagar_comissao",function(){
+                let mes = $("#mes_folha option:selected").val();
                 let id = $(this).attr('id');
                 id_confirmados.push(id);
                 let desconto = 0;
@@ -2754,14 +2976,12 @@
                 }
                 if(plano == 1) {
                     let valor_total_individual = parseFloat($("#valor_total_individual").text().replace("R$","").replace(/\./g,'').replace(',', '.').trim());
-                    console.log(valor_total_individual);
                     qtd_individual += 1;
                     $("#total_quantidade_individual").text(qtd_individual);
                     let total_individual = valor_total_individual + parseFloat(comissao_recebida);
                     $("#valor_total_individual").text(total_individual.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace("R$",""));
                 } else if(plano == 3) {
                     let valor_total_coletivo = parseFloat($("#valor_total_coletivo").text().replace("R$","").replace(/\./g,'').replace(',', '.').trim());
-                    console.log("Coletivo ",valor_total_coletivo);
                     qtd_coletivo += 1;
                     $("#total_quantidade_coletivo").text(qtd_coletivo);
                     let total_coletivo = valor_total_coletivo + parseFloat(comissao_recebida);
@@ -2824,7 +3044,7 @@
                         //ff = parseFloat(valor_total).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace("R$","").trim();
                         //$(".total_a_pagar").html(ff);
                     }
-                    let mes = $("#mes_folha option:selected").val();
+
                 } else {
                     $(this).removeClass('pagar');
                 }
@@ -2852,9 +3072,7 @@
                     url:"{{route('gerente.aptar.pagamento')}}",
                     method:"POST",
                     data:"id="+id+"&mes="+mes+"&desconto="+desconto,
-                    success:function(res) {
-                        console.log(res);
-                    }
+
                 });
 
             });
@@ -2873,6 +3091,7 @@
                     $(".listar li").removeClass("ativo");
                     $("#listar_coletivo_apto").addClass("ativo");
                     $("#listar_individual_apto").removeClass("ativo");
+                    $("#listar_empresarial_apto").removeClass("ativo");
                     if($("#tabela_principal").is(':visible')) {
                         $("#tabela_principal").slideUp('fast',function(){
                             if(mes == "") {
@@ -2958,7 +3177,9 @@
                         "&id="+id_confirmados,
 
                     success:function(res) {
+
                         console.log(res);
+
                         const select = $("#escolher_vendedor");
                         select.html('<option value="" class="text-center">--Corretores--</option>');
                         $.each(res.users_aptos, function(index, corretor) {
@@ -2989,14 +3210,23 @@
                         $(".individual_a_receber").removeClass('ativo');
                         $(".coletivo_a_receber").removeClass('ativo');
                         $(".empresarial_a_receber").removeClass("ativo");
+
+
+                        $(".estilizar_search input[type='search']").val('');
+
+
                         listarcomissaomesdfirente.ajax.reload(function() {
                             listarcomissaomesdfirente.clear().draw();
+                            listarcomissaomesdfirente.search('').draw();
+
                         });
                         listarcomissaomesrecebidas.ajax.reload(function() {
                             listarcomissaomesrecebidas.clear().draw();
+                            listarcomissaomesrecebidas.search('').draw();
                         });
                         listaraptosapagar.ajax.reload(function() {
                             listaraptosapagar.clear().draw();
+                            listaraptosapagar.search('').draw();
                         });
                         id_confirmados = [];
                         finalizarMes();
@@ -3007,12 +3237,13 @@
 
             });
 
-
-
-
-
-
             function individual_recebidas() {
+
+                $(".estilizar_search input[type='search']").val('');
+                listarcomissaomesdfirente.search('').draw();
+                listarcomissaomesrecebidas.search('').draw();
+                listaraptosapagar.search('').draw();
+
                 let id = $("#corretor_escolhido").val();
                 $("#listar_individual_apto").removeClass('ativo');
                 $("#listar_coletivo_apto").removeClass('ativo');
@@ -3038,6 +3269,14 @@
                         if($("#tabela_aptos_a_pagar").is(":visible")) {
                             $("#tabela_aptos_a_pagar").slideUp('slow',function(){
                                 $("#tabela_principal").slideDown(1000,function(){
+                                    $('#title_recebidas').html("<h4>Recebidas - Individual</h4>");
+                                    listarcomissaomesrecebidas.ajax.url(`{{ url('/admin/gerente/listagem/comissao_mes_atual/${id}') }}`).load();
+                                });
+                            });
+                        }
+                        if($("#listar_cadastrados").is(":visible")) {
+                            $("#listar_cadastrados").slideUp(1000,function(){
+                                $("#tabela_principal").slideDown('slow',function(){
                                     $('#title_recebidas').html("<h4>Recebidas - Individual</h4>");
                                     listarcomissaomesrecebidas.ajax.url(`{{ url('/admin/gerente/listagem/comissao_mes_atual/${id}') }}`).load();
                                 });
@@ -3116,7 +3355,7 @@
                     {data:"porcentagem_parcela_corretor",name:"porcentagem_parcela_corretor",width:"18%",
                         "createdCell":function(td, cellData, rowData, row, col) {
 
-                            $(td).html('<input type="text"  data-id='+rowData.id+' value='+cellData+' name="comissao_paga_change" class="comissao_paga_change" style="width:100%;" />')
+                            $(td).html('<input type="text" data-valor-plano='+rowData.valor_plano_contratado+'  data-id='+rowData.id+' value='+cellData+' name="comissao_paga_change" class="comissao_paga_change" style="width:100%;" />')
                         }
                     },
                     {data:"id",name:"comissao_pagando",render: $.fn.dataTable.render.number('.',',',2,'R$ '),width:"20%",
@@ -3938,6 +4177,17 @@
         .user_destaque_ativo {
             background-color:rgb(255,255,255);
             color:black !important;
+        }
+
+        #tabela_mes_diferente_filter input[type="search"],
+        #tabela_mes_recebidas_filter input[type="search"],
+        #tabela_cadastrados_filter input[type="search"]
+        {
+            margin:5px 5px 0px 9px;
+        }
+
+        #title_comissao_diferente,#title_recebidas,#title_cadastrados {
+            margin:5px 0 0 9px;
         }
 
     </style>

@@ -18,11 +18,6 @@ class ContratoController extends Controller
 {
     public function index()
     {
-
-
-
-
-
         $anos_coletivo = DB::select('SELECT YEAR(created_at) as anos FROM contratos WHERE plano_id = 3 GROUP BY YEAR(created_at)');
         $meses = ["01" => "Janeiro","02"=>"Fevereiro","03"=>"Março","04"=>"Abril","05"=>"Maio","06"=>"Junho","07"=>"Julho","08"=>"Agosto","09"=>"Setembro","10"=>"Outubro","11"=>"Novembro","12"=>"Dezembro"];
 
@@ -1149,6 +1144,33 @@ class ContratoController extends Controller
 
     public function storeIndividual(Request $request)
     {
+        $cpf = str_replace([".","-"],"",$request->cpf_individual);
+        $dia = $request->vencimento;
+        $codigo_externo = $request->codigo_externo_individual;
+
+        $url = "https://api-hapvida.sensedia.com/wssrvonline/v1/beneficiario?cpf={$cpf}";
+        $ch = curl_init($url);
+        curl_setopt($ch,CURLOPT_URL,$url);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+        $dados = (array) json_decode(curl_exec($ch),true);
+
+        $resultado = array_filter($dados, function($item) use($codigo_externo) {
+            return $item['tipoPlanoC'] === 'SAUDE' &&
+                $item['nomeEmpresa'] === 'I N D I V I D U A L' &&
+                $item['nuMatriculaEmpresa'] == $codigo_externo;
+        });
+        $resultado = array_values($resultado);
+
+        return $resultado;
+
+        $valores_numericos = array_filter($request->faixas_etarias, function ($valor) {
+            return is_numeric($valor);
+        });
+
+        $quantidade_vidas = array_sum($valores_numericos);
+
+
+
 
         $valor = str_replace([".",","],["","."],$request->valor);
 
@@ -1170,12 +1192,17 @@ class ContratoController extends Controller
         $cliente->pessoa_fisica = 1;
         $cliente->pessoa_juridica = 0;
         $cliente->dependente = ($request->dependente_individual == "on" ? 1 : 0);
+        $cliente->quantidade_vidas = $quantidade_vidas;
+        $cliente->nm_plano = $resultado[0]['nmPlano'];
+        $cliente->numero_registro_plano = $resultado[0]['nuRegistroPlano'];
+        $cliente->rede_plano = $resultado[0]['redePlano'];
+        $cliente->tipo_acomodacao_plano = $resultado[0]['tipoAcomodacaoPlano'];
+        $cliente->segmentacao_plano = $resultado[0]['segmentacaoPlano'];
+        $cliente->cateirinha = $resultado[0]['cdUsuario'];
+        $cliente->dados = 1;
+
+
         $cliente->save();
-
-
-
-
-
 
         if($cliente->dependente) {
             $dependente = new Dependentes();
@@ -1185,13 +1212,13 @@ class ContratoController extends Controller
             $dependente->save();
         }
 
+
         $acomodacao = $request->acomodacao;
         $acomodacao_id = Acomodacao::selectRaw('id')->whereRaw("nome LIKE '%{$acomodacao}%'")->first()->id;
         $data_vigencia = $request->data_vigencia;
         $data_boleto = $request->data_boleto;
         $valor_adesao = str_replace([".",","],["","."],$request->valor_adesao);
         $valor_plano = str_replace([".",","],["","."],$request->valor);
-
 
         $contrato = new Contrato();
         $contrato->cliente_id = $cliente->id;
@@ -1234,43 +1261,118 @@ class ContratoController extends Controller
         $comissao->data = date('Y-m-d');
         $comissao->save();
 
-        // /* Comissao Corretor */
+
+
         $comissoes_configuradas_corretor = ComissoesCorretoresConfiguracoes
-        ::where("plano_id",1)
-        ->where("administradora_id",4)
-        ->where("user_id",$request->users_individual)
-        ->where("tabela_origens_id",$request->tabela_origem_individual)
-        ->get();
-
-
-
+            ::where("plano_id",1)
+            ->where("administradora_id",4)
+            ->where("user_id",$request->users_individual)
+            ->where("tabela_origens_id",2)
+            ->get();
 
         $comissao_corretor_contagem = 0;
         $comissao_corretor_default = 0;
+
+
         if(count($comissoes_configuradas_corretor) >= 1) {
             foreach($comissoes_configuradas_corretor as $c) {
+                $valor_comissao = $valor_plano - 25;
                 $comissaoVendedor = new ComissoesCorretoresLancadas();
                 $comissaoVendedor->comissoes_id = $comissao->id;
                 //$comissaoVendedor->user_id = auth()->user()->id;
+                // $comissaoVendedor->documento_gerador = "12345678";
                 $comissaoVendedor->parcela = $c->parcela;
+                $comissaoVendedor->valor = ($valor_comissao * $c->valor) / 100;
                 if($comissao_corretor_contagem == 0) {
-                    $comissaoVendedor->data = date('Y-m-d',strtotime($request->data_boleto));
+                    $comissaoVendedor->data = $data_vigencia;
+                    $comissaoVendedor->status_financeiro = 1;
+                    if($comissaoVendedor->valor == "0.00" || $comissaoVendedor->valor == 0 || $comissaoVendedor->valor >= 0) {
 
+                    }
+                    $comissaoVendedor->data_baixa = implode("-",array_reverse(explode("/",$data_vigencia)));
+                    $comissaoVendedor->valor_pago = $valor_adesao;
                 } else {
-                    $comissaoVendedor->data = date("Y-m-d",strtotime($request->data_boleto."+{$comissao_corretor_contagem}month"));
+                    $data_vigencia_sem_dia = date("Y-m",strtotime($data_vigencia));
+                    $dates = date("Y-m",strtotime($data_vigencia_sem_dia."+{$comissao_corretor_contagem}month"));
+
+                    $mes = explode("-",$dates)[1];
+                    if($dia == 30 && $mes == 02) {
+                        $comissaoVendedor->data = date("Y-02-28");
+                        $ano = explode("-",$comissaoVendedor->data)[0];
+                        $bissexto= date('L', mktime(0, 0, 0, 1, 1, $ano));
+
+                        if($bissexto == 1) {
+                            $comissaoVendedor->data = date("Y-02-29");
+                        } else {
+                            $comissaoVendedor->data = date("Y-02-28");
+                        }
+
+                    }  else {
+                        $comissaoVendedor->data = date("Y-m-".$dia,strtotime($dates));
+                    }
+
                 }
-                $comissaoVendedor->valor = ($valor * $c->valor) / 100;
                 $comissaoVendedor->save();
                 $comissao_corretor_contagem++;
             }
         } else {
 
+            $dados = ComissoesCorretoresDefault
+                ::where("plano_id",1)
+                ->where("administradora_id",4)
+                ->where("tabela_origens_id",2)
+                ->get();
+            foreach($dados as $c) {
+                $valor_comissao_default = $valor_plano - 25;
+
+
+                $comissaoVendedor = new ComissoesCorretoresLancadas();
+                $comissaoVendedor->comissoes_id = $comissao->id;
+                $comissaoVendedor->parcela = $c->parcela;
+                $comissaoVendedor->valor = ($valor_comissao_default * $c->valor) / 100;
+
+                if($comissao_corretor_default == 0) {
+                    $comissaoVendedor->data = $data_vigencia;
+                    $comissaoVendedor->status_financeiro = 1;
+                    if($comissaoVendedor->valor == "0.00" || $comissaoVendedor->valor == 0 || $comissaoVendedor->valor >= 0) {
+
+                    }
+                    $comissaoVendedor->data_baixa = implode("-",array_reverse(explode("/",$data_vigencia)));
+                    $comissaoVendedor->valor_pago = $valor_adesao;
+                } else {
+                    $data_vigencia_sem_dia = date("Y-m",strtotime($data_vigencia));
+                    $dates = date("Y-m",strtotime($data_vigencia_sem_dia."+{$comissao_corretor_default}month"));
+
+                    $mes = explode("-",$dates)[1];
+                    if($dia == 30 && $mes == 02) {
+                        $comissaoVendedor->data = date("Y-02-28");
+                        $ano = explode("-",$comissaoVendedor->data)[0];
+                        $bissexto= date('L', mktime(0, 0, 0, 1, 1, $ano));
+
+                        if($bissexto == 1) {
+                            $comissaoVendedor->data = date("Y-02-29");
+                        } else {
+                            $comissaoVendedor->data = date("Y-02-28");
+                        }
+
+                    }  else {
+                        $comissaoVendedor->data = date("Y-m-".$dia,strtotime($dates));
+                    }
+
+                }
+                $comissaoVendedor->save();
+                $comissao_corretor_default++;
+            }
+        } /****FIm SE Comissoes Lancadas */
 
 
 
 
 
-        }
+
+
+
+
 
         /** Comissao Corretora */
         $comissoes_configurada_corretora = ComissoesCorretoraConfiguracoes::where("administradora_id",4)
@@ -1296,71 +1398,6 @@ class ContratoController extends Controller
         }
 
 
-        $premiacao = new Premiacoes();
-        $premiacao->contrato_id = $contrato->id;
-        $premiacao->user_id = $request->users_individual;
-        $premiacao->plano_id = 1;
-        $premiacao->administradora_id = 4;
-        $premiacao->tabela_origens_id = $request->tabela_origem_individual;
-        $premiacao->data = date('Y-m-d');
-        $premiacao->save();
-
-
-        $premiacao_configurada_corretor = PremiacoesCorretoresConfiguracoes
-        ::where("plano_id",1)
-        ->where("administradora_id",4)
-        ->where("user_id",$request->users_individual)
-        ->where("tabela_origens_id",$request->tabela_origem_individual)
-        ->get();
-
-
-        $premiacao_corretor_contagem = 0;
-        if(count($premiacao_configurada_corretor)>=1) {
-            foreach($premiacao_configurada_corretor as $k => $p) {
-                $premiacaoCorretoresLancados = new PremiacoesCorretoresLancadas();
-                $premiacaoCorretoresLancados->premiacoes_id = $premiacao->id;
-                $premiacaoCorretoresLancados->parcela = $p->parcela;
-
-                if($premiacao_corretor_contagem == 0) {
-                    $premiacaoCorretoresLancados->data = date('Y-m-d',strtotime($request->data_boleto));
-                } else {
-                    $premiacaoCorretoresLancados->data = date("Y-m-d",strtotime($request->data_boleto."+{$premiacao_corretor_contagem}month"));
-                }
-                $premiacaoCorretoresLancados->valor = $p->valor * $totalVidas;
-                $premiacaoCorretoresLancados->save();
-                $premiacao_corretor_contagem++;
-            }
-        }
-
-
-
-
-        /** Premiação Corretora */
-        $premiacao_configurada_corretora = PremiacoesCorretoraConfiguracoes
-        ::where("plano_id",1)
-        ->where("administradora_id",4)
-        //->where("user_id",$request->user)
-        ->where("tabela_origens_id",$request->tabela_origem_individual)
-        ->get();
-
-
-
-        $premiacao_corretora_contagem = 0;
-        if(count($premiacao_configurada_corretora)>=1) {
-            foreach($premiacao_configurada_corretora as $k => $p) {
-                $premiacaoCorretoraLancados = new PremiacoesCorretoraLancadas();
-                $premiacaoCorretoraLancados->premiacoes_id = $premiacao->id;
-                $premiacaoCorretoraLancados->parcela = $p->parcela;
-                if($premiacao_corretor_contagem == 0) {
-                    $premiacaoCorretoraLancados->data = date('Y-m-d',strtotime($request->data_boleto));
-                } else {
-                    $premiacaoCorretoraLancados->data = date("Y-m-d",strtotime($request->data_boleto."+{$premiacao_corretora_contagem}month"));
-                }
-                $premiacaoCorretoraLancados->valor = $p->valor * $totalVidas;
-                $premiacaoCorretoraLancados->save();
-                $premiacao_corretora_contagem++;
-            }
-        }
 
         if($request->tipo_cadastro == "administrador_cadastro") {
             return "contratos";

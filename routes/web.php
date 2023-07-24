@@ -18,7 +18,47 @@ Route::redirect('/', '/login');
 
 
 Route::middleware('auth')->prefix("admin")->group(function(){
-    
+    /*
+    Route::get("/teste/arrumar",function(){
+        $dados = DB::table('comissoes_corretores_lancadas')
+            ->join('comissoes','comissoes.id',"=",'comissoes_corretores_lancadas.comissoes_id')
+            ->join('contrato_empresarial','contrato_empresarial.id',"=",'comissoes.contrato_empresarial_id')
+            ->whereRaw("comissoes_id IN(SELECT id FROM comissoes where user_id not in(2,3,26,36,57,18,24) and plano_id = 5)")
+            ->whereRaw("parcela = 4")
+            ->whereRaw("valor != 0")
+            ->selectRaw("comissoes_corretores_lancadas.id,comissoes_corretores_lancadas.parcela,contrato_empresarial.valor_plano,comissoes_corretores_lancadas.valor")
+            ->get();
+        foreach($dados as $d) {
+            $alt = \App\Models\ComissoesCorretoresLancadas::where("id",$d->id)->first();
+            $alt->
+            echo $d->id."<br />";
+            //$alt = \App\Models\ComissoesCorretoresLancadas::where("id",$d->id)->first();
+            //$d->valor = 0;
+            //$d->save();
+        }
+        */
+
+//        $porcentagem = \App\Models\ComissoesCorretoresConfiguracoes
+//            ::where("plano_id",5)
+//            ->where("administradora_id",3)
+//            ->where("user_id",2)
+//            ->where("parcela",3)
+//            ->first()->valor;
+
+        /*$sql = \App\Models\ComissoesCorretoresDefault::where("plano_id",5)->where("parcela",1)
+        //->first()->valor;
+
+        foreach($dados as $d) {
+            //$contrato = $d->valor_plano;
+            //echo $d->id." - ".$contrato."<br />";
+            //$valor = ($contrato * $dados) / 100;
+            //DB::table('comissoes_corretores_lancadas')->where("id",$d->id)->update(["valor"=>$valor]);
+        }
+
+    });
+
+
+
     /* Home **/
     Route::get("/","App\Http\Controllers\Admin\HomeController@index");
     Route::get("/tabela_preco","App\Http\Controllers\Admin\HomeController@search")->name('orcamento.search.home');
@@ -239,6 +279,8 @@ Route::middleware('auth')->prefix("admin")->group(function(){
     Route::get('/gerente/comissao/confirmadas/{id}/{mes?}',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadas")->name('gerente.listagem.confirmadas');
     Route::post('/gerente/mes/especifico/comissao/confirmadas',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadasMesEspecifico")->name('gerente.listagem.confirmadas.especifica');
 
+    Route::get('/gerente/mes/fechados/confirmados/{mes}/{plano}',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadasMesFechado")->name('gerente.mes.fechados.confirmados');
+
     Route::post('/gerente/totalizar/mes',"App\Http\Controllers\Admin\GerenteController@totalizarMes")->name('totalizar.mes.gerente');
 
     Route::get('/gerente/comissao/coletivo/confirmadas/{id}/{mes?}',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadasColetivo")->name('gerente.listagem.coletivo.confirmadas');
@@ -270,7 +312,7 @@ Route::middleware('auth')->prefix("admin")->group(function(){
 
     Route::post('/gerente/folha_mes/inserir',"App\Http\Controllers\Admin\GerenteController@cadastrarFolhaMes")->name('gerente.cadastrar.folha_mes');
     Route::get('/gerente/tabelas/vazias',"App\Http\Controllers\Admin\GerenteController@tabelaVazia")->name('gerente.tabelas.vazias');
-
+    Route::get('/listar/gerente/cadastrados',"App\Http\Controllers\Admin\GerenteController@listarGerenteCadastrados")->name('listar.gerente.cadastrados');
     Route::post('/gerente/geral/folha/mes/especifica',"App\Http\Controllers\Admin\GerenteController@geralFolhaMesEspecifica")->name('geral.folha.mes.especifica');
 
     /***Fim Financeiro Gerente */

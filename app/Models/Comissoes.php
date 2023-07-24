@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Comissoes extends Model
 {
     use HasFactory;
-    
+
     public function plano()
     {
         return $this->belongsTo(Planos::class);
     }
-    
-    
+
+
 
     public function comissoesLancadas()
     {
@@ -68,15 +68,15 @@ class Comissoes extends Model
                 DATEDIFF(data_baixa_gerente,data) AS quantidade_dias,
                 (SELECT valor_plano FROM contratos WHERE id = (SELECT contrato_id FROM comissoes WHERE comissoes.id = comissoes_corretora_lancadas.comissoes_id)) AS valor_plano
         ");
-        
+
     }
 
-    public function comissaoAtual() 
+    public function comissaoAtual()
     {
         return $this->hasOne(ComissoesCorretoresLancadas::class)->where('status_financeiro',1)->where('status_gerente',0);
     }
 
-    public function comissaoAtualLast() 
+    public function comissaoAtualLast()
     {
         return $this->hasOne(ComissoesCorretoresLancadas::class)
             ->where('status_financeiro',1)
@@ -89,7 +89,7 @@ class Comissoes extends Model
         return $this->hasOne(ComissoesCorretoresLancadas::class)->where('status_financeiro',0)->where('status_gerente',0);
     }
 
-    public function somarComissoesParcelasAtivas() 
+    public function somarComissoesParcelasAtivas()
     {
         return $this->hasMany(ComissoesCorretoresLancadas::class)
         ->selectRaw("SUM(valor)")
@@ -117,7 +117,7 @@ class Comissoes extends Model
 
 
 
-    public function comissaoAtualPagaLast() 
+    public function comissaoAtualPagaLast()
     {
         return $this->hasOne(ComissoesCorretoresLancadas::class)
             ->where('status_financeiro',1)
@@ -132,9 +132,9 @@ class Comissoes extends Model
     {
         // return ComissoesCorretoresLancadas::withCount(['comissoes' => function($query){
         //     $query->where('status_financeiro',1);
-        //     $query->where('status_gerente',1);           
+        //     $query->where('status_gerente',1);
         // }])->get();
-            
+
         return $this->hasMany(ComissoesCorretoresLancadas::class,'comissoes_id')->where('status_financeiro',1)->where('status_gerente',1);
         //return $this->hasManyThrough(ComissoesCorretoresLancadas::class,comissoes::class)->where('status_financeiro',1)->where('status_gerente',1);
     }
@@ -153,10 +153,13 @@ class Comissoes extends Model
 
     public function contrato()
     {
-        return $this->belongsTo(Contrato::class);   
+        return $this->belongsTo(Contrato::class);
     }
-    
 
+    public function contrato_empresarial()
+    {
+        return $this->belongsTo(ContratoEmpresarial::class);
+    }
 
 
 

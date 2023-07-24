@@ -76,18 +76,14 @@
         <div style="clear: both;"></div>
 
         @php
-
             $total_plano_individual = 0;
             $total_comissao_individual = 0;
             $total_desconto_individual = 0;
             $total_valor_individual = 0;
-
             $total_plano_coletivo = 0;
             $total_comissao_coletivo = 0;
-
             $total_plano_empresarial = 0;
             $total_comissao_empresarial = 0;
-
         @endphp
 
         @if(count($individual) >= 1)
@@ -290,10 +286,13 @@
         <table style="width:95%;margin:0 auto;">
             <thead style="border-bottom:1px solid black;">
                 <tr>
-                    <td align="center">Parcela</td>
+                    <td>Admin</td>
+                    <td>Contrato</td>
                     <td align="center">Data</td>
                     <td>Cliente</td>
+                    <td align="center">Parcela</td>
                     <td align="center">Valor</td>
+                    <td>Desconto</td>
                     <td align="center">Comissão</td>
                 </tr>
             </thead>
@@ -303,32 +302,33 @@
                         $total_plano_empresarial += $d->comissao->contrato_empresarial->valor_plano;
                         $total_comissao_empresarial += $d->valor_pago != null ? $d->valor_pago : $d->valor;
                     @endphp
-
                     <tr>
-                        <td align="center">Parcela {{$d->parcela}}</td>
+                        <td>HAPVIDA</td>
+                        <td>{{$d->comissao->contrato_empresarial->codigo_externo}}</td>
                         <td align="center">{{date('d/m/Y',strtotime($d->comissao->contrato_empresarial->created_at))}}</td>
                         <td>{{mb_convert_case($d->comissao->contrato_empresarial->responsavel,MB_CASE_UPPER,"UTF-8")}}</td>
+                        <td align="center">Parcela {{$d->parcela}}</td>
                         <td align="center">{{number_format($d->comissao->contrato_empresarial->valor_plano,2,",",".")}}</td>
+                        <td>{{number_format($d->comissao->contrato_empresarial->desconto_corretor,2,",",".")}}</td>
                         <td align="center">{{$d->valor_pago != null ? number_format($d->valor_pago,2,",",".") : number_format($d->valor,2,",",".")}}</td>
                     </tr>
-
                 @endforeach
 
             </tbody>
 
             <tfoot style="border-top:1px solid black;">
                 <tr>
-                    <th colspan="3"></th>
-                    <th>
+                    <td colspan="6"></td>
+                    <td>
                         @php
                             echo number_format($total_plano_empresarial,2,",",".") ?? '';
                         @endphp
-                    </th>
-                    <th>
+                    </td>
+                    <td>
                         @php
                            echo number_format($total_comissao_empresarial,2,",",".") ?? '';
                         @endphp
-                    </th>
+                    </td>
                 </tr>
             </tfoot>
 

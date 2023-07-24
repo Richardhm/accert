@@ -5,18 +5,13 @@
     <!-- <li class="nav-item mostrar_comissao"><a href="" class="nav-link div_info text-white"><i class='fas fa-eye'></i></a></li> -->
     <li class="nav-item"><a class="nav-link text-white" href="{{route('orcamento.search.home')}}">Tabela de Preço</a></li>
     <li class="nav-item"><a class="nav-link text-white" href="{{route('home.administrador.consultar')}}">Consultar</a></li>
-    
+
     <a class="nav-link" data-widget="fullscreen" href="#" role="button"><i class="fas fa-expand-arrows-alt text-white"></i></a>
 @stop
 
 @section('content_header')
     <h1 class=" border-bottom border-dark">Histórico</h1>
 @stop
-
-
-
-
-
 
 @section('content')
 
@@ -32,7 +27,7 @@
             <div class="modal-body">
                 <form action="" name="data_da_baixa_empresarial" id="data_da_baixa_empresarial" method="POST">
                     <input type="date" name="date_baixa_empresarial" id="date_baixa_empresarial" class="form-control form-control-sm">
-                                       
+
                     <div id="error_data_baixa_empresarial">
                     </div>
             </div>
@@ -44,17 +39,6 @@
             </div>
         </div>
     </div>
-
-
-
-
-
-
-
-
-
-
-
 
     <div class="modal fade" id="modalDiferencaEntreValores" tabindex="-1" role="dialog" aria-labelledby="modalDiferencaEntreValoresLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -72,12 +56,12 @@
             <form action="" method="POST" name="update_desconto_corretor_corretora">
                 @csrf
                 <div style="display:flex;justify-content: space-around;">
-                    <div style="display:flex;flex-direction: column;">   
-                        <span>Corretora:</span>        
-                        <input type="text" id="desconto_corretora_valores" name="desconto_corretora">
-                    </div>   
                     <div style="display:flex;flex-direction: column;">
-                        <span>Corretor</span> 
+                        <span>Corretora:</span>
+                        <input type="text" id="desconto_corretora_valores" name="desconto_corretora">
+                    </div>
+                    <div style="display:flex;flex-direction: column;">
+                        <span>Corretor</span>
                         <input type="text" id="desconto_corretor_valores" name="desconto_corretor" readonly>
                     </div>
                 </div>
@@ -85,10 +69,10 @@
                 <input type="hidden" name="id_contrato" id="contrato_id_update" value="{{$dados->id}}">
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-secondary">Salvar Valores</button>   
+                    <button type="submit" class="btn btn-secondary">Salvar Valores</button>
                 </div>
 
-            </form>  
+            </form>
             </div>
         </div>
     </div>
@@ -113,14 +97,14 @@
         <section class="p-1" style="background-color:#123449;flex-basis:48%;">
 
                 <div class="d-flex mb-2">
-                    
+
                     <div style="flex-basis:33%;">
                         <span class="text-white" style="font-size:0.81em;">Vendedor:</span>
                         <input type="text" value="{{$dados->vendedor}}" id="vendedor_view_empresarial" class="form-control form-control-sm" readonly>
                     </div>
 
                     <div style="flex-basis:33%;margin:0 1%;">
-                        <span class="text-white" style="font-size:0.81em;">Plano:</span> 
+                        <span class="text-white" style="font-size:0.81em;">Plano:</span>
                         <input type="text" value="{{$dados->plano}}" id="plano_view_empresarial" class="form-control  form-control-sm" readonly>
                     </div>
 
@@ -129,13 +113,13 @@
                             <span style="flex-basis:60%;">Tabela Origem:</span>
                             <div class="container_edit" style="flex-basis:40%;font-size:0.9em;margin-top:1px;">
                                 <i class="fas fa-edit text-white editar_btn_empresarial"></i>
-                            </div>                             
-                        </span> 
+                            </div>
+                        </span>
                         <input type="text" value="{{$dados->tabela_origem}}" id="tabela_origem_view_empresarial" class="form-control  form-control-sm" readonly>
                     </div>
                 </div>
 
-                <div class="d-flex mb-2">                                                        
+                <div class="d-flex mb-2">
                     <div style="flex-basis:57%;">
                         <span class="text-white" style="font-size:0.81em;">Razão Social:</span>
                         <input type="text" value="{{$dados->razao_social}}" id="razao_social_view_empresarial" class="form-control form-control-sm" readonly>
@@ -156,7 +140,7 @@
                     <div style="flex-basis:30%;">
                         <span class="text-white" style="font-size:0.81em;">Telefone:</span>
                         <input type="text" id="telefone_corretor_view_empresarial" value="{{$dados->telefone}}" class="form-control form-control-sm" readonly>
-                    </div>    
+                    </div>
 
                     <div style="flex-basis:30%;margin:0 1%;">
                         <span class="text-white" style="font-size:0.81em;">Celular:</span>
@@ -167,7 +151,7 @@
                         <span class="text-white" style="font-size:0.81em;">Email:</span>
                         <input type="text" id="email_odonto_view_empresarial" value="{{$dados->email}}" class="form-control form-control-sm" readonly>
                     </div>
-                    
+
                 </div>
 
                 <div class="d-flex mb-2">
@@ -180,7 +164,7 @@
                     <div style="flex-basis:10%;margin-right:1%;">
                         <span class="text-white" style="font-size:0.81em;">UF:</span>
                         <input type="text" id="uf_cliente_view_empresarial" value="{{$dados->uf}}" class="form-control form-control-sm" readonly>
-                    </div> 
+                    </div>
 
                     <div style="flex-basis:24%;margin-right:1%;">
                         <span class="text-white" style="font-size:0.81em;">Cidade:</span>
@@ -192,7 +176,7 @@
                         <input type="text" id="plano_contratado_corretor_view_empresarial" value="{{$texto_empresarial}}" class="form-control form-control-sm" readonly>
                     </div>
 
-                </div>              
+                </div>
 
                 <div class="d-flex mb-2">
                     <div style="flex-basis:24%;">
@@ -215,7 +199,7 @@
                         <input type="text" id="senha_cliente_view_empresarial" value="{{$dados->senha_cliente}}" class="form-control form-control-sm" readonly>
                     </div>
 
-                </div>                    
+                </div>
 
                 <div class="d-flex mb-2">
                     <div style="flex-basis:25%;margin-right:1%;">
@@ -228,14 +212,14 @@
                     </div>
                     <div style="flex-basis:25%;margin-right:1%;">
                         <span class="text-white" style="font-size:0.81em;">Total Plano:</span>
-                        <input type="text" id="valor_plano_view_empresarial" value="{{number_format($dados->valor_total,2,',','.')}}" class="form-control form-control-sm" readonly>                            
+                        <input type="text" id="valor_plano_view_empresarial" value="{{number_format($dados->valor_total,2,',','.')}}" class="form-control form-control-sm" readonly>
                     </div>
                     <div style="flex-basis:25%;">
                         <span class="text-white" style="font-size:0.81em;">Taxa Adesão:</span>
                         <input type="text" id="taxa_adesao_view_empresarial" value="{{number_format($dados->taxa_adesao,2,',','.')}}" class="form-control form-control-sm" readonly>
                     </div>
                 </div>
-    
+
 
                 <div class="d-flex mb-1">
                     <div style="flex-basis:24%;margin-right:1%;">
@@ -253,9 +237,9 @@
                     <div style="flex-basis:25%;">
                         <span class="text-white" style="font-size:0.9em;">Data 1º Boleto:</span>
                         <input type="text" id="data_boleto_view_empresarial" value="{{date('d/m/Y',strtotime($dados->data_boleto))}}" class="form-control form-control-sm" readonly>
-                    </div> 
-                    
-                    
+                    </div>
+
+
                     <input type="hidden" id="cliente_id_alvo_empresarial" />
                 </div>
 
@@ -286,25 +270,19 @@
                         <th style="font-size:0.875em;">Vencimento</th>
                         <th style="font-size:0.875em;">Valor</th>
                         <th style="font-size:0.875em;">Baixa</th>
-                        <th style="font-size:0.875em;margin-left:10px;text-align:center;" align="center">Atrasado</th>
-                        <th style="font-size:0.875em;text-align:right;">
-                            <span style="margin-right:12px;">
-                                Comissão
-                            </span>
-                        </th>
-                        <th>Status Comissao</th>
+
                     </tr>
                 </thead>
                 <tbody>
                     @php
                         $total_cliente = 0;
                         $total_comissao = 0;
-                    @endphp    
+                    @endphp
                     @foreach($dados->comissao->comissoesLancadas as $kk => $cr)
                             @php
                                 if(!empty($cr->data_baixa)):
                                     $total_comissao += $cr->valor;
-                                else: 
+                                else:
                                     $total_cliente += $cr->valor;
                                 endif;
                             @endphp
@@ -335,29 +313,26 @@
                                         Pag. 6º Parcela
                                     @break;
 
-                                    
+
                                 @endswitch
 
 
 
 
-                               
+
                             </td>
                             <td class="text-center" style="font-size:0.875em;">
                                 {{$dados->codigo_externo}}
-                                
+
                             </td>
                             <td style="font-size:0.875em;">{{date('d/m/Y',strtotime($cr->data))}}</td>
                             <td style="font-size:0.875em;">
-                                
-                                @if($cr->parcela == 1) 
+
+                                @if($cr->parcela == 1)
                                     <span style="margin-left:10px;">{{number_format($dados->valor_plano + 25,2,",",".")}}</span>
                                 @else
                                     <span style="margin-left:10px;">{{number_format($dados->valor_plano,2,",",".")}}</span>
                                 @endif
-                                
-
-
                             </td>
                             <td style="font-size:0.875em;">
                                 @if(empty($cr->data_baixa))
@@ -365,52 +340,36 @@
                                 @else
                                     {{date('d/m/Y',strtotime($cr->data_baixa))}}
                                 @endif
-                                     
-                            <td style="font-size:0.875em;text-align:center;">{{$cr->quantidade_dias}}</td>
-                            <td style="font-size:0.875em;" align="right">
-                                @if($cr->valor > 0)
-                                    <span style="margin-right:15px;">{{number_format($cr->valor,2,',','.')}}</span>
-                                @else 
-                                    <span style="margin-right:28px;">---</span>
-                                @endif
-                            </td>
-                            <td align="center">---</td>
                         </tr>
                     @endforeach
                 </tbody>
-                
             </table>
-
-
-
-
         </section>
-
 <!-- <div class="button_empresarial mt-1">
     <button class="btn btn-danger w-50 mr-2 excluir_empresarial">Excluir</button>
     <button class="btn btn-success w-50 next_empresarial">Conferido</button>
 </div>   -->
-        
 
-    </main>  
+
+    </main>
 
     <div class="d-flex mt-3 " style="flex-basis:100%;justify-content: flex-end;">
         <div class="d-flex" style="flex-basis:49%;justify-content: flex-end;">
-           
 
-            @if(isset($dados->comissao->comissaoAtualFinanceiro->parcela) && !empty($dados->comissao->comissaoAtualFinanceiro->parcela) &&  $dados->comissao->comissaoAtualFinanceiro->parcela) 
-               
+
+            @if(isset($dados->comissao->comissaoAtualFinanceiro->parcela) && !empty($dados->comissao->comissaoAtualFinanceiro->parcela) &&  $dados->comissao->comissaoAtualFinanceiro->parcela)
+
                 @switch($dados->comissao->comissaoAtualFinanceiro->parcela)
 
                     @case(1)
                         <button class="btn btn-danger w-50 mr-1 excluir_empresarial">Excluir</button>
-                        <button class="btn btn-success w-50 next">Pagar 1º Parcela</button>                  
+                        <button class="btn btn-success w-50 next">Pagar 1º Parcela</button>
                     @break
 
                     @case(2)
                         <button class="btn btn-danger w-50 mr-1 cancelar">Cancelar</button>
                         <button class="btn btn-success w-50 next">Pagar 2º Parcela</button>
-                    @break 
+                    @break
 
                     @case(3)
                         <button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>
@@ -433,7 +392,7 @@
                     @break
 
 
-                @endswitch                                      
+                @endswitch
 
 
 
@@ -444,44 +403,44 @@
             @endif
 
         </div>
-    </div>                                
+    </div>
 
 
 
 
-         
-    <a class="btn btn-block btn-lg mt-3 text-white back" style="background-color:#123449;" href="">Voltar</a>                              
+
+    <a class="btn btn-block btn-lg mt-3 text-white back" style="background-color:#123449;" href="">Voltar</a>
     <!-- <a href="" class="btn btn-block btn-lg mt-3 text-white" style="background-color:#123449;">Voltar</a> -->
 @stop
 
 @section('js')
-    <script src="{{asset('js/jquery.mask.min.js')}}"></script>   
+    <script src="{{asset('js/jquery.mask.min.js')}}"></script>
     <script>
         $(function(){
-            $("#cpf").mask('000.000.000-00');    
-           
+            $("#cpf").mask('000.000.000-00');
+
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
-            });    
+            });
 
             $(".back").on('click',function(){
                 window.history.go(-1);
                 return false;
-            });  
-            
+            });
+
             $('.editar_btn_empresarial').on('click',function(){
                 let params = $("#razao_social_view_empresarial").prop("readonly");
                 if(!params) {
                     adicionarReadonlyEmpresarial();
                 } else {
                     removeReadonlyEmpresarial();
-                }               
+                }
             });
-            
 
-            $("body").on('click','.excluir_empresarial',function(){            
+
+            $("body").on('click','.excluir_empresarial',function(){
                 //if($(this).attr('data-cliente-excluir-empresarial')) {
                     Swal.fire({
                         title: 'Você tem certeza que deseja realizar essa operação?',
@@ -495,14 +454,14 @@
                                 url:"{{route('financeiro.excluir.cliente.empresarial')}}",
                                 method:"POST",
                                 data:"id_contrato="+id_contrato,
-                                success:function(res) { 
+                                success:function(res) {
                                     if(res != "error") {
-                                        window.location.href = "/admin/financeiro?ac=empresarial";        
+                                        window.location.href = "/admin/financeiro?ac=empresarial";
                                     } else {
-                                        Swal.fire('Opss', 'Erro ao excluir o cliente', 'error')  
+                                        Swal.fire('Opss', 'Erro ao excluir o cliente', 'error')
                                     }
                                 }
-                            });    
+                            });
                         } else if (result.isDenied) {
                             //
                         }
@@ -511,7 +470,7 @@
                //let excluir_empresarial = $(this).attr('data-cliente-excluir-individual');
                return false;
            });
-            
+
 
 
 
@@ -523,19 +482,19 @@
 
 
            $("body").on('click','.next',function(){
-                
+
                 let contrato = $("#contrato").val();
-                let financeiro = $("#financeiro").val(); 
+                let financeiro = $("#financeiro").val();
                 $.ajax({
                     url:"{{route('financeiro.mudarStatusEmpresarial')}}",
                     data:"financeiro="+financeiro+"&id_contrato="+contrato,
                     method:"POST",
                     success:function(res) {
-                        
+
 
                         if(res.modal == "abrir_modal_desconto") {
                             $('#modalDiferencaEntreValores').modal('show');
-                            $(".diferenca_entre_valores").html("R$ "+res.diferenca);  
+                            $(".diferenca_entre_valores").html("R$ "+res.diferenca);
                         } else if(res == "abrir_modal_empresarial") {
                             $("#dataBaixaEmpresarialModal").modal('show');
                         } else {
@@ -549,7 +508,7 @@
                         //     $("#dataBaixaEmpresarialModal").modal('show');
                         // } else {
                         //     window.location.href = "/admin/financeiro?ac=empresarial";
-                        // }                            
+                        // }
                         // if(res.modal == "abrir_modal_desconto") {
                         //     $('#modalDiferencaEntreValores').modal('show');
                         //     $(".diferenca_entre_valores").html("R$ "+res.diferenca);
@@ -558,7 +517,7 @@
                         //     $("#dataBaixaEmpresarialModal").modal('show');
                         // } else {
 
-                            
+
                         // }
 
                     }
@@ -588,7 +547,7 @@
                         "id_contrato": id_contrato,
                         "data_baixa": $("#data_baixa").val(),
                         "comissao_id": $("#comissao_id_baixa").val()
-                    },  
+                    },
                     beforeSend:function() {
                         if($("#data_baixa").val() == "") {
                             $("#error_data_baixa").html('<p class="alert alert-danger">O campo data é campo obrigatório</p>');
@@ -600,7 +559,7 @@
                     success:function(res) {
                         //console.log(res);
                         window.location.href = "/admin/financeiro?ac=empresarial";
-                        // $(".coletivo_quantidade_em_analise").html(res.qtd_coletivo_em_analise);    
+                        // $(".coletivo_quantidade_em_analise").html(res.qtd_coletivo_em_analise);
                         // $(".coletivo_quantidade_emissao_boleto").html(res.qtd_coletivo_emissao_boleto);
                         // $(".coletivo_quantidade_pagamento_adesao").html(res.qtd_coletivo_pg_adesao);
                         // $(".coletivo_quantidade_pagamento_vigencia").html(res.qtd_coletivo_pg_vigencia);
@@ -620,8 +579,8 @@
             });
 
             $("form[name='data_da_baixa_empresarial']").on('submit',function(){
-                let id_contrato = $('#contrato').val();    
-                let date_baixa_empresarial = $("input[name='date_baixa_empresarial']").val();    
+                let id_contrato = $('#contrato').val();
+                let date_baixa_empresarial = $("input[name='date_baixa_empresarial']").val();
                 $.ajax({
                     url:"{{route('financeiro.baixa.data.empresarial')}}",
                     method:"POST",
@@ -634,11 +593,11 @@
                             $("#error_data_baixa_empresarial").html('');
                         }
                     },
-                    success:function(res) {   
+                    success:function(res) {
                         //console.log(res);
                         window.location.href = "/admin/financeiro?ac=empresarial";
                         // $('#dataBaixaEmpresarialModal').modal('hide');
-                        // $(".empresarial_quantidade_em_analise").html(res.qtd_empresarial_em_analise);    
+                        // $(".empresarial_quantidade_em_analise").html(res.qtd_empresarial_em_analise);
                         // $(".empresarial_quantidade_1_parcela").html(res.qtd_empresarial_01_parcela);
                         // $(".empresarial_quantidade_2_parcela").html(res.qtd_empresarial_02_parcela);
                         // $(".empresarial_quantidade_3_parcela").html(res.qtd_empresarial_03_parcela);
@@ -651,7 +610,7 @@
                         // //tableempresarial.ajax.reload();
                         // $('#date_baixa_empresarial').val('');
                     }
-                });    
+                });
                 return false;
             })
 
@@ -666,7 +625,7 @@
                 $("#cod_saude_view_empresarial").removeAttr('readonly').addClass('editar_campo_empresarial');
                 $("#cod_odonto_view_empresarial").removeAttr('readonly').addClass('editar_campo_empresarial');
                 $("#senha_cliente_view_empresarial").removeAttr('readonly').addClass('editar_campo_empresarial');
-               
+
             }
 
             function adicionarReadonlyEmpresarial() {
@@ -680,7 +639,7 @@
                 $("#cod_saude_view_empresarial").attr('readonly',true).removeClass('editar_campo_empresarial');
                 $("#cod_odonto_view_empresarial").attr('readonly',true).removeClass('editar_campo_empresarial');
                 $("#senha_cliente_view_empresarial").attr('readonly',true).removeClass('editar_campo_empresarial');
-                
+
             }
 
             $("body").on('change','.editar_campo_empresarial',function(){
@@ -693,7 +652,7 @@
                     method:"POST",
                     data:"alvo="+alvo+"&valor="+valor+"&id_cliente="+id_cliente,
                     success:function(res) {
-                            
+
                         //table_individual.ajax.reload();
                     }
                 });
@@ -707,7 +666,7 @@
                     method:"POST",
                     success:function(res) {
                         window.location.href = "/admin/financeiro?ac=empresarial";
-                        // $(".empresarial_quantidade_em_analise").html(res.qtd_empresarial_em_analise);    
+                        // $(".empresarial_quantidade_em_analise").html(res.qtd_empresarial_em_analise);
                         // $(".empresarial_quantidade_1_parcela").html(res.qtd_empresarial_01_parcela);
                         // $(".empresarial_quantidade_2_parcela").html(res.qtd_empresarial_02_parcela);
                         // $(".empresarial_quantidade_3_parcela").html(res.qtd_empresarial_03_parcela);
@@ -720,7 +679,7 @@
                         //$('#modalDiferencaEntreValores').modal('hide');
                         // limparEmpresarial();
                     }
-                });        
+                });
                 return false;
             });
 

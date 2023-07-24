@@ -42,7 +42,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="carteirinhaModalLabel">Carteirinha</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -60,7 +60,7 @@
 
                         <input type="hidden" name="id_cliente" id="carteirinha_id_input" />
                         <input type="submit" value="Enviar" class="btn btn-block btn-info">
-                    </form>
+                   </form>
                 </div>
             </div>
         </div>
@@ -73,7 +73,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="uploadModalLabel">Upload</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -107,7 +107,7 @@
                                 <i class="fas fa-window-close fa-lg"></i>
                             </div>
                         </div>
-                    </form>
+                   </form>
                 </div>
             </div>
         </div>
@@ -120,7 +120,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="uploadModalLabelColetivo">Upload</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -139,7 +139,7 @@
 
 
 
-                    </form>
+                   </form>
                 </div>
             </div>
         </div>
@@ -157,24 +157,24 @@
     <div class="modal fade" id="dataBaixaIndividualModal" tabindex="-1" role="dialog" aria-labelledby="dataBaixaIndividualLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="dataBaixaIndividualLabel">Data Da Baixa?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form action="" name="data_da_baixa_individual" id="data_da_baixa_individual" method="POST">
-                        <input type="date" name="date_baixa_individual" id="date_baixa_individual" class="form-control form-control-sm">
-                        <input type="hidden" name="comissao_id_baixa_individual" id="comissao_id_baixa_individual">
-                        <div id="error_data_baixa_individual">
-                        </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                    <button type="submit" class="btn btn-primary">Salvar</button>
-                </div>
-                </form>
+            <div class="modal-header">
+                <h5 class="modal-title" id="dataBaixaIndividualLabel">Data Da Baixa?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="" name="data_da_baixa_individual" id="data_da_baixa_individual" method="POST">
+                    <input type="date" name="date_baixa_individual" id="date_baixa_individual" class="form-control form-control-sm">
+                    <input type="hidden" name="comissao_id_baixa_individual" id="comissao_id_baixa_individual">
+                    <div id="error_data_baixa_individual">
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+            </form>
             </div>
         </div>
     </div>
@@ -193,7 +193,7 @@
         </ul>
     </div>
 
-    {{--    <input type="text" id="campoPesquisa" placeholder="Pesquisar">--}}
+{{--    <input type="text" id="campoPesquisa" placeholder="Pesquisar">--}}
 
     <section class="conteudo_abas">
         <!--------------------------------------INDIVIDUAL------------------------------------------>
@@ -203,11 +203,6 @@
 
                 <!--COLUNA DA ESQUERDA-->
                 <div class="d-flex flex-column text-white ml-1" style="flex-basis:16%;border-radius:5px;">
-
-                    <div class="d-flex justify-content-between mb-1">
-                        <a class="btn btn-block btn-info" href="{{route('contratos.create')}}" style="background-color:#123449;color:#FFF;font-size:1.2em;flex-basis:100%;">Cadastrar</a>
-                    </div>
-
 
                     <div class="d-flex justify-content-between mb-1">
                         <span class="btn btn-upload" style="background-color:#123449;color:#FFF;font-size:1.2em;flex-basis:49%;">Upload</span>
@@ -307,28 +302,28 @@
 
 
                             <li style="padding:0px 4px;display:flex;justify-content:space-between;margin-bottom:4px;" id="aguardando_pagamento_2_parcela_individual" class="individual">
-                                <span>Pag. 2º Parcela</span>
-                                <span class="badge badge-light individual_quantidade_2_parcela" style="width:45px;text-align:right;">{{$qtd_individual_parcela_02}}</span>
+                               <span>Pag. 2º Parcela</span>
+                               <span class="badge badge-light individual_quantidade_2_parcela" style="width:45px;text-align:right;">{{$qtd_individual_parcela_02}}</span>
                             </li>
 
                             <li style="padding:0px 4px;display:flex;justify-content:space-between;margin-bottom:4px;" id="aguardando_pagamento_3_parcela_individual" class="individual">
-                                <span>Pag. 3º Parcela</span>
-                                <span class="badge badge-light individual_quantidade_3_parcela" style="width:45px;text-align:right;">{{$qtd_individual_parcela_03}}</span>
+                               <span>Pag. 3º Parcela</span>
+                               <span class="badge badge-light individual_quantidade_3_parcela" style="width:45px;text-align:right;">{{$qtd_individual_parcela_03}}</span>
                             </li>
 
                             <li style="padding:0px 4px;display:flex;justify-content:space-between;margin-bottom:4px;" id="aguardando_pagamento_4_parcela_individual" class="individual">
-                                <span>Pag. 4º Parcela</span>
-                                <span class="badge badge-light individual_quantidade_4_parcela" style="width:45px;text-align:right;">{{$qtd_individual_parcela_04}}</span>
+                               <span>Pag. 4º Parcela</span>
+                               <span class="badge badge-light individual_quantidade_4_parcela" style="width:45px;text-align:right;">{{$qtd_individual_parcela_04}}</span>
                             </li>
 
                             <li style="padding:0px 4px;display:flex;justify-content:space-between;margin-bottom:5px;" id="aguardando_pagamento_5_parcela_individual" class="individual">
-                                <span>Pag. 5º Parcela</span>
-                                <span class="badge badge-light individual_quantidade_5_parcela" style="width:45px;text-align:right;">{{$qtd_individual_parcela_05}}</span>
+                               <span>Pag. 5º Parcela</span>
+                               <span class="badge badge-light individual_quantidade_5_parcela" style="width:45px;text-align:right;">{{$qtd_individual_parcela_05}}</span>
                             </li>
 
 
                         </ul>
-                    </div>
+                   </div>
 
 
 
@@ -343,19 +338,19 @@
                     <div class="p-2" style="background-color:#123449;color:#FFF;border-radius:5px;">
                         <table id="tabela_individual" class="table table-sm listarindividual">
                             <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Orçamento</th>
-                                <th>Corretor</th>
-                                <th>Cliente</th>
-                                <th>CPF</th>
-                                <th>Vidas</th>
-                                <th>Valor</th>
-                                <th>Vencimento</th>
-                                <th class="sortable">Atrasado</th>
-                                <th>Status</th>
-                                <th>Detalhes</th>
-                            </tr>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Orçamento</th>
+                                    <th>Corretor</th>
+                                    <th>Cliente</th>
+                                    <th>CPF</th>
+                                    <th>Vidas</th>
+                                    <th>Valor</th>
+                                    <th>Vencimento</th>
+                                    <th class="sortable">Atrasado</th>
+                                    <th>Status</th>
+                                    <th>Detalhes</th>
+                                </tr>
                             </thead>
                             <tbody></tbody>
 
@@ -368,12 +363,12 @@
 
                 <!---------FIM DIREITA-------------->
             </section>
-        </main><!-------------------------------------DIV FIM Individial------------------------------------->
-        <!-------------------------------------FIM Individial------------------------------------->
+       </main><!-------------------------------------DIV FIM Individial------------------------------------->
+       <!-------------------------------------FIM Individial------------------------------------->
 
-        <!------------------------------------------COLETIVO---------------------------------------------------->
-        <main id="aba_coletivo" class="ocultar">
-            <section class="d-flex justify-content-between" style="flex-wrap: wrap;">
+       <!------------------------------------------COLETIVO---------------------------------------------------->
+       <main id="aba_coletivo" class="ocultar">
+             <section class="d-flex justify-content-between" style="flex-wrap: wrap;">
                 <!--COLUNA DA ESQUERDA-->
                 <div class="d-flex flex-column text-white ml-1" style="flex-basis:16%;border-radius:5px;">
 
@@ -554,19 +549,19 @@
                     <div class="p-2" style="background-color:#123449;color:#FFF;border-radius:5px;">
                         <table id="tabela_coletivo" class="table table-sm listardados">
                             <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Orçamento</th>
-                                <th>Corretor</th>
-                                <th>Cliente</th>
-                                <th>Administradora</th>
-                                <th>CPF</th>
-                                <th>Vidas</th>
-                                <th>Valor</th>
-                                <th>Vencimento</th>
-                                <th>Status</th>
-                                <th>Detalhes</th>
-                            </tr>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Orçamento</th>
+                                    <th>Corretor</th>
+                                    <th>Cliente</th>
+                                    <th>Administradora</th>
+                                    <th>CPF</th>
+                                    <th>Vidas</th>
+                                    <th>Valor</th>
+                                    <th>Vencimento</th>
+                                    <th>Status</th>
+                                    <th>Detalhes</th>
+                                </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -579,9 +574,9 @@
 
             </section>
 
-        </main>
+       </main>
 
-        <main id="aba_empresarial" class="ocultar">
+       <main id="aba_empresarial" class="ocultar">
 
             <section class="d-flex justify-content-between" style="flex-wrap: wrap;">
 
@@ -615,7 +610,7 @@
                                     <option value="01">Janeiro</option>
                                     <option value="02">Fevereiro</option>
                                     <option value="03">Março</option>
-                                    <option value="04" selected>Abril</option>
+                                    <option value="04">Abril</option>
                                     <option value="05">Maio</option>
                                     <option value="06">Junho</option>
                                     <option value="07">Julho</option>
@@ -676,33 +671,33 @@
 
                         <ul style="margin:0;padding:0;list-style:none;" id="listar_empresarial">
 
-                            <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:5px;" id="aguardando_em_analise_empresarial"  class="empresarial">
+                           <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:5px;" id="aguardando_em_analise_empresarial"  class="empresarial">
                                 <span>Em Análise</span>
-                                <span class="badge badge-light empresarial_quantidade_em_analise" style="width:45px;text-align:right;">{{$qtd_empresarial_em_analise}}</span>
+                               <span class="badge badge-light empresarial_quantidade_em_analise" style="width:45px;text-align:right;">{{$qtd_empresarial_em_analise}}</span>
                             </li>
                             <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:5px;" id="aguardando_pagamento_1_parcela_empresarial" class="empresarial">
                                 <span>Pag. 1º Parcela</span>
-                                <span class="badge badge-light empresarial_quantidade_1_parcela" style="width:45px;text-align:right;">{{$qtd_empresarial_parcela_01}}</span>
+                               <span class="badge badge-light empresarial_quantidade_1_parcela" style="width:45px;text-align:right;">{{$qtd_empresarial_parcela_01}}</span>
                             </li>
                             <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:5px;" id="aguardando_pagamento_2_parcela_empresarial" class="empresarial">
-                                <span>Pag. 2º Parcela</span>
-                                <span class="badge badge-light empresarial_quantidade_2_parcela" style="width:45px;text-align:right;">{{$qtd_empresarial_parcela_02}}</span>
+                               <span>Pag. 2º Parcela</span>
+                               <span class="badge badge-light empresarial_quantidade_2_parcela" style="width:45px;text-align:right;">{{$qtd_empresarial_parcela_02}}</span>
                             </li>
                             <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:5px;" id="aguardando_pagamento_3_parcela_empresarial" class="empresarial">
-                                <span>Pag. 3º Parcela</span>
-                                <span class="badge badge-light empresarial_quantidade_3_parcela" style="width:45px;text-align:right;">{{$qtd_empresarial_parcela_03}}</span>
+                               <span>Pag. 3º Parcela</span>
+                               <span class="badge badge-light empresarial_quantidade_3_parcela" style="width:45px;text-align:right;">{{$qtd_empresarial_parcela_03}}</span>
                             </li>
                             <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:5px;" id="aguardando_pagamento_4_parcela_empresarial" class="empresarial">
-                                <span>Pag. 4º Parcela</span>
-                                <span class="badge badge-light empresarial_quantidade_4_parcela" style="width:45px;text-align:right;">{{$qtd_empresarial_parcela_04}}</span>
+                               <span>Pag. 4º Parcela</span>
+                               <span class="badge badge-light empresarial_quantidade_4_parcela" style="width:45px;text-align:right;">{{$qtd_empresarial_parcela_04}}</span>
                             </li>
                             <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:5px;" id="aguardando_pagamento_5_parcela_empresarial" class="empresarial">
-                                <span>Pag. 5º Parcela</span>
-                                <span class="badge badge-light empresarial_quantidade_5_parcela" style="width:45px;text-align:right;">{{$qtd_empresarial_parcela_05}}</span>
+                               <span>Pag. 5º Parcela</span>
+                               <span class="badge badge-light empresarial_quantidade_5_parcela" style="width:45px;text-align:right;">{{$qtd_empresarial_parcela_05}}</span>
                             </li>
                             <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:5px;" id="aguardando_pagamento_6_parcela_empresarial" class="empresarial">
-                                <span>Pag. 6º Parcela</span>
-                                <span class="badge badge-light empresarial_quantidade_6_parcela" style="width:45px;text-align:right;">{{$qtd_empresarial_parcela_06}}</span>
+                               <span>Pag. 6º Parcela</span>
+                               <span class="badge badge-light empresarial_quantidade_6_parcela" style="width:45px;text-align:right;">{{$qtd_empresarial_parcela_06}}</span>
                             </li>
                         </ul>
                     </div>
@@ -712,8 +707,8 @@
                         <ul style="list-style:none;margin:0;padding:10px 0;" id="grupo_finalizados_empresarial">
 
                             <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:5px;" id="aguardando_cancelado_empresarial" class="empresarial">
-                                <span>Cancelado</span>
-                                <span class="badge badge-light empresarial_quantidade_cancelado" style="width:45px;text-align:right;">{{$qtd_empresarial_cancelado}}</span>
+                               <span>Cancelado</span>
+                               <span class="badge badge-light empresarial_quantidade_cancelado" style="width:45px;text-align:right;">{{$qtd_empresarial_cancelado}}</span>
                             </li>
                         </ul>
                     </div>
@@ -733,18 +728,18 @@
                         <table id="tabela_empresarial" class="table table-sm listarempresarial">
 
                             <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Orçamento</th>
-                                <th>Corretor</th>
-                                <th>Cliente</th>
-                                <th>CNPJ</th>
-                                <th>Vidas</th>
-                                <th>Valor</th>
-                                <th>Vencimento</th>
-                                <th>Status</th>
-                                <th>Detalhes</th>
-                            </tr>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Cod.</th>
+                                    <th>Corretor</th>
+                                    <th>Cliente</th>
+                                    <th>CNPJ</th>
+                                    <th>Vidas</th>
+                                    <th>Valor</th>
+                                    <th>Vencimento</th>
+                                    <th>Status</th>
+                                    <th>Detalhes</th>
+                                </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -762,15 +757,15 @@
             <div class="p-2" style="background-color:#123449;color:#FFF;border-radius:5px;">
                 <table id="tablesemcarteirinha" class="table table-sm table_sem_carteirinha">
                     <thead>
-                    <tr>
-                        <th>Data</th>
-                        <th>Orçamento</th>
-                        <th>Corretor</th>
-                        <th>Cliente</th>
-                        <th>CPF</th>
-                        <th>Vidas</th>
-                        <th>Editar</th>
-                    </tr>
+                        <tr>
+                            <th>Data</th>
+                            <th>Orçamento</th>
+                            <th>Corretor</th>
+                            <th>Cliente</th>
+                            <th>CPF</th>
+                            <th>Vidas</th>
+                            <th>Editar</th>
+                        </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
@@ -984,7 +979,7 @@
                 // let file = $(this).val();
                 var fd = new FormData();
                 fd.append('file',files[0]);
-                // fd.append('file',e.target.files[0]);
+		        // fd.append('file',e.target.files[0]);
                 $.ajax({
                     url:"{{route('financeiro.sincronizar')}}",
                     method:"POST",
@@ -996,6 +991,7 @@
                         $('#uploadModal').modal('hide');
                     },
                     success:function(res) {
+
                         if(res == "sucesso") {
                             load.fadeOut(200);
                             $('#uploadModal').modal('show');
@@ -1113,7 +1109,7 @@
                 $("#error_data_baixa_individual").html('');
             });
 
-            $("body").on('click','.excluir_individual',function(){
+           $("body").on('click','.excluir_individual',function(){
                 if($(this).attr('data-cliente-excluir-individual')) {
                     Swal.fire({
                         title: 'Você tem certeza que deseja realizar essa operação?',
@@ -1150,13 +1146,13 @@
                         }
                     })
                 }
-            });
+           });
 
 
 
-            $("body").on('click','.cancelar_individual',function(){
+           $("body").on('click','.cancelar_individual',function(){
                 $('#cancelarModal').modal('show')
-            });
+           });
 
 
 
@@ -1592,28 +1588,28 @@
 
                         }
                     }
-                ],
+               ],
                 "initComplete": function( settings, json ) {
                     $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
-                    // this.api()
-                    //   .columns([2])
-                    //   .every(function () {
-                    //        var column = this;
-                    //        var selectUsuarioIndividual = $("#select_usuario_individual");
-                    //        selectUsuarioIndividual.on('change',function(){
-                    //            var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                    //            if(val != "todos") {
-                    //                column.search(val ? '^' + val + '$' : '', true, false).draw();
-                    //            } else {
-                    //                var val = "";
-                    //                column.search(val ? '^' + val + '$' : '', true, false).draw();
-                    //            }
-                    //        });
-                    //    })
+                     // this.api()
+                     //   .columns([2])
+                     //   .every(function () {
+                     //        var column = this;
+                     //        var selectUsuarioIndividual = $("#select_usuario_individual");
+                     //        selectUsuarioIndividual.on('change',function(){
+                     //            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                     //            if(val != "todos") {
+                     //                column.search(val ? '^' + val + '$' : '', true, false).draw();
+                     //            } else {
+                     //                var val = "";
+                     //                column.search(val ? '^' + val + '$' : '', true, false).draw();
+                     //            }
+                     //        });
+                     //    })
 
                     this.api()
-                        .columns([0])
-                        .every(function () {
+                       .columns([0])
+                       .every(function () {
                             var column = this;
                             var selectAno = $('#escolher_ano')
                             selectAno.on('change',function(){
@@ -1742,11 +1738,11 @@
 
                     let total_br = total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
                     // Total over this page
-                    $(".total_por_page").html(total_br)
-                    $(".total_por_vida").html(total_vidas);
-                    $(".total_por_orcamento").html(total_linhas);
+                   $(".total_por_page").html(total_br)
+                   $(".total_por_vida").html(total_vidas);
+                   $(".total_por_orcamento").html(total_linhas);
 
-                    // Update footer
+            // Update footer
                     //$(api.column(4).footer()).html('$' + pageTotal + ' ( $' + total + ' total)');
                 }
             });
@@ -1955,8 +1951,8 @@
                         "width":"2%",
                         "createdCell": function (td, cellData, rowData, row, col) {
 
-                            var id = rowData.id;
-                            $(td).html(`<div class='text-center text-white'>
+                                var id = rowData.id;
+                                $(td).html(`<div class='text-center text-white'>
                                         <a href="/admin/financeiro/detalhes/coletivo/${id}" class="text-white">
                                             <i class='fas fa-eye div_info'></i>
                                         </a>
@@ -1971,8 +1967,8 @@
                 "initComplete": function( settings, json ) {
                     $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
                     this.api()
-                        .columns([2])
-                        .every(function () {
+                       .columns([2])
+                       .every(function () {
                             var column = this;
                             var selectUsuario = $("#select_usuario");
                             selectUsuario.on('change',function(){
@@ -1985,9 +1981,9 @@
                                 }
                             });
                         })
-                    this.api()
-                        .columns([4])
-                        .every(function () {
+                        this.api()
+                       .columns([4])
+                       .every(function () {
                             var column = this;
                             var selectAdministradora = $("#select_coletivo_administradoras");
                             selectAdministradora.on('change',function(){
@@ -2012,7 +2008,7 @@
                         };
                         var api = this.api();
                         total_vidas = api.column(6,{ page: 'current' }).data().reduce(function (a, b) {
-                            return intVal(a) + intVal(b);
+	                        return intVal(a) + intVal(b);
                         }, 0);
 
                         total_linhas = api.column(0,{ page: 'current' }).data().count();
@@ -2061,47 +2057,47 @@
 
                     let total_br = total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
                     // Total over this page
-                    $(".total_por_vida_coletivo").html(total_vidas);
-                    $(".total_por_orcamento_coletivo").html(total_linhas);
-                    $(".total_por_page_coletivo").html(total_br);
+                        $(".total_por_vida_coletivo").html(total_vidas);
+                        $(".total_por_orcamento_coletivo").html(total_linhas);
+                        $(".total_por_page_coletivo").html(total_br);
 
-                    // Update footer
+            // Update footer
                     //$(api.column(4).footer()).html('$' + pageTotal + ' ( $' + total + ' total)');
                 }
 
 
-                //if(settings.json != null && settings.json != "") {
-                //$("#select_usuario").html('<option value="todos" class="text-center">---Escolher Corretor---</option>');
+                    //if(settings.json != null && settings.json != "") {
+                        //$("#select_usuario").html('<option value="todos" class="text-center">---Escolher Corretor---</option>');
 
-                //}
-                // $("#select_usuario").html('')
-                // //if(settings.iDraw == 2) {
+                    //}
+                    // $("#select_usuario").html('')
+                    // //if(settings.iDraw == 2) {
 
-                //     this.api()
-                //    .columns([2])
-                //    .every(function () {
-                //         var column = this;
-                //         var selectUsuario = $("#select_usuario");
-                //         selectUsuario.on('change',function(){
-                //             var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                //             if(val != "todos") {
-                //                 column.search(val ? '^' + val + '$' : '', true, false).draw();
-                //             } else {
-                //                 var val = "";
-                //                 column.search(val ? '^' + val + '$' : '', true, false).draw();
-                //             }
-                //         });
+                    //     this.api()
+                    //    .columns([2])
+                    //    .every(function () {
+                    //         var column = this;
+                    //         var selectUsuario = $("#select_usuario");
+                    //         selectUsuario.on('change',function(){
+                    //             var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                    //             if(val != "todos") {
+                    //                 column.search(val ? '^' + val + '$' : '', true, false).draw();
+                    //             } else {
+                    //                 var val = "";
+                    //                 column.search(val ? '^' + val + '$' : '', true, false).draw();
+                    //             }
+                    //         });
 
-                //         column.data().unique().sort().each(function (d, j) {
-                //             selectUsuario.append('<option value="' + d + '">' + d + '</option>');
-                //         });
-                //    })
+                    //         column.data().unique().sort().each(function (d, j) {
+                    //             selectUsuario.append('<option value="' + d + '">' + d + '</option>');
+                    //         });
+                    //    })
 
 
 
-                //}
+                    //}
 
-                //$("#select_usuario").html('');
+                    //$("#select_usuario").html('');
 
                 //     this.api()
                 //        .columns([3])
@@ -2139,35 +2135,35 @@
             });
 
             $("#select_usuario_individual").on('change',function(){
-                let mes = $("#mudar_mes_table").val();
+                    let mes = $("#mudar_mes_table").val();
 
-                let id = $('option:selected', this).attr('data-id');
-                let valorSelecionado = $(this).val();
-                $('#tabela_individual').DataTable().column(2).search(valorSelecionado).draw();
-                $.ajax({
+                    let id = $('option:selected', this).attr('data-id');
+                    let valorSelecionado = $(this).val();
+                    $('#tabela_individual').DataTable().column(2).search(valorSelecionado).draw();
+                    $.ajax({
                     url:"{{route('financeiro.corretor.quantidade')}}",
                     method:"POST",
                     data:"id="+id+"&mes="+mes,
-                    success:function(res) {
+                        success:function(res) {
 
-                        $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
-                        //table_individual.ajax.url("{{ route('financeiro.individual.geralIndividualPendentes') }}").load();
-                        $("ul#listar_individual li.individual").removeClass('textoforte-list');
-                        $("#atrasado_corretor").removeClass('textoforte-list');
-                        $("#all_pendentes_individual").addClass('textoforte-list');
-                        $(".individual_quantidade_pendentes").html(res.qtd_clientes);
-                        $(".individual_quantidade_1_parcela").html(res.qtd_individual_parcela_01);
-                        $(".individual_quantidade_2_parcela").html(res.qtd_individual_parcela_02);
-                        $(".individual_quantidade_3_parcela").html(res.qtd_individual_parcela_03);
-                        $(".individual_quantidade_4_parcela").html(res.qtd_individual_parcela_04);
-                        $(".individual_quantidade_5_parcela").html(res.qtd_individual_parcela_05);
-                        $(".individual_quantidade_6_parcela").html(res.qtd_individual_parcela_06);
-                        $(".individual_quantidade_cancelado").html(res.qtd_individual_cancelado);
-                        // $(".total_por_vida").html(res.qtd_vidas);
-                        // $(".total_por_orcamento").html(res.qtd_clientes);
-                        $(".individual_quantidade_atrasado").html(res.qtd_individual_atrasado);
-                    }
-                });
+                            $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
+                            //table_individual.ajax.url("{{ route('financeiro.individual.geralIndividualPendentes') }}").load();
+                            $("ul#listar_individual li.individual").removeClass('textoforte-list');
+                            $("#atrasado_corretor").removeClass('textoforte-list');
+                            $("#all_pendentes_individual").addClass('textoforte-list');
+                            $(".individual_quantidade_pendentes").html(res.qtd_clientes);
+                            $(".individual_quantidade_1_parcela").html(res.qtd_individual_parcela_01);
+                            $(".individual_quantidade_2_parcela").html(res.qtd_individual_parcela_02);
+                            $(".individual_quantidade_3_parcela").html(res.qtd_individual_parcela_03);
+                            $(".individual_quantidade_4_parcela").html(res.qtd_individual_parcela_04);
+                            $(".individual_quantidade_5_parcela").html(res.qtd_individual_parcela_05);
+                            $(".individual_quantidade_6_parcela").html(res.qtd_individual_parcela_06);
+                            $(".individual_quantidade_cancelado").html(res.qtd_individual_cancelado);
+                            // $(".total_por_vida").html(res.qtd_vidas);
+                            // $(".total_por_orcamento").html(res.qtd_clientes);
+                            $(".individual_quantidade_atrasado").html(res.qtd_individual_atrasado);
+                        }
+                    });
             });
 
 
@@ -2253,11 +2249,24 @@
                 columns: [
                     {data:"created_at",name:"created_at"},
                     {data:"codigo_externo",name:"codigo_externo"},
-                    {data:"usuario",name:"usuario"},
-                    {data:"responsavel",name:"responsavel"},
+                    {data:"usuario",name:"usuario",
+                        "render": function (data, type, row) {
+                            var name_parts = data.split(' ');
+                            return name_parts[0] + ' ' + name_parts[1].charAt(0) + '.';
+                        }
+                    },
+                    {data:"responsavel",name:"responsavel",
+                        "render": function (data, type, row) {
+                            var name_parts = data.split(' ');
+
+                            if(name_parts.length >= 4) {
+                                return name_parts[0] + ' ' + name_parts[1] + ' ' + name_parts[2] + ' ' + name_parts[3];
+                            }
+                            return data;
+                        }
+                    },
                     {data:"cnpj",name:"cnpj"},
                     {data:"quantidade_vidas",name:"vidas"},
-
                     {data:"valor_plano",name:"valor_plano",
                         render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ')
                     },
@@ -2282,6 +2291,23 @@
                     {data:"razao_social",name:"razao_social"},
                 ],
                 "columnDefs": [
+                    {
+                        "targets": 4,
+
+
+                    },
+
+                    {
+                        "targets": 5,
+                        "className": "text-center",
+                        "width":"1%"
+                    },
+
+                    {
+                        "targets": 6,
+                        "className": "text-right"
+                    },
+
                     // <th>Data</th>
                     {
                         "targets": 0,
@@ -2325,7 +2351,7 @@
                         "width":"2%",
                         "createdCell": function (td, cellData, rowData, row, col) {
                             var id = rowData.id;
-                            $(td).html(`<div class='text-center text-white'>
+                                $(td).html(`<div class='text-center text-white'>
                                         <a href="/admin/financeiro/detalhes/empresarial/${id}" class="text-white">
                                             <i class='fas fa-eye div_info'></i>
                                         </a>
@@ -2333,81 +2359,13 @@
                                 `);
                         },
                     },
-                    // {
-                    //     "targets": 8,
-                    //     "width":"10%",
-                    //     "createdCell": function (td, cellData, rowData, row, col) {
-                    //         console.log(rowData);
-                    //         if(cellData == "Pagamento 1º Parcela") {
-                    //             $(td).html("Pag. 1º Parcela");
-                    //         }
-                    //         if(cellData == "Pagamento 2º Parcela") {
-                    //             $(td).html("Pag. 2º Parcela");
-                    //         }
-                    //         if(cellData == "Pagamento 3º Parcela") {
-                    //             $(td).html("Pag. 3º Parcela");
-                    //         }
-                    //         if(cellData == "Pagamento 4º Parcela") {
-                    //             $(td).html("Pag. 4º Parcela");
-                    //         }
-                    //         if(cellData == "Pagamento 5º Parcela") {
-                    //             $(td).html("Pag. 5º Parcela");
-                    //         }
-                    //         if(cellData == "Pagamento 6º Parcela") {
-                    //             $(td).html("Pag. 6º Parcela");
-                    //         }
-                    //     },
-                    // },
-                    // // <th>Corretor</th>
-                    // {
-                    //     "targets": 1,
-                    //     "width":"25%"
-                    // },
-                    // // <th>Cliente</th>
-                    // {
-                    //     "targets": 2,
-                    //     "width":"25%"
-                    // },
-                    // // <th>Razão Social</th>
-                    // {
-                    //     "targets": 3,
-                    //     "width":"20%",
 
-                    // },
-                    // // <th>Valor</th>
-                    // {
-                    //     "targets": 4,
-                    //     "width":"0%",
-                    //     "createdCell": function (td, cellData, rowData, row, col) {
-                    //         let formatado = Number(cellData).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
-                    //         // let datas = cellData.split("T")[0]
-                    //         // let alvo = datas.split("-").reverse().join("/")
-                    //         $(td).html(formatado);
-                    //     }
-
-                    // },
-                    // // <th>Vencimento</th>
-                    // {
-                    //     "targets": 5,
-                    //     "createdCell": function (td, cellData, rowData, row, col) {
-                    //         let alvo = cellData.split("-").reverse().join("/")
-                    //         $(td).html(alvo);
-                    //     }
-
-                    // },
-                    // // <th>Ver</th>
-                    // {
-                    //     "targets": 6,
-                    //     "createdCell": function (td, cellData, rowData, row, col) {
-                    //         $(td).html("<div class='text-center'><i class='fas fa-eye div_info' data-id='"+rowData.id+"'></i></div>");
-                    //     }
-                    // }
-                ],
+               ],
                 "initComplete": function( settings, json ) {
                     $('#title_empresarial').html("<h4 style='font-size:1em;margin-top:10px;'>Em Analise</h4>");
                     this.api()
-                        .columns([2])
-                        .every(function () {
+                       .columns([2])
+                       .every(function () {
                             var column = this;
                             var selectUsuario = $("#select_usuario");
                             selectUsuario.on('change',function(){
@@ -2420,9 +2378,9 @@
                                 }
                             });
                         })
-                    this.api()
-                        .columns([4])
-                        .every(function () {
+                        this.api()
+                       .columns([4])
+                       .every(function () {
                             var column = this;
                             var selectAdministradora = $("#select_coletivo_administradoras");
                             selectAdministradora.on('change',function(){
@@ -2443,7 +2401,7 @@
                         };
                         var api = this.api();
                         total_vidas_empresa = api.column(5,{page:'current'}).data().reduce(function (a, b) {
-                            return intVal(a) + intVal(b);
+	                        return intVal(a) + intVal(b);
                         }, 0);
                         total_linhas_empresa = api.column(0,{page:'current'}).data().count();
                         total_empresa = api.column(6,{page:'current'}).data().reduce(function (a, b) {
@@ -2501,9 +2459,9 @@
 
             $("#list_empresarial_begin").on('click',function(){
                 $("ul#listar_empresarial li.empresarial").removeClass('textoforte-list');
-                $("#grupo_finalizados_empresarial li.empresarial").removeClass('textoforte-list');
+	            $("#grupo_finalizados_empresarial li.empresarial").removeClass('textoforte-list');
                 $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
-                tableempresarial.ajax.url('{{route("contratos.listarEmpresarial.listarContratoEmpresaPendentes")}}').load();
+	            tableempresarial.ajax.url('{{route("contratos.listarEmpresarial.listarContratoEmpresaPendentes")}}').load();
             });
 
 
@@ -3153,8 +3111,8 @@
         #tabela_individual_filter input[type='search'] {background-color: #FFF !important;}
         #tabela_coletivo_filter input[type='search'] {background-color: #FFF !important;}
         #tabela_empresarial_filter input[type='search'] {background-color: #FFF !important;}
-        th { font-size: 0.9em !important; }
-        td { font-size: 0.75em !important; }
+        th { font-size: 0.8em !important; }
+        td { font-size: 0.7em !important; }
     </style>
 @stop
 
