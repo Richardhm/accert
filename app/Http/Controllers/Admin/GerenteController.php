@@ -61,7 +61,7 @@ class GerenteController extends Controller
             ->selectRaw("REPLACE(FORMAT(sum(valor_premiacao),2),'.',',') as valor_premiacao")
             ->selectRaw("REPLACE(FORMAT(sum(valor_desconto),2),'.',',') as valor_desconto")
             ->selectRaw("REPLACE(FORMAT(sum(valor_total),2),'.',',') as total_mes")
-            ->whereMonth("data",03)
+            ->whereMonth("data",$mes)
             ->first();
 
         return $dados;
@@ -90,6 +90,7 @@ class GerenteController extends Controller
 
     public function index()
     {
+
         $folha_aberto = FolhaMes::where("status",0);
 
         $total_empresarial_quantidade = 0;
@@ -100,11 +101,44 @@ class GerenteController extends Controller
         $total_individual = 0;
         $total_coletivo = 0;
 
+        $total_comissao = 0;
+        $total_salario = 0;
+        $total_premiacao = 0;
+        $total_desconto = 0;
+        $total_mes = 0;
 
 
         if($folha_aberto->count() == 1) {
+
             $mes_aberto = $folha_aberto->first()->mes;
             $mes = date('m', strtotime($mes_aberto));
+
+
+            $dados_totais = DB::table('valores_corretores_lancados')
+                ->selectRaw("REPLACE(FORMAT(sum(valor_comissao),2),'.',',') as total_comissao")
+                ->selectRaw("REPLACE(FORMAT(sum(valor_salario),2),'.',',') as total_salario")
+                ->selectRaw("REPLACE(FORMAT(sum(valor_premiacao),2),'.',',') as valor_premiacao")
+                ->selectRaw("REPLACE(FORMAT(sum(valor_desconto),2),'.',',') as valor_desconto")
+                ->selectRaw("REPLACE(FORMAT(sum(valor_total),2),'.',',') as total_mes")
+                ->whereMonth("data",$mes)
+                ->first();
+            $total_comissao = $dados_totais->total_comissao;
+            $total_salario = $dados_totais->total_salario;
+            $total_premiacao = $dados_totais->valor_premiacao;
+            $total_desconto = $dados_totais->valor_desconto;
+            $total_mes = $dados_totais->total_mes;
+
+
+
+
+
+
+
+
+
+
+
+
 
             $total_empresarial_quantidade = ComissoesCorretoresLancadas
                 ::where("status_financeiro",1)
@@ -123,7 +157,7 @@ class GerenteController extends Controller
                     $query->where("plano_id","!=",1);
                     $query->where("plano_id","!=",3);
 
-                })->selectRaw("if(sum(valor)>0,sum(valor),0) as total_coletivo")->first()->total_coletivo;
+                })->selectRaw("if(sum(valor)>0,REPLACE(FORMAT(sum(valor),2),'.',','),0) as total_coletivo")->first()->total_coletivo;
 
             $total_individual_quantidade = ComissoesCorretoresLancadas
                 ::where("status_financeiro",1)
@@ -153,7 +187,7 @@ class GerenteController extends Controller
                 ->whereHas('comissao',function($query){
                     $query->where("plano_id",1);
 
-                })->selectRaw("if(sum(valor)>0,sum(valor),0) as total_individual")->first()->total_individual;
+                })->selectRaw("if(sum(valor)>0,REPLACE(FORMAT(sum(valor),2),'.',','),0) as total_individual")->first()->total_individual;
 
             $total_coletivo = ComissoesCorretoresLancadas
                 ::where("status_financeiro",1)
@@ -163,40 +197,11 @@ class GerenteController extends Controller
                 ->whereHas('comissao',function($query){
                     $query->where("plano_id",3);
 
-                })->selectRaw("if(sum(valor)>0,sum(valor),0) as total_coletivo")->first()->total_coletivo;
+                })->selectRaw("if(sum(valor)>0,REPLACE(FORMAT(sum(valor),2),'.',','),0) as total_coletivo")->first()->total_coletivo;
         }
-
-
-
-
         /*
 
-
-
-
-
-
-
-
-
-
-
-
-
-
         */
-
-
-
-
-
-
-
-
-
-
-
-
 
 //        $cadastrados = Contrato
 //                ::selectRaw("(select nome from clientes where clientes.id = contratos.cliente_id) as cliente")
@@ -231,9 +236,6 @@ class GerenteController extends Controller
             ->where("parcela",3)
             ->first()->valor;
 
-
-
-
         $comissoesLancadas = DB::table('comissoes_corretores_lancadas')
             ->join('comissoes','comissoes.id',"=",'comissoes_corretores_lancadas.comissoes_id')
             ->join('contratos','contratos.id',"=",'comissoes.contrato_id')
@@ -241,10 +243,6 @@ class GerenteController extends Controller
             ->selectRaw("comissoes_corretores_lancadas.id,contratos.valor_plano")
             ->where("parcela",3)
             ->get();
-
-
-
-
 
         foreach($comissoesLancadas as $d) {
 
@@ -277,7 +275,7 @@ class GerenteController extends Controller
             $mes = date('m', strtotime($folhaMesAberto->mes));
         }
 
-
+        /*
         $users_apto_apagar = DB::table('valores_corretores_lancados')
             ->join('folha_pagamento', 'folha_pagamento.valores_corretores_lancados_id', '=', 'valores_corretores_lancados.id')
             ->join("folha_mes","folha_mes.id","=","folha_pagamento.folha_mes_id")
@@ -286,12 +284,28 @@ class GerenteController extends Controller
             ->selectRaw("user_id")
             ->whereRaw("folha_mes.status = 0")
             ->groupBy("user_id")
+
             ->get();
+        */
+
+        $users_apto_apagar = User::whereIn('id', function ($query) {
+            $query->select('user_id')->from('valores_corretores_lancados');
+        })
+            ->selectRaw("id as user_id")
+            ->selectRaw("name as user")
+            ->selectRaw("(select valor_total from valores_corretores_lancados where valores_corretores_lancados.user_id = users.id) as total")
+            ->orderBy('name')->get();
 
 
 
 
 
+        $usuarios = DB::table('users')
+            ->where('ativo',1)
+            ->whereNotIn('id', function($query) {
+                $query->select('user_id')
+                    ->from('valores_corretores_lancados');
+            })->get();
 
 
 //        $individual = ComissoesCorretoresLancadas
@@ -394,8 +408,6 @@ class GerenteController extends Controller
         })
         ->selectRaw("sum(valor_plano) as total_valor_plano")->first()->total_valor_plano;
 
-
-
         $qtd_atrasado_quantidade_vidas = Cliente
         ::whereHas('contrato.comissao.comissoesLancadas',function($query){
             $query->whereRaw("DATA < CURDATE()");
@@ -427,10 +439,6 @@ class GerenteController extends Controller
             $query->where("financeiro_id",12);
         })->selectRaw("if(sum(quantidade_vidas)>=1,sum(quantidade_vidas),0) as total_quantidade_vidas_cancelado")->first()->total_quantidade_vidas_cancelado;
 
-
-
-
-
         //FIM Geral
 
         //Individual
@@ -440,10 +448,6 @@ class GerenteController extends Controller
         $quantidade_vidas_geral_individual = Cliente::whereHas('contrato',function($query){
             $query->where("plano_id",1);
         })->selectRaw("if(SUM(quantidade_vidas)>=1,SUM(quantidade_vidas),0) as quantidade_vidas")->first()->quantidade_vidas;
-
-
-
-
 
         $total_quantidade_recebidos_individual = Contrato::whereHas('comissao.comissoesLancadas',function($query){
             $query->where("status_financeiro",1);
@@ -511,7 +515,6 @@ class GerenteController extends Controller
             $query->whereRaw("data_baixa IS NULL");
             $query->groupBy("comissoes_id");
         })
-
         ->where("plano_id",1)
         ->count();
 
@@ -525,8 +528,6 @@ class GerenteController extends Controller
         ->whereHas('clientes',function($query){$query->whereRaw('cateirinha IS NOT NULL');})
         ->where("plano_id",1)
         ->selectRaw("sum(valor_plano) as total_valor_plano")->first()->total_valor_plano;
-
-
 
         $qtd_atrasado_quantidade_vidas_individual = Cliente::whereHas('contrato.comissao.comissoesLancadas',function($query){
             $query->whereRaw("DATA < CURDATE()");
@@ -805,15 +806,7 @@ class GerenteController extends Controller
         $qtd_cancelado_quantidade_vidas_empresarial = ContratoEmpresarial::where("financeiro_id",12)
         ->selectRaw("if(sum(quantidade_vidas)>=1,sum(quantidade_vidas),0) as total_quantidade_vidas_cancelado")->first()->total_quantidade_vidas_cancelado;
 
-
-
-
-
-
         //Fim Empresarial
-
-
-
 
         // $total_geral = Contrato::selectRaw("sum(valor_plano) as total_geral")->first()->total_geral;
         // $total_recebidos = Contrato::where("financeiro_id","!=",12)->whereHas('comissao.comissoesLancadas',function($query){
@@ -824,7 +817,16 @@ class GerenteController extends Controller
         //dd($total_recebidos);
 
 
-        $users = User::where("ativo","=",1)->get();
+        //$users = User::where("ativo","=",1)->get();
+
+        $users = DB::table('users')
+            ->where('ativo',1)
+            ->whereNotIn('id', function($query) {
+                $query->select('user_id')
+                    ->from('valores_corretores_lancados');
+            })
+            ->orderBy("name")
+            ->get();
 
         $quat_comissao_a_receber = ComissoesCorretoraLancadas::where("status_financeiro",1)->where("status_gerente",0)->count();
         $quat_comissao_recebido = ComissoesCorretoraLancadas::where("status_financeiro",1)->where("status_gerente",1)->count();
@@ -908,7 +910,11 @@ class GerenteController extends Controller
             'total_individual' => $total_individual,
             'total_coletivo' => $total_coletivo,
 
-
+            'total_comissao' => $total_comissao,
+            'total_salario' => $total_salario,
+            'total_premiacao' => $total_premiacao,
+            'total_desconto' => $total_desconto,
+            'total_mes' => $total_mes,
 
 
             /************************* Individual *******************************/
@@ -1022,6 +1028,7 @@ class GerenteController extends Controller
                 ->selectRaw("valor_total AS total")
                 ->whereMonth("data",$mes)
                 ->groupBy("user_id")
+
                 ->get();
 
             $valores = DB::table('valores_corretores_lancados')
@@ -3439,7 +3446,8 @@ class GerenteController extends Controller
             //->where("finalizado",1)
             ->whereMonth('data_baixa_finalizado',$mes)
             ->whereHas('comissao',function($query) use($id){
-                $query->whereIn("plano_id",[4,5,6]);
+                $query->where("plano_id","!=",1);
+                $query->where("plano_id","!=",3);
                 $query->where("user_id",$id);
             })->count();
 
@@ -3468,7 +3476,8 @@ class GerenteController extends Controller
             //->where("finalizado",1)
             ->whereMonth('data_baixa_finalizado',$mes)
             ->whereHas('comissao',function($query) use($id){
-                $query->whereIn("plano_id",[4,5,6]);
+                $query->where("plano_id","!=",1);
+                $query->where("plano_id","!=",3);
                 $query->where("user_id",$id);
             })->selectRaw("if(sum(valor)>0,sum(valor),0) as total_empresarial")->first()->total_empresarial;
 
@@ -3523,8 +3532,8 @@ class GerenteController extends Controller
 
 
         return [
-           "total_individual_quantidade" => $total_individual_quantidade,
-           "total_coletivo_quantidade" => $total_coletivo_quantidade,
+            "total_individual_quantidade" => $total_individual_quantidade,
+            "total_coletivo_quantidade" => $total_coletivo_quantidade,
             "total_empresarial_quantidade" => $total_empresarial_quantidade,
             "total_individual" => number_format($total_individual,2,",","."),
             "total_coletivo" => number_format($total_coletivo,2,",","."),

@@ -1064,9 +1064,16 @@
 
             /*****************************************************UPLOAD COLETIVO****************************************************************************** */
             $("#arquivo_upload_coletivo").on('change',function(e){
+
+
+
+
                 var files = $('#arquivo_upload_coletivo')[0].files;
 
                 var load = $(".ajax_load");
+
+
+
 
                 var fd = new FormData();
                 fd.append('file',files[0]);
@@ -1082,7 +1089,7 @@
                         $('#uploadModalColetivo').modal('hide');
                     },
                     success:function(res) {
-
+                        console.log(res)
                         if(res == "sucesso") {
                             load.fadeOut(200);
 

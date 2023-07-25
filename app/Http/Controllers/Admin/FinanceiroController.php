@@ -3182,8 +3182,6 @@ class FinanceiroController extends Controller
                        $criacao =  implode("-",array_reverse(explode("/",$cells[19]->getValue())));
                         $alvo = trim($cells[22]->getValue());
                         $id_acomodacao = Acomodacao::where("nome", "LIKE", "%$alvo%")->first()->id;
-
-
                        $cliente = new Cliente();
                        $cliente->user_id = $user_id;
                        $cliente->nome = mb_convert_case($cells[4]->getValue(), MB_CASE_TITLE, "UTF-8");

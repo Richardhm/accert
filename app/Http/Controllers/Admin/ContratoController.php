@@ -1130,15 +1130,11 @@ class ContratoController extends Controller
         CONCAT('card_',acomodacao_id) AS card
         FROM tabelas
         WHERE faixa_etaria_id IN($chaves) AND tabela_origens_id =  $cidade AND administradora_id = 4 AND plano_id = 1 AND odonto = $odonto AND coparticipacao = $coparticipacao");
-
-
         return view("admin.pages.contratos.acomodacao",[
             "dados" => $dados,
             "card_inicial" => $dados[0]->card,
             "quantidade" => count($dados)
         ]);
-
-
     }
 
 
@@ -1147,37 +1143,25 @@ class ContratoController extends Controller
         $cpf = str_replace([".","-"],"",$request->cpf_individual);
         $dia = $request->vencimento;
         $codigo_externo = $request->codigo_externo_individual;
-
         $url = "https://api-hapvida.sensedia.com/wssrvonline/v1/beneficiario?cpf={$cpf}";
         $ch = curl_init($url);
         curl_setopt($ch,CURLOPT_URL,$url);
         curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
         $dados = (array) json_decode(curl_exec($ch),true);
-
         $resultado = array_filter($dados, function($item) use($codigo_externo) {
             return $item['tipoPlanoC'] === 'SAUDE' &&
                 $item['nomeEmpresa'] === 'I N D I V I D U A L' &&
                 $item['nuMatriculaEmpresa'] == $codigo_externo;
         });
         $resultado = array_values($resultado);
-
-        return $resultado;
-
         $valores_numericos = array_filter($request->faixas_etarias, function ($valor) {
             return is_numeric($valor);
         });
-
         $quantidade_vidas = array_sum($valores_numericos);
-
-
-
-
         $valor = str_replace([".",","],["","."],$request->valor);
-
         $cliente = new Cliente();
         $cliente->user_id = $request->users_individual;
         $cliente->nome = $request->nome_individual;
-
         $cliente->cidade = $request->cidade_origem_individual;
         $cliente->celular = $request->celular_individual;
         $cliente->telefone = $request->telefone_individual;

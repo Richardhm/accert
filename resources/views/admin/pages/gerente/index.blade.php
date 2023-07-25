@@ -1011,7 +1011,7 @@
                             Salario:
                         </span>
                             <span style="display:flex;flex-basis:50%;">
-                            <input type="text" name="salario" id="salario" class="form-control form-control-sm salario_usuario" style="text-align:right;height:20px;font-size:0.8em;">
+                            <input type="text" name="salario" id="salario" value="{{$total_salario}}" class="form-control form-control-sm salario_usuario" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
 
                         </li>
@@ -1020,7 +1020,7 @@
                             Comissão:
                         </span>
                             <span style="display:flex;flex-basis:50%;">
-                            <input type="text" name="comissao" id="comissao" class="form-control form-control-sm" readonly placeholder="Comissão" value="0" style="text-align:right;height:20px;font-size:0.8em;">
+                            <input type="text" name="comissao" id="comissao" value="{{$total_comissao}}" class="form-control form-control-sm" readonly placeholder="Comissão" value="0" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
                         </li>
                         <li style="display:flex;justify-content: space-between;margin:5px 0;">
@@ -1028,17 +1028,17 @@
                             Premiação:
                         </span>
                             <span style="display:flex;flex-basis:50%;">
-                            <input type="text" name="premiacao" id="premiacao" class="form-control form-control-sm premiacao_usuario" style="text-align:right;height:20px;font-size:0.8em;">
+                            <input type="text" name="premiacao" id="premiacao" value="{{$total_premiacao}}" class="form-control form-control-sm premiacao_usuario" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
                         </li>
-                        <li style="display:flex;justify-content: space-between;margin:5px 0;">
-                        <span style="display:flex;flex-basis:50%;align-self: center;color:#FFF;font-size:0.7em;">
-                            Desconto:
-                        </span>
 
+                        <li style="display:flex;justify-content: space-between;margin:5px 0;">
+                            <span style="display:flex;flex-basis:50%;align-self: center;color:#FFF;font-size:0.7em;">
+                                Desconto:
+                            </span>
                             <span style="display:flex;flex-basis:50%;">
-                            <input type="text" disabled id="valor_total_desconto" name="desconto" id="desconto" class="form-control form-control-sm desconto_usuario" style="text-align:right;height:20px;font-size:0.8em;">
-                        </span>
+                                <input type="text" disabled id="valor_total_desconto" value="{{$total_desconto}}" name="desconto" id="desconto" class="form-control form-control-sm desconto_usuario" style="text-align:right;height:20px;font-size:0.8em;">
+                            </span>
                         </li>
 
                         <li style="display:flex;justify-content: space-between;">
@@ -1046,7 +1046,7 @@
                             Total:
                             </span>
                             <span style="display:flex;flex-basis:50%;">
-                                <input type="text" disabled name="total_campo" id="total_campo" class="form-control form-control-sm total_campo" style="text-align:right;height:20px;font-size:0.8em;">
+                                <input type="text" disabled name="total_campo" value="{{$total_mes}}" id="total_campo" class="form-control form-control-sm total_campo" style="text-align:right;height:20px;font-size:0.8em;">
                             </span>
                         </li>
 
@@ -1085,7 +1085,7 @@
 
                     <div id="list_user" style="max-height:500px;background-color:#123449;margin-top:10px;">
 
-                        <ul style="list-style: none;margin:0;padding:0;" class="w-100">
+                        <ul style="list-style:none;margin:0;padding:0;" class="w-100">
                             @foreach($users_apto_apagar as $uu)
                                 @php
                                     $texto = $uu->user;
@@ -1097,9 +1097,9 @@
                                     //$textoLimitado = \Illuminate\Support\Str::before($palavras, ' ') . (\Illuminate\Support\Str::contains($texto, ' ') ? '...' : '');
                                 @endphp
                                 <li class="d-flex justify-content-between border-top border-bottom border-white text-white w-100 py-2">
-                                    <span style="font-size:0.8em;" class="user_destaque" data-id="{{$uu->user_id}}">{{$nomeAbreviado}}</span>
-                                    <span style="font-size:0.8em;" class="total_pagamento_finalizado user_destaque" data-id="{{$uu->user_id}}">{{number_format($uu->total,2,",",".")}}</span>
-                                    <span><i class="fas fa-file-pdf criar_pdf" data-id="{{$uu->user_id}}"></i></span>
+                                    <span style="font-size:0.8em;display:flex;flex-basis:50%;" class="user_destaque ml-1" data-id="{{$uu->user_id}}">{{$nomeAbreviado}}</span>
+                                    <span style="font-size:0.8em;display:flex;flex-basis:30%;justify-content:center;" class="total_pagamento_finalizado user_destaque" data-id="{{$uu->user_id}}">{{number_format($uu->total,2,",",".")}}</span>
+                                    <span style="display:flex;flex-basis:10%;"><i class="fas fa-file-pdf criar_pdf mr-1" data-id="{{$uu->user_id}}"></i></span>
                                 </li>
                             @endforeach
                         </ul>
@@ -1611,7 +1611,7 @@
                 if(total_valor != 0) {
                     let value = total_valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-                    $(".finalizar_mes_container").css({"height":"30px","background-color":"#123449","margin-top":"5px"}).html(`<button class="btn finalizar_mes btn-block" style="display: flex;justify-content: center;font-size: 0.7em;flex-basis: 100%;height:30px;align-items:center;color:#FFF;padding:0;margin:0;">${value}</button>`);
+                    $(".finalizar_mes_container").css({"height":"30px","margin-top":"5px"}).html(`<button class="btn finalizar_mes btn-block btn-info" style="display: flex;justify-content: center;font-size: 0.7em;flex-basis: 100%;height:30px;align-items:center;color:#FFF;padding:0;margin:0;">${value}</button>`);
                 }
                 total_valor = 0;
             }
@@ -1758,7 +1758,6 @@
                 let password = $('#passwordInput').val();
                 let mes = $("#mes_folha").find('option:selected').val();
                 let ano = $("#mes_folha").find('option:selected').text().split("/")[1];
-
 
                 if (password === '0000') {
                     $.ajax({
@@ -2045,14 +2044,18 @@
                    method:"POST",
                    data:"id="+id+"&mes="+mes,
                     success:function(res) {
+                        console.log(res);
                         $("#total_quantidade_individual").text(res.total_individual_quantidade);
                         $("#total_quantidade_coletivo").text(res.total_coletivo_quantidade);
                         $("#valor_total_individual").text(res.total_individual);
                         $("#valor_total_coletivo").text(res.total_coletivo);
+                        $("#total_quantidade_empresarial").text(res.total_empresarial_quantidade);
+                        $("#valor_total_empresarial").text(res.total_empresarial);
                         $("#comissao_vendedor").val(res.total_comissao);
                         $("#valores_confirmados").val(res.id_confirmados);
                         $("#salario_vendedor").val(res.total_salario);
                         $("#premiacao_vendedor").val(res.total_premiacao);
+
                         //$("#valor_total_desconto").val(res.desconto);
                         $("#valor_total_desconto_vendedor").val(res.desconto);
                         $("#total_campo_vendedor").val(res.desconto);
@@ -3068,11 +3071,16 @@
                 let subtrair_desconto = somar_ganhos - valor_total_desconto_vendedor_convertido;
                 let subtrair_desconto_formatado = subtrair_desconto.toLocaleString('pt-BR',{minimumFractionDigits:2})
                 $("#total_campo_vendedor").val(subtrair_desconto_formatado);
+
+                $(".estilizar_search input[type='search']").val('');
+                listarcomissaomesdfirente.search('').draw();
+                listarcomissaomesrecebidas.search('').draw();
+                listaraptosapagar.search('').draw();
+
                 $.ajax({
                     url:"{{route('gerente.aptar.pagamento')}}",
                     method:"POST",
                     data:"id="+id+"&mes="+mes+"&desconto="+desconto,
-
                 });
 
             });
@@ -3177,8 +3185,6 @@
                         "&id="+id_confirmados,
 
                     success:function(res) {
-
-                        console.log(res);
 
                         const select = $("#escolher_vendedor");
                         select.html('<option value="" class="text-center">--Corretores--</option>');
