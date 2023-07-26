@@ -1083,7 +1083,7 @@
 
 
 
-                    <div id="list_user" style="max-height:500px;background-color:#123449;margin-top:10px;">
+                    <div id="list_user">
 
                         <ul style="list-style:none;margin:0;padding:0;" class="w-100">
                             @foreach($users_apto_apagar as $uu)
@@ -1098,7 +1098,7 @@
                                 @endphp
                                 <li class="d-flex justify-content-between border-top border-bottom border-white text-white w-100 py-2">
                                     <span style="font-size:0.8em;display:flex;flex-basis:50%;" class="user_destaque ml-1" data-id="{{$uu->user_id}}">{{$nomeAbreviado}}</span>
-                                    <span style="font-size:0.8em;display:flex;flex-basis:30%;justify-content:center;" class="total_pagamento_finalizado user_destaque" data-id="{{$uu->user_id}}">{{number_format($uu->total,2,",",".")}}</span>
+                                    <span style="font-size:0.8em;display:flex;flex-basis:40%;justify-content:right;margin-right:5%;" class="total_pagamento_finalizado user_destaque" data-id="{{$uu->user_id}}">{{number_format($uu->total,2,",",".")}}</span>
                                     <span style="display:flex;flex-basis:10%;"><i class="fas fa-file-pdf criar_pdf mr-1" data-id="{{$uu->user_id}}"></i></span>
                                 </li>
                             @endforeach
@@ -1146,12 +1146,10 @@
                         <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
                             Desconto:
                         </span>
-
                             <span style="display:flex;flex-basis:50%;">
                             <input type="text" disabled id="valor_total_desconto_vendedor" name="desconto_vendedor" class="form-control form-control-sm desconto_usuario_vendedor" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
                         </li>
-
                         <li style="display:flex;justify-content: space-between;">
                             <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;height:20px;color:#FFF;">
                             Total:
@@ -1232,13 +1230,13 @@
                        <table id="tabela_aptos_a_pagar_table" class="table table-sm listaraptosapagar w-100">
                            <thead>
                            <tr>
-                               <th>Admin</th>
+                               <th>Adminsss</th>
                                <th>Parcela</th>
                                <th>Cliente</th>
                                <th align="center">Vencimento</th>
                                <th>Baixa</th>
-                               <th style="display:none;">Desconto</th>
                                <th>Valor</th>
+                               <th>Desconto</th>
                                <th>Comissão</th>
                                <th>Ação</th>
                            </tr>
@@ -1264,6 +1262,8 @@
                                <th>Comissão</th>
                                <th>%</th>
                                <th>Pagar</th>
+                               <th>Vidas</th>
+                               <th>Desconto</th>
                                <th>Status</th>
                            </tr>
                            </thead>
@@ -1282,13 +1282,12 @@
                                <th>Cod.</th>
                                <th>Cliente</th>
                                <th>Parcela</th>
-
                                <th>Valor</th>
                                <th align="center">Vencimento</th>
                                <th>Baixa</th>
-
                                <th>%</th>
                                <th>Pagar</th>
+                               <th>Vidas</th>
                                <th>Desconto</th>
                                <th>Antecipar</th>
                            </tr>
@@ -1904,9 +1903,9 @@
 
 
                            $("#mes_fechado").val(mes);
-                           var columnIndex = 7;
-                           var column = listaraptosapagar.column(columnIndex);
-                           column.visible(false);
+                           //var columnIndex = 7;
+                           ///var column = listaraptosapagar.column(columnIndex);
+                           //column.visible(false);
                            $("#finalizar_folha").prop('disabled', true);
                            $(".individual_recebidas").off('click');
                            $(".coletivo_recebidas").off('click');
@@ -2015,12 +2014,8 @@
                             },100);
                         }
                     }
-
-
                 });
             });
-
-
 
             String.prototype.ucWords = function () {
                 let str = this.toLowerCase()
@@ -2315,22 +2310,11 @@
                 "info": true,
                 "autoWidth": false,
                 "responsive": true,
-                columnDefs: [{
-                    targets: 5,
-                    visible: false
-                }],
+
                 columns: [
                     {data:"administradora",name:"administradora",width:"8%"},
                     {data:"parcela",name:"parcela",width:"5%",className: 'dt-center'},
-                    {data:"cliente",name:"cliente",width:"30%",
-                        "createdCell":function(td,cellData,rowData,row,col) {
-                            let palavras = cellData.ucWords();
-                            let dados = palavras.split(" ");
-                            if(dados.length >= 2) {
-                                $(td).html(dados[0]+" "+dados[1]+"...");
-                            }
-                        }
-                    },
+                    {data:"cliente",name:"cliente",width:"30%"},
                     {data:"data",name:"data",width:"5%",className: 'dt-center'},
                     {data:"data_baixa_gerente",name:"baixa",width:"5%",
                         "createdCell":function(td,cellData,rowData,row,col) {
@@ -2343,10 +2327,12 @@
                             }
                         }
                     },
-                    {
-                        data:"desconto",name:"desconto",visible:false,className:"desconto_atual"
-                    },
+
                     {data:"valor_plano_contratado",name:"valor_plano",render: $.fn.dataTable.render.number('.',',',2,'R$ '),className: 'dt-center'},
+                    {
+                        data:"desconto",name:"desconto",className:"desconto_atual",
+                        render: $.fn.dataTable.render.number('.',',',2,'R$ ')
+                    },
                     {data:"comissao_esperada",name:"comissao_esperada",render: $.fn.dataTable.render.number('.',',',2,'R$ '),className: 'dt-center comissao_recebida'},
                     {data:"id",name:"id",width:"5%",
                         "createdCell": function (td, cellData, rowData, row, col) {
@@ -2422,7 +2408,6 @@
                         }
                     },
                     {data:"parcela",name:"parcela",width:"5%",className: 'dt-center'},
-
                     {data:"valor_plano_contratado",width:"8%",name:"valor_plano",render: $.fn.dataTable.render.number('.',',',2,'R$ '),className: 'dt-center'},
                     {data:"data",name:"data",width:"5%",className: 'dt-center'},
                     {data:"data_baixa_gerente",name:"baixa",width:"5%",
@@ -2465,10 +2450,11 @@
                         "createdCell":function(td, cellData, rowData, row, col) {
                             let valor = parseFloat(cellData).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
                             valor = valor.replace('R$', '');
-
                             $(td).html('<input type="text" data-id='+rowData.id+' name="comissao_pagando" value='+valor+' class="comissao_pagando" style="width:50px;" />')
                         }
                     },
+                    {data:"quantidade_vidas",name:"quantidade_vidas"},
+                    {data:"desconto",name:"desconto"},
                     {data:"id",name:"id",width:"5%",
                         "createdCell": function (td, cellData, rowData, row, col) {
                             let selected = $('<select />', {
@@ -2689,7 +2675,7 @@
                 let mes = $("#mes_folha").val();
                 let plano = $(this).attr('data-plano');
 
-                tabela.column(8).visible(false);
+                //tabela.column(8).visible(false);
 
                 if(mes) {
                     $("#listar_coletivo_apto").removeClass("ativo");
@@ -2728,7 +2714,7 @@
                 let mes = $("#mes_folha").val();
                 let plano = $(this).attr('data-plano');
 
-                tabela.column(8).visible(false);
+                //tabela.column(8).visible(false);
 
                 if(mes) {
                     $("#listar_coletivo_apto").removeClass("ativo");
@@ -2783,6 +2769,7 @@
 
 
             $("#listar_individual_apto").on('click',function(){
+                console.log("Olaaaaa");
                 let id = $("#corretor_escolhido").val();
                 let mes = $("#mes_folha").val();
                 if(id) {
@@ -2795,7 +2782,7 @@
                     if($("#tabela_principal").is(':visible')) {
                         $("#tabela_principal").slideUp('fast',function(){
                             if(mes == "") {
-                                listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/confirmadas/${id}') }}`).load();
+                                listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/confirmadas/${id}/${mes}') }}`).load();
                                 $("#tabela_aptos_a_pagar").slideDown('slow');
                             } else {
                                 listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/confirmadas/${id}/${mes}') }}`).load();
@@ -2805,7 +2792,7 @@
                     }
                     if($("#listar_a_receber").is(':visible')) {
                         $("#listar_a_receber").slideUp('fast',function(){
-                            listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/confirmadas/${id}') }}`).load();
+                            listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/confirmadas/${id}/${mes}') }}`).load();
                             $("#tabela_aptos_a_pagar").slideDown('slow');
                         });
                     } else {
@@ -3090,7 +3077,7 @@
 
             $("#listar_coletivo_apto").on('click',function(){
 
-
+                console.log("Olaaaaaa coletivooooo");
 
                 let id = $("#corretor_escolhido").val();
                 let mes = $("#mes_folha").val();
@@ -3104,7 +3091,7 @@
                         $("#tabela_principal").slideUp('fast',function(){
                             if(mes == "") {
                                 $("#title_individual_confirmados").html("<h4>Recebidas - Coletivo</h4>");
-                                listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/coletivo/confirmadas/${id}') }}`).load();
+                                listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/coletivo/confirmadas/${id}/{$mes}') }}`).load();
                                 $("#tabela_aptos_a_pagar").slideDown('slow');
                             } else {
                                 $("#title_individual_confirmados").html("<h4>Recebidas - Coletivo</h4>");
@@ -3119,7 +3106,7 @@
                     if($("#listar_a_receber").is(':visible')) {
                         $("#listar_a_receber").slideUp('fast',function(){
                             $("#title_individual_confirmados").html("<h4>Recebidas - Coletivo</h4>");
-                            listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/coletivo/confirmadas/${id}') }}`).load();
+                            listaraptosapagar.ajax.url(`{{ url('/admin/gerente/comissao/coletivo/confirmadas/${id}/${mes}') }}`).load();
                             $("#tabela_aptos_a_pagar").slideDown('slow');
                         });
                     } else {
@@ -3185,7 +3172,7 @@
                         "&id="+id_confirmados,
 
                     success:function(res) {
-
+                        console.log(res);
                         const select = $("#escolher_vendedor");
                         select.html('<option value="" class="text-center">--Corretores--</option>');
                         $.each(res.users_aptos, function(index, corretor) {
@@ -3336,18 +3323,19 @@
                         },width:"1%"
                     },
                     {data:"orcamento",name:"orcamento",width:"1%"},
-                    {data:"cliente",name:"cliente",width:"66%",
+                    {data:"cliente",name:"cliente",width:"50%",
                         "createdCell": function(td, cellData, rowData, row, col) {
-                            let palavra = cellData.split(" ");
-                            let nomeAbreviado = palavra[0] + " " + palavra[1];
-                            if(palavra.length >= 3) {
-                                $(td).html(nomeAbreviado).attr("title", cellData);
-                                //$(td).html(palavra[0]+" "+palavra[1]+" "+palavra[2])
-                            }
+                            $(td).html(cellData);
+                            // let palavra = cellData.split(" ");
+                            // let nomeAbreviado = palavra[0] + " " + palavra[1];
+                            // if(palavra.length >= 3) {
+                            //     $(td).html(nomeAbreviado).attr("title", cellData);
+                            //     //$(td).html(palavra[0]+" "+palavra[1]+" "+palavra[2])
+                            // }
                         }
                     },
                     {data:"parcela",name:"parcela",className: 'dt-center',width:"1%"},
-                    {data:"valor_plano_contratado",name:"valor_plano_contratado",width:"15%",
+                    {data:"valor_plano_contratado",name:"valor_plano_contratado",width:"10%",
                         render: $.fn.dataTable.render.number('.',',',2,'')
                     },
                     {data:"data",name:"data",className: 'dt-center',width:"1%"},
@@ -3358,18 +3346,19 @@
                         },width:"1%"
                     },
 
-                    {data:"porcentagem_parcela_corretor",name:"porcentagem_parcela_corretor",width:"18%",
+                    {data:"porcentagem_parcela_corretor",name:"porcentagem_parcela_corretor",width:"10%",
                         "createdCell":function(td, cellData, rowData, row, col) {
 
                             $(td).html('<input type="text" data-valor-plano='+rowData.valor_plano_contratado+'  data-id='+rowData.id+' value='+cellData+' name="comissao_paga_change" class="comissao_paga_change" style="width:100%;" />')
                         }
                     },
-                    {data:"id",name:"comissao_pagando",render: $.fn.dataTable.render.number('.',',',2,'R$ '),width:"20%",
+                    {data:"id",name:"comissao_pagando",render: $.fn.dataTable.render.number('.',',',2,'R$ '),width:"15%",
                         "createdCell":function(td, cellData, rowData, row, col) {
                             let valor_comisao = parseFloat(rowData.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                            $(td).html('<input type="text" value='+valor_comisao+' data-id='+cellData+' name="comissao_pagando" class="comissao_pagando" style="width:40px;" />')
+                            $(td).html('<input type="text" value='+valor_comisao+' data-id='+cellData+' name="comissao_pagando" class="comissao_pagando" style="width:100%;" />')
                         }
                     },
+                    {data:"quantidade_vidas",name:"quantidade_vidas",width:"2%"},
                     {data:"desconto",name:"desconto",width:"2%",
                         "createdCell":function(td, cellData, rowData, row, col) {
                             let descondo_calc = parseFloat(cellData).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -4082,7 +4071,13 @@
             padding: 0;
         }
 
+        #list_user {
+            max-height:200px;
+            background-color:#123449;
+            margin-top:10px;
+            overflow: auto;
 
+        }
 
         /* Estilização da barra de rolagem */
         #list_user::-webkit-scrollbar {

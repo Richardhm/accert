@@ -1748,7 +1748,7 @@ class FinanceiroController extends Controller
             $dados = ComissoesCorretoresDefault
             ::where("plano_id",$request->plano_id)
             ->where("administradora_id",4)
-            ->where("tabela_origens_id",2)
+
             ->get();
             foreach($dados as $c) {
                 $comissaoVendedor = new ComissoesCorretoresLancadas();

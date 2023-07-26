@@ -730,12 +730,12 @@
                 <!--COLUNA DA CENTRAL-->
                 <div style="flex-basis:83%;">
                     <div class="p-2" style="background-color:#123449;color:#FFF;border-radius:5px;">
-                        <table id="tabela_empresarial" class="table table-sm listarempresarial">
+                        <table id="tabela_empresarial" class="table table-sm listarempresarial" style="table-layout: fixed;">
 
                             <thead>
                             <tr>
                                 <th>Data</th>
-                                <th>Orçamento</th>
+                                <th>Cod.</th>
                                 <th>Corretor</th>
                                 <th>Cliente</th>
                                 <th>CNPJ</th>
@@ -1089,7 +1089,7 @@
                         $('#uploadModalColetivo').modal('hide');
                     },
                     success:function(res) {
-                        console.log(res)
+
                         if(res == "sucesso") {
                             load.fadeOut(200);
 
@@ -2258,17 +2258,16 @@
                 "responsive": true,
 
                 columns: [
-                    {data:"created_at",name:"created_at"},
-                    {data:"codigo_externo",name:"codigo_externo"},
-                    {data:"usuario",name:"usuario"},
-                    {data:"responsavel",name:"responsavel"},
-                    {data:"cnpj",name:"cnpj"},
-                    {data:"quantidade_vidas",name:"vidas"},
-
-                    {data:"valor_plano",name:"valor_plano",
+                    {data:"created_at",name:"created_at",width:"5%"},
+                    {data:"codigo_externo",name:"codigo_externo",width:"5%"},
+                    {data:"usuario",name:"usuario",width:"12%"},
+                    {data:"razao_social",name:"razao_social",width:"23%"},
+                    {data:"cnpj",name:"cnpj",width:"10%"},
+                    {data:"quantidade_vidas",name:"vidas",width:"3%"},
+                    {data:"valor_plano",name:"valor_plano",width:"6%",
                         render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ')
                     },
-                    {data:"comissao.comissao_atual_financeiro",name:"vencimento",
+                    {data:"comissao.comissao_atual_financeiro",name:"vencimento",width:"7%",
                         "createdCell": function(td,cellData,rowData,row,col) {
                             if(cellData == null) {
                                 if(rowData.financeiro_id == 11) {
@@ -2285,14 +2284,14 @@
                             }
                         }
                     },
-                    {data:"comissao.comissao_atual_financeiro",name:"financeiro"},
-                    {data:"razao_social",name:"razao_social"},
+                    {data:"comissao.comissao_atual_financeiro",name:"financeiro",width:"7%"},
+                    {data:"razao_social",name:"razao_social",width:"5%"},
                 ],
                 "columnDefs": [
                     // <th>Data</th>
                     {
                         "targets": 0,
-                        "width":"5%",
+
                         "createdCell":function(td,cellData,rowData,row,col) {
                             let datas = cellData.split("T")[0]
                             let alvo = datas.split("-").reverse().join("/")
@@ -2302,7 +2301,7 @@
 
                     {
                         "targets": 8,
-                        "width":"10%",
+
                         "createdCell": function (td, cellData, rowData, row, col) {
                             if(rowData.financeiro_id == 1 && rowData.financeiro.nome == "Em Análise" && rowData.comissao.comissao_atual_last == null) {
                                 $(td).html("Em Análise");
@@ -2329,7 +2328,7 @@
 
                     {
                         "targets": 9,
-                        "width":"2%",
+
                         "createdCell": function (td, cellData, rowData, row, col) {
                             var id = rowData.id;
                             $(td).html(`<div class='text-center text-white'>
@@ -3160,6 +3159,14 @@
         #tabela_individual_filter input[type='search'] {background-color: #FFF !important;}
         #tabela_coletivo_filter input[type='search'] {background-color: #FFF !important;}
         #tabela_empresarial_filter input[type='search'] {background-color: #FFF !important;}
+
+        #tabela_empresarial td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: clip;
+        }
+
+
         th { font-size: 0.9em !important; }
         td { font-size: 0.75em !important; }
     </style>
