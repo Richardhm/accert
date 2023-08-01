@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Comissoes;
+use App\Models\Contrato;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 
@@ -18,6 +20,66 @@ Route::redirect('/', '/login');
 
 
 Route::middleware('auth')->prefix("admin")->group(function(){
+
+    Route::get("/reposicionar",function(){
+        $comissoes = \Illuminate\Support\Facades\DB::select("
+              select
+                  *
+              from comissoes_corretores_lancadas where
+              comissoes_id IN(select id from comissoes where contrato_id IN(select id from contratos where plano_id = 1 and financeiro_id != 12))
+              and status_financeiro = 1
+        ");
+        foreach($comissoes as $cc) {
+
+            switch ($cc->parcela) {
+                case 2:
+                    $contrato_id = Comissoes::where("id", $cc->comissoes_id)->first()->contrato_id;
+                    Contrato::where("id", $contrato_id)->update([
+                        "financeiro_id" => 6
+                    ]);
+
+                    break;
+
+                case 3:
+                    $contrato_id = Comissoes::where("id", $cc->comissoes_id)->first()->contrato_id;
+                    Contrato::where("id", $contrato_id)->update([
+                        "financeiro_id" => 7
+                    ]);
+                    break;
+
+                case 4:
+                    $contrato_id = Comissoes::where("id", $cc->comissoes_id)->first()->contrato_id;
+                    Contrato::where("id", $contrato_id)->update([
+                        "financeiro_id" => 8
+                    ]);
+                    break;
+
+                case 5:
+                    $contrato_id = Comissoes::where("id", $cc->comissoes_id)->first()->contrato_id;
+                    Contrato::where("id", $contrato_id)->update([
+                        "financeiro_id" => 9
+                    ]);
+                    break;
+
+                case 6:
+                    $contrato_id = Comissoes::where("id", $cc->comissoes_id)->first()->contrato_id;
+                    Contrato::where("id", $contrato_id)->update([
+                        "financeiro_id" => 10
+                    ]);
+                    break;
+
+                default:
+                    $contrato_id = Comissoes::where("id", $cc->comissoes_id)->first()->contrato_id;
+                    Contrato::where("id", $contrato_id)->update([
+                        "financeiro_id" => 5
+                    ]);
+                    break;
+            }
+        }
+    });
+
+
+
     /*
     Route::get("/teste/arrumar",function(){
         $dados = DB::table('comissoes_corretores_lancadas')
@@ -163,7 +225,7 @@ Route::middleware('auth')->prefix("admin")->group(function(){
 
 
     Route::get("/financeiro/todososcontratos/em_geral_todos_os_planos","App\Http\Controllers\Admin\FinanceiroController@geralTodosContratosPendentes")->name('financeiro.todos.geralTodosContratosPendentes');
-    Route::get("/financeiro/individual/em_geral","App\Http\Controllers\Admin\FinanceiroController@geralIndividualPendentes")->name('financeiro.individual.geralIndividualPendentes');
+    Route::get("/financeiro/individual/em_geral/{mes?}","App\Http\Controllers\Admin\FinanceiroController@geralIndividualPendentes")->name('financeiro.individual.geralIndividualPendentes');
 
     Route::get("/financeiro/individual/mudar_ano/{ano}/{mes?}","App\Http\Controllers\Admin\FinanceiroController@mudarAnoIndividual")->name('financeiro.individual.mudarano');
     Route::get("/financeiro/individual/mudar_mes/{mes}/{ano?}","App\Http\Controllers\Admin\FinanceiroController@mudarMesIndividual")->name('financeiro.individual.mudarmes');
@@ -218,7 +280,7 @@ Route::middleware('auth')->prefix("admin")->group(function(){
     Route::get('/financeiro/individual/finalizado',"App\Http\Controllers\Admin\FinanceiroController@individualFinalizado")->name('financeiro.individual.finalizado');
     Route::get('/financeiro/individual/finalizado/corretor',"App\Http\Controllers\Admin\FinanceiroController@individualFinalizadoCorretor")->name('financeiro.individual.finalizado.corretor');
 
-    Route::get('/financeiro/coletivo/pagamento_individual_cancelado',"App\Http\Controllers\Admin\FinanceiroController@individualCancelados")->name('financeiro.individual.cancelado');
+    Route::get('/financeiro/individual/pagamento_individual_cancelado/{id?}/{mes?}',"App\Http\Controllers\Admin\FinanceiroController@individualCancelados")->name('financeiro.individual.cancelado');
     Route::get('/financeiro/coletivo/pagamento_individual_cancelado/corretor',"App\Http\Controllers\Admin\FinanceiroController@individualCanceladosCorretor")->name('financeiro.individual.cancelado.corretor');
 
 
@@ -247,7 +309,7 @@ Route::middleware('auth')->prefix("admin")->group(function(){
 
     Route::post('/financeiro/quantidade/corretor',"App\Http\Controllers\Admin\FinanceiroController@quantidadeCorretor")->name('financeiro.corretor.quantidade');
 
-    Route::get('/financeiro/geral/atrsado',"App\Http\Controllers\Admin\FinanceiroController@getAtrasados")->name('financeiro.individual.atrasado');
+    Route::get('/financeiro/geral/atrsado/{id?}/{mes?}',"App\Http\Controllers\Admin\FinanceiroController@getAtrasados")->name('financeiro.individual.atrasado');
     Route::get('/financeiro/geral/atrasado/corretor',"App\Http\Controllers\Admin\FinanceiroController@getAtrasadosCorretor")->name('financeiro.individual.atrasado.corretor');
 
     /**Fim Financeiro*/
@@ -289,6 +351,8 @@ Route::middleware('auth')->prefix("admin")->group(function(){
     Route::get('/gerente/listagem/comissao_mes_diferente/{id}',"App\Http\Controllers\Admin\GerenteController@comissaoMesDiferente")->name('gerente.listagem.comissao_mes_diferente');
     Route::get('/gerente/coletivo/listar/{id}',"App\Http\Controllers\Admin\GerenteController@coletivoAReceber")->name('gerente.listagem.coletivo.areceber');
     Route::get('/gerente/empresarial/listar/{id}',"App\Http\Controllers\Admin\GerenteController@empresarialAReceber")->name('gerente.listagem.empresarial.areceber');
+
+    Route::post('/gerente/aplicar/desconto/corretor','App\Http\Controllers\Admin\GerenteController@aplicarDescontoCorretor')->name('gerente.aplicar.desconto');
     Route::post('/gerente/mudar_status',"App\Http\Controllers\Admin\GerenteController@mudarStatus")->name('gerente.mudar_status');
     Route::get('/gerente/criar_pdf_pagamento',"App\Http\Controllers\Admin\GerenteController@criarPdfPagamento")->name('comissao.create.pdf');
     Route::post('/gerente/mudarcomisao/corretora',"App\Http\Controllers\Admin\GerenteController@mudarComissaoCorretora")->name('gerente.mudar.valor.corretora');

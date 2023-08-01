@@ -1053,7 +1053,29 @@
 
                     success:function(res) {
 
-                        console.log(res);
+                        if(res == "sem_resultado") {
+                            toastr["error"]("CPF ou codigo externo invalidos")
+                            toastr.options = {
+                                "closeButton": false,
+                                "debug": false,
+                                "newestOnTop": false,
+                                "progressBar": false,
+                                "positionClass": "toast-top-right",
+                                "preventDuplicates": false,
+                                "onclick": null,
+                                "showDuration": "300",
+                                "hideDuration": "1000",
+                                "timeOut": "5000",
+                                "extendedTimeOut": "1000",
+                                "showEasing": "swing",
+                                "hideEasing": "linear",
+                                "showMethod": "fadeIn",
+                                "hideMethod": "fadeOut"
+                            }
+
+                        } else {
+                            $(location).prop('href','/admin/financeiro')
+                        }
 
                         // if(res == "contratos") {
                         //     $(location).prop('href','/admin/contratos');

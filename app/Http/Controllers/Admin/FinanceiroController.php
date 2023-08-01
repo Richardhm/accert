@@ -23,8 +23,51 @@ class FinanceiroController extends Controller
 {
 
 
-    public function index()
+    public function index(Request $request)
     {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /*
+        $contratos = Contrato
+            ::where("plano_id",1)
+            ->where("financeiro_id",6)
+
+            ->whereHas('comissao.comissoesLancadas',function($query){
+                //$query->where("status_financeiro",0);
+                //$query->where("status_gerente",0);
+                $query->where("parcela",2);
+                //$query->whereRaw("data_baixa IS NULL");
+            })
+            ->whereHas('clientes',function($query){
+                $query->whereRaw('cateirinha IS NOT NULL');
+
+            })
+            //->whereRaw("NOW() > date_add(updated_at, INTERVAL 30 SECOND)")
+            ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
+            ->orderBy("id","desc")
+            ->toSql();
+        dd($contratos);
+        */
+
+
+
+
+
 
           // $qtd_individual_atrasado = Contrato
           //       ::where("plano_id",1)
@@ -200,9 +243,13 @@ class FinanceiroController extends Controller
 
 
 
-        $qtd_individual_cancelado = Contrato::where("financeiro_id",12)
-            ->where("plano_id",1)
-            ->count();
+        $qtd_individual_cancelado = DB::select(
+          "select count(*) as total_cancelados from contratos where cliente_id in
+(select id from clientes where id in(select cliente_id from contratos where plano_id = 1 OR financeiro_id = 12) and cateirinha IS NULL);"
+
+        );
+
+
 
 
 
@@ -425,12 +472,20 @@ class FinanceiroController extends Controller
         ->count();
         $qtd_empresarial_finalizado = ContratoEmpresarial::where("financeiro_id",11)->count();
         $qtd_empresarial_cancelado = ContratoEmpresarial::where("financeiro_id",12)->count();
+
+        $corretores = DB::select("
+            select id,name from users where id in(select DISTINCT user_id from clientes where id in(select cliente_id from contratos where plano_id = 1)) order by name
+        ");
+
+
+
         return view('admin.pages.financeiro.index',[
             "cidades" => $cidades,
             "administradoras" => $administradoras,
             "planos" => $planos,
             "planos_empresarial" => $plano_empresarial,
             "users" => $users,
+            "corretores" => $corretores,
             "origem_tabela" => $tabela_origem,
             "anos_coletivo" => $anos_coletivo,
             "meses" => $meses,
@@ -442,11 +497,8 @@ class FinanceiroController extends Controller
             "qtd_individual_parcela_05" => $qtd_individual_parcela_05,
             "qtd_individual_parcela_06" => $qtd_individual_parcela_06,
             "qtd_individual_em_analise" => $qtd_individual_em_analise,
-
-            "qtd_individual_cancelado" => $qtd_individual_cancelado,
-
+            "qtd_individual_cancelado" => $qtd_individual_cancelado[0]->total_cancelados,
             "qtd_individual_atrasado" => $qtd_individual_atrasado,
-
             "qtd_coletivo_em_analise" => $qtd_coletivo_em_analise,
             "qtd_coletivo_emissao_boleto" => $qtd_coletivo_emissao_boleto,
             "qtd_coletivo_pg_adesao" => $qtd_coletivo_pg_adesao,
@@ -461,7 +513,6 @@ class FinanceiroController extends Controller
             "contratos_coletivo_total" => $contratos_coletivo_total,
             "qtd_total_vidas_coletivo" => $qtd_total_vidas_coletivo,
             "qtd_total_valor_coletivo" => $qtd_total_valor_coletivo,
-
             "qtd_empresarial_pendentes" => $qtd_empresarial_pendentes,
             "qtd_empresarial_parcela_01" => $qtd_empresarial_parcela_01,
             "qtd_empresarial_parcela_02" => $qtd_empresarial_parcela_02,
@@ -523,16 +574,16 @@ class FinanceiroController extends Controller
                 $query->whereRaw("cateirinha IS NOT NULL");
             })
             ->count();
+
         $qtd_individual_parcela_05 = Contrato
             ::where("plano_id",1)
             ->where("financeiro_id",9)
             ->whereMonth("created_at",$mes)
-
             ->whereHas('clientes',function($query) use($request){
-
                 $query->whereRaw("cateirinha IS NOT NULL");
             })
             ->count();
+
         $qtd_individual_parcela_06 = Contrato
             ::where("plano_id",1)
             ->where("financeiro_id",10)
@@ -581,21 +632,7 @@ class FinanceiroController extends Controller
                 $query->whereRaw('plano_id = 1');
             })->selectRaw("sum(quantidade_vidas) as quantidade_vidas")->first();
 
-        $qtd_individual_atrasado = Contrato
-            ::where("plano_id",1)
-            ->where("financeiro_id","!=",12)
-            ->whereMonth("created_at",$request->mes)
-            ->whereHas('comissao.comissoesLancadas',function($query){
-                $query->whereRaw("DATA < CURDATE()");
-                //$query->whereRaw("valor > 0");
-                $query->whereRaw("data_baixa IS NULL");
-                $query->groupBy("comissoes_id");
-            })
-            ->whereHas('clientes',function($query) use($request){
-                $query->whereRaw('cateirinha IS NOT NULL');
 
-            })
-            ->count();
 
         $contratos = DB::table('users')
             ->selectRaw('name')
@@ -603,7 +640,19 @@ class FinanceiroController extends Controller
             ->whereRaw('id IN (SELECT user_id FROM clientes WHERE id IN (SELECT cliente_id FROM contratos WHERE plano_id = 1 AND EXISTS (SELECT * FROM clientes WHERE contratos.cliente_id = clientes.id AND cateirinha IS NOT NULL) AND MONTH(data_vigencia) = ?))',[$mes])
             ->get();
 
-
+        $qtd_individual_atrasado = Contrato
+            ::where("plano_id",1)
+            ->where("financeiro_id","!=",12)
+            ->whereMonth("created_at",$mes)
+            ->whereHas('comissao.comissoesLancadas',function($query){
+                $query->whereRaw("DATA < CURDATE()");
+                $query->whereRaw("data_baixa IS NULL");
+                $query->groupBy("comissoes_id");
+            })
+            ->whereHas('clientes',function($query){
+                $query->whereRaw('cateirinha IS NOT NULL');
+            })
+            ->count();
 
 
         return [
@@ -614,6 +663,7 @@ class FinanceiroController extends Controller
             "qtd_individual_parcela_05" => $qtd_individual_parcela_05,
             "qtd_individual_parcela_06" => $qtd_individual_parcela_06,
             "qtd_individual_cancelado" => $qtd_individual_cancelado,
+            "qtd_individual_atrsado" => $qtd_individual_atrasado,
             "contratos" => $contratos
         ];
 
@@ -678,22 +728,48 @@ class FinanceiroController extends Controller
 
     public function geralIndividualPendentes(Request $request)
     {
-        $contratos = Contrato
-            ::where("plano_id",1)
-            ->whereHas('clientes',function($query){
-                $query->whereRaw("cateirinha IS NOT NULL");
-            })
-
-            // ->whereHas('comissao.ultimaComissaoPaga',function($query){
-            //     $query->whereYear("data",2022);
-            //     $query->whereMonth('data','08');
-            // })
-            ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-            ->whereYear("data_vigencia",date('Y'))
-            ->whereMonth("data_vigencia",date('m'))
-            ->orderBy("id","desc")
-            ->get();
+//        $contratos = Contrato
+//            ::where("plano_id",1)
+//            ->whereHas('clientes',function($query){
+//                $query->whereRaw("cateirinha IS NOT NULL");
+//            })
+//
+//            // ->whereHas('comissao.ultimaComissaoPaga',function($query){
+//            //     $query->whereYear("data",2022);
+//            //     $query->whereMonth('data','08');
+//            // })
+//            ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
+//            ->whereYear("data_vigencia",date('Y'))
+//            ->whereMonth("data_vigencia",date('m'))
+//            ->orderBy("id","desc")
+//            ->get();
         // $contratos = [];
+
+
+
+
+
+        $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela =
+                    (select if(parcela + 1 > 6,6,parcela + 1) as parcela from comissoes_corretores_lancadas where comissoes_id = comissoes.id and status_financeiro = 1 order by id desc LIMIT 1)
+                    )),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1  and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
+
+            ");
+
+
+
 
         return $contratos;
     }
@@ -817,6 +893,25 @@ class FinanceiroController extends Controller
 
     public function mudarMesIndividual(Request $request)
     {
+//        echo "
+//                    select
+//                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+//                    (codigo_externo) as orcamento,
+//                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+//                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+//                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+//                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+//                    (valor_plano) as valor_plano,
+//                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+//                    id,
+//                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 3)),'%d/%m/%Y') as vencimento
+//                    from contratos
+//                    where plano_id = 1 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
+//                    and month('created_at') = {$request->mes}";
+
+
+
+
         // if(isset($request->ano) && !empty($request->ano) && $request->ano != null) {
         //     $contratos = Contrato
         //     ::where("plano_id",1)
@@ -842,27 +937,79 @@ class FinanceiroController extends Controller
 
 
         if($request->mes != "00") {
-            $contratos = Contrato
-            ::where("plano_id",1)
-            ->whereHas('clientes',function($query){
-                $query->whereRaw("cateirinha IS NOT NULL");
-            })
-            ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPagaFinanceiro','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-            ->whereMonth('data_vigencia',$request->mes)
-            ->orderBy("id","desc")
-            ->get();
 
+            $contratos = DB::select("
+                select DATE_FORMAT(created_at,
+                   '%d/%m/%Y') as data,
+       (codigo_externo)as orcamento,
+       (select name from users where id=(select user_id from clientes where clientes.id=contratos.cliente_id)) as corretor,
+       (select nome from clientes where clientes.id=contratos.cliente_id) as cliente,
+       (select cpf from clientes where clientes.id=contratos.cliente_id) as cpf,
+       (select quantidade_vidas from clientes where clientes.id=contratos.cliente_id) as quantidade_vidas,
+       (valor_plano)as valor_plano,
+       (select nome from estagio_financeiros where estagio_financeiros.id=contratos.financeiro_id) as parcelas,
+       id,
+
+       DATE_FORMAT(
+           (
+                select data from comissoes_corretores_lancadas where comissoes_id=(select id from comissoes where contrato_id=contratos.id AND parcela=
+                (select if(parcela + 1 > 6,6,parcela + 1) as parcela from comissoes_corretores_lancadas where comissoes_id = comissoes.id and status_financeiro = 1 order by id desc LIMIT 1)
+            )
+        ),'%d/%m/%Y') as vencimento
+
+from contratos where plano_id=1 and exists(select*from `clientes`where `contratos`.`cliente_id`=`clientes`.`id`and cateirinha IS NOT NULL) and month(created_at)={$request->mes}
+            ");
+
+//            $contratos = Contrato
+//            ::where("plano_id",1)
+//            ->whereHas('clientes',function($query){
+//                $query->whereRaw("cateirinha IS NOT NULL");
+//            })
+//            ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPagaFinanceiro','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
+//            ->whereMonth('data_vigencia',$request->mes)
+//            ->orderBy("id","desc")
+//            ->get();
 
         } else {
-            $contratos = Contrato
-            ::where("plano_id",1)
-            ->whereHas('clientes',function($query){
-                $query->whereRaw("cateirinha IS NOT NULL");
-            })
-            ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPagaFinanceiro','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-            // ->whereMonth('data_vigencia',$request->mes)
-            ->orderBy("id","desc")
-            ->get();
+
+            $contratos = DB::select("
+                select DATE_FORMAT(created_at,'%d/%m/%Y')as data,
+       (codigo_externo)as orcamento,
+       (select name from users where id=(select user_id from clientes where clientes.id=contratos.cliente_id)) as corretor,
+       (select nome from clientes where clientes.id=contratos.cliente_id) as cliente,
+       (select cpf from clientes where clientes.id=contratos.cliente_id) as cpf,
+       (select quantidade_vidas from clientes where clientes.id=contratos.cliente_id) as quantidade_vidas,
+       (valor_plano)as valor_plano,
+       (select nome from estagio_financeiros where estagio_financeiros.id=contratos.financeiro_id) as parcelas,
+       id,
+
+       DATE_FORMAT(
+           (
+                select data from comissoes_corretores_lancadas where comissoes_id=(select id from comissoes where contrato_id=contratos.id AND parcela=
+                (select if(parcela + 1 > 6,6,parcela + 1) as parcela from comissoes_corretores_lancadas where comissoes_id = comissoes.id and status_financeiro = 1 order by id desc LIMIT 1)
+            )
+        ),'%d/%m/%Y') as vencimento
+
+from contratos where plano_id=1 and exists(select*from `clientes`where `contratos`.`cliente_id`=`clientes`.`id`and cateirinha IS NOT NULL)
+            ");
+
+
+
+
+
+
+
+
+
+//            $contratos = Contrato
+//            ::where("plano_id",1)
+//            ->whereHas('clientes',function($query){
+//                $query->whereRaw("cateirinha IS NOT NULL");
+//            })
+//            ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPagaFinanceiro','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
+//            // ->whereMonth('data_vigencia',$request->mes)
+//            ->orderBy("id","desc")
+//            ->get();
 
 
         }
@@ -1150,28 +1297,113 @@ class FinanceiroController extends Controller
 
     }
 
-    public function getAtrasados()
+    public function getAtrasados(Request $request)
     {
-        $atrasados = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id","!=",12)
-                ->whereHas('comissao.comissoesLancadas',function($query){
-                    $query->whereRaw("DATA < CURDATE()");
-                    //$query->whereRaw("valor > 0");
-                    $query->whereRaw("data_baixa IS NULL");
-                    $query->groupBy("comissoes_id");
-                    //$query->orderBy("data");
-                })
-                ->whereHas('clientes',function($query){
-                    $query->whereRaw('cateirinha IS NOT NULL');
-                })
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
+        if($request->mes && $request->id) {
 
-                ->get();
-
-
-
-        return $atrasados;
+            $dados = DB::select(
+                "
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT(
+        (select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela=
+        (select if(parcela + 1 > 6,6,parcela + 1) as parcela from comissoes_corretores_lancadas where comissoes_id = comissoes.id and status_financeiro = 1 order by id desc LIMIT 1)
+        ))
+        ,'%d/%m/%Y') as vencimento
+                from
+                `contratos` where `plano_id` = 1 and month(created_at) = {$request->mes}
+                and `financeiro_id` != 12 and
+                exists (select * from `comissoes` where `contratos`.`id` = `comissoes`.`contrato_id`
+                and exists (select * from `comissoes_corretores_lancadas` where `comissoes`.`id` = `comissoes_corretores_lancadas`.`comissoes_id` and DATA < CURDATE() and data_baixa IS NULL group by `comissoes_id`))
+                and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and `clientes`.`id` = {$request->id} and cateirinha IS NOT NULL)
+            "
+            );
+        } else if($request->mes && !$request->id) {
+            $dados = DB::select(
+                "
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT(
+        (select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela=
+        (select if(parcela + 1 > 6,6,parcela + 1) as parcela from comissoes_corretores_lancadas where comissoes_id = comissoes.id and status_financeiro = 1 order by id desc LIMIT 1)
+        ))
+        ,'%d/%m/%Y') as vencimento
+                from
+                `contratos` where `plano_id` = 1 and month(created_at) = {$request->mes}
+                and `financeiro_id` != 12 and
+                exists (select * from `comissoes` where `contratos`.`id` = `comissoes`.`contrato_id`
+                and exists (select * from `comissoes_corretores_lancadas` where `comissoes`.`id` = `comissoes_corretores_lancadas`.`comissoes_id` and DATA < CURDATE() and data_baixa IS NULL group by `comissoes_id`))
+                and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
+            "
+            );
+        } else if(!$request->mes && $request->id) {
+            $dados = DB::select(
+                "
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT(
+        (select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela=
+        (select if(parcela + 1 > 6,6,parcela + 1) as parcela from comissoes_corretores_lancadas where comissoes_id = comissoes.id and status_financeiro = 1 order by id desc LIMIT 1)
+        ))
+        ,'%d/%m/%Y') as vencimento
+                from
+                `contratos` where `plano_id` = 1 and `financeiro_id` != 12 and
+                exists (select * from `comissoes` where `contratos`.`id` = `comissoes`.`contrato_id`
+                and exists (select * from `comissoes_corretores_lancadas` where `comissoes`.`id` = `comissoes_corretores_lancadas`.`comissoes_id` and DATA < CURDATE() and data_baixa IS NULL group by `comissoes_id`))
+                and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and `clientes`.`id` = {$request->id} and cateirinha IS NOT NULL)
+            "
+            );
+        } else {
+            $dados = DB::select(
+                "
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT(
+        (select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela=
+        (select if(parcela + 1 > 6,6,parcela + 1) as parcela from comissoes_corretores_lancadas where comissoes_id = comissoes.id and status_financeiro = 1 order by id desc LIMIT 1)
+        ))
+        ,'%d/%m/%Y') as vencimento
+                from
+                `contratos` where `plano_id` = 1 and `financeiro_id` != 12 and
+                exists (select * from `comissoes` where `contratos`.`id` = `comissoes`.`contrato_id`
+                and exists (select * from `comissoes_corretores_lancadas` where `comissoes`.`id` = `comissoes_corretores_lancadas`.`comissoes_id` and DATA < CURDATE() and data_baixa IS NULL group by `comissoes_id`))
+                and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
+            "
+            );
+        }
+        return $dados;
     }
 
     public function getAtrasadosCorretor()
@@ -1197,6 +1429,9 @@ class FinanceiroController extends Controller
 
     public function quantidadeCorretor(Request $request)
     {
+
+
+
         $id = $request->id;
 
         if($request->mes != "") {
@@ -1264,6 +1499,7 @@ class FinanceiroController extends Controller
                     $query->whereRaw("cateirinha IS NOT NULL");
                 })
                 ->count();
+
             $qtd_individual_parcela_06 = Contrato
                 ::where("plano_id",1)
                 ->where("financeiro_id",10)
@@ -1279,7 +1515,7 @@ class FinanceiroController extends Controller
 
             $qtd_individual_finalizado = Contrato
                 ::where("financeiro_id",11)
-                ->whereMonth("created_at",$request->mes)
+
                 ->where("plano_id",1)
                 ->whereMonth("created_at",$request->mes)
                 ->whereHas('clientes',function($query) use($request){
@@ -1287,15 +1523,19 @@ class FinanceiroController extends Controller
                 })
                 ->count();
 
-            $qtd_individual_cancelado = Contrato
-                ::where("financeiro_id",12)
-                ->where("plano_id",1)
-                ->whereMonth("created_at",$request->mes)
-                ->whereHas('clientes',function($query) use($request){
-                    $query->where("user_id",$request->id);
+
+
+            $qtd_individual_cancelado = Cliente::where('user_id',$request->id)
+                ->whereNull('cateirinha')
+                ->whereIn('id', function ($query) use($request) {
+                    $query->select('cliente_id')
+                        ->from('contratos')
+                        ->where(function ($subQuery) use($request) {
+                            $subQuery->where('plano_id', 1)->where("created_at",$request->mes)
+                                ->orWhere('financeiro_id', 12);
+                        });
                 })
                 ->count();
-
 
             $qtd_cliente = Cliente
                 ::where("user_id",$request->id)
@@ -1350,6 +1590,163 @@ class FinanceiroController extends Controller
 
 
         } else {
+
+            $qtd_individual_parcela_01 = Contrato
+                ::where("plano_id",1)
+                ->where("financeiro_id",5)
+
+                ->whereHas('comissao.comissoesLancadas',function($query){
+                    $query->where("parcela",1);
+                })
+                ->whereHas('clientes',function($query) use($request){
+                    $query->where("user_id",$request->id);
+                    $query->whereRaw("cateirinha IS NOT NULL");
+                })
+                ->count();
+
+            $qtd_individual_parcela_02 = Contrato
+                ::where("plano_id",1)
+                ->where("financeiro_id",6)
+
+                ->whereHas('comissao.comissoesLancadas',function($query){
+                    $query->where("parcela",2);
+                })
+                ->whereHas('clientes',function($query) use($request){
+                    $query->where("user_id",$request->id);
+                    $query->whereRaw("cateirinha IS NOT NULL");
+                })
+                ->count();
+
+            $qtd_individual_parcela_03 = Contrato
+                ::where("plano_id",1)
+                ->where("financeiro_id",7)
+
+                ->whereHas('comissao.comissoesLancadas',function($query){
+                    $query->where("parcela",3);
+                })
+                ->whereHas('clientes',function($query) use($request){
+                    $query->where("user_id",$request->id);
+                    $query->whereRaw("cateirinha IS NOT NULL");
+                })
+                ->count();
+
+            $qtd_individual_parcela_04 = Contrato
+                ::where("plano_id",1)
+                ->where("financeiro_id",8)
+
+                ->whereHas('comissao.comissoesLancadas',function($query){
+                    $query->where("parcela",4);
+                })
+                ->whereHas('clientes',function($query) use($request){
+                    $query->where("user_id",$request->id);
+                    $query->whereRaw("cateirinha IS NOT NULL");
+                })
+                ->count();
+            $qtd_individual_parcela_05 = Contrato
+                ::where("plano_id",1)
+                ->where("financeiro_id",9)
+
+                ->whereHas('comissao.comissoesLancadas',function($query){
+                    $query->where("parcela",5);
+                })
+                ->whereHas('clientes',function($query) use($request){
+                    $query->where("user_id",$request->id);
+                    $query->whereRaw("cateirinha IS NOT NULL");
+                })
+                ->count();
+            $qtd_individual_parcela_06 = Contrato
+                ::where("plano_id",1)
+                ->where("financeiro_id",10)
+
+                ->whereHas('comissao.comissoesLancadas',function($query){
+                    $query->where("parcela",6);
+                })
+                ->whereHas('clientes',function($query) use($request){
+                    $query->where("user_id",$request->id);
+                    $query->whereRaw("cateirinha IS NOT NULL");
+                })
+                ->count();
+
+            $qtd_individual_finalizado = Contrato
+                ::where("financeiro_id",11)
+
+                ->where("plano_id",1)
+
+                ->whereHas('clientes',function($query) use($request){
+                    $query->where("user_id",$request->id);
+                })
+                ->count();
+
+//            select count(*) as total_cancelados from contratos where cliente_id in
+//            (select id from clientes where id in(select cliente_id from contratos where plano_id = 1 OR financeiro_id = 12) and cateirinha IS NULL and user_id = 2);
+
+
+
+            $qtd_individual_cancelado = Cliente::where('user_id',$request->id)
+                ->whereNull('cateirinha')
+                ->whereIn('id', function ($query) {
+                    $query->select('cliente_id')
+                        ->from('contratos')
+                        ->where(function ($subQuery) {
+                            $subQuery->where('plano_id', 1)
+                                ->orWhere('financeiro_id', 12);
+                        });
+                })
+                ->count();
+
+
+            $qtd_cliente = Cliente
+                ::where("user_id",$request->id)
+
+                ->whereRaw("cateirinha IS NOT NULL")
+                ->whereHas('contrato',function($query){
+                    $query->whereRaw('plano_id = 1');
+                })->count();
+
+            $qtd_vidas = Cliente
+                ::where("user_id",$request->id)
+
+                ->whereRaw("cateirinha IS NOT NULL")
+                ->whereHas('contrato',function($query){
+                    $query->whereRaw('plano_id = 1');
+                })->selectRaw("sum(quantidade_vidas) as quantidade_vidas")->first();
+
+            $qtd_individual_atrasado = Contrato
+                ::where("plano_id",1)
+                ->where("financeiro_id","!=",12)
+
+                ->whereHas('comissao.comissoesLancadas',function($query){
+                    $query->whereRaw("DATA < CURDATE()");
+                    //$query->whereRaw("valor > 0");
+                    $query->whereRaw("data_baixa IS NULL");
+                    $query->groupBy("comissoes_id");
+                })
+                ->whereHas('clientes',function($query) use($request){
+                    $query->whereRaw('cateirinha IS NOT NULL');
+                    $query->where("user_id",$request->id);
+                })
+                ->count();
+
+            return [
+                "qtd_individual_parcela_01" => $qtd_individual_parcela_01,
+                "qtd_individual_parcela_02" => $qtd_individual_parcela_02,
+                "qtd_individual_parcela_03" => $qtd_individual_parcela_03,
+                "qtd_individual_parcela_04" => $qtd_individual_parcela_04,
+                "qtd_individual_parcela_05" => $qtd_individual_parcela_05,
+                "qtd_individual_parcela_06" => $qtd_individual_parcela_06,
+                "qtd_individual_finalizado" => $qtd_individual_finalizado,
+                "qtd_individual_cancelado" => $qtd_individual_cancelado,
+                "qtd_individual_atrasado" => $qtd_individual_atrasado,
+                "qtd_clientes" => $qtd_cliente,
+                "qtd_vidas" => $qtd_vidas->quantidade_vidas
+            ];
+
+
+
+
+
+
+
 
         }
 
@@ -1966,50 +2363,91 @@ class FinanceiroController extends Controller
 
     public function individualPagamentoPrimeiraParcela(Request $request)
     {
-        if($request->mes) {
-            $contratos = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id",5)
-                ->whereMonth('created_at',$request->mes)
-                ->whereHas('comissao.comissoesLancadas',function($query){
-                    //$query->where("status_financeiro",0);
-                    //$query->where("status_gerente",0);
-                    $query->where("parcela",1);
-                    //$query->whereRaw("data_baixa IS NULL");
-                })
-                ->whereHas('clientes',function($query)use($request) {
-                    $query->whereRaw('cateirinha IS NOT NULL');
-                    if($request->id) {
-                        $query->where('user_id',$request->id);
-                    }
-                    //
-                })
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-                ->orderBy("id","desc")
-                ->get();
-        } else {
+        if($request->mes && $request->id) {
 
-            $contratos = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id",5)
-                //->whereMonth('created_at',$request->mes)
-                ->whereHas('comissao.comissoesLancadas',function($query){
-                    //$query->where("status_financeiro",0);
-                    //$query->where("status_gerente",0);
-                    $query->where("parcela",1);
-                    //$query->whereRaw("data_baixa IS NULL");
-                })
-                ->whereHas('clientes',function($query)use($request){
-                    $query->whereRaw('cateirinha IS NOT NULL');
-                    if($request->id) {
-                        $query->where('user_id',$request->id);
-                    }
-                })
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-                ->orderBy("id","desc")
-                ->get();
-            return $contratos;
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 2)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 5 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL AND user_id = {$request->id})
+                    and month(created_at) = {$request->mes}
+            ");
+
+
+
+        } else if($request->mes && !$request->id) {
+
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 2)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 5 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
+                    and month(created_at) = {$request->mes}
+            ");
+
+
+
+
+
+        } else if(!$request->mes && $request->id) {
+
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 2)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 5 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL AND user_id = {$request->id})
+
+            ");
+
+
+        } else {
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 2)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 5 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
+
+            ");
         }
+
+
+
 
         return $contratos;
     }
@@ -2081,52 +2519,80 @@ class FinanceiroController extends Controller
 
     public function individualPagamentoSegundaParcela(Request $request)
     {
-        if($request->mes) {
-            $contratos = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id",6)
-                ->whereMonth("created_at",$request->mes)
-                ->whereHas('comissao.comissoesLancadas',function($query){
-                    //$query->where("status_financeiro",0);
-                    //$query->where("status_gerente",0);
-                    $query->where("parcela",2);
-                    //$query->whereRaw("data_baixa IS NULL");
-                })
-                ->whereHas('clientes',function($query)use($request){
-                    $query->whereRaw('cateirinha IS NOT NULL');
-                    if($request->id) {
-                        $query->where('user_id',$request->id);
-                    }
+        if($request->mes && $request->id) {
 
-                })
-                //->whereRaw("NOW() > date_add(updated_at, INTERVAL 30 SECOND)")
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-                ->orderBy("id","desc")
-                ->get();
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 3)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 6 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL AND user_id = {$request->id})
+                    and month(created_at) = {$request->mes}
+            ");
+
+        } else if($request->mes && !$request->id) {
+
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 3)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 6 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
+                    and month(created_at) = {$request->mes}
+            ");
+
+        } else if(!$request->mes && $request->id) {
+
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 3)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 6 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL AND user_id = {$request->id})
+            ");
+
         } else {
-            $contratos = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id",6)
 
-                ->whereHas('comissao.comissoesLancadas',function($query){
-                    //$query->where("status_financeiro",0);
-                    //$query->where("status_gerente",0);
-                    $query->where("parcela",2);
-                    //$query->whereRaw("data_baixa IS NULL");
-                })
-                ->whereHas('clientes',function($query)use($request){
-                    $query->whereRaw('cateirinha IS NOT NULL');
-                    if($request->id) {
-                        $query->where('user_id',$request->id);
-                    }
-                })
-                //->whereRaw("NOW() > date_add(updated_at, INTERVAL 30 SECOND)")
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-                ->orderBy("id","desc")
-                ->get();
+            $contratos = DB::select("
+                SELECT
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (SELECT name FROM users WHERE id = (SELECT user_id FROM clientes WHERE clientes.id = contratos.cliente_id)) as corretor,
+                    (SELECT nome FROM clientes WHERE clientes.id = contratos.cliente_id) as cliente,
+                    (SELECT cpf FROM clientes WHERE clientes.id = contratos.cliente_id) as cpf,
+                    (SELECT quantidade_vidas FROM clientes WHERE clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (SELECT nome FROM estagio_financeiros WHERE estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((SELECT data FROM comissoes_corretores_lancadas WHERE comissoes_id = (SELECT id FROM comissoes WHERE contrato_id = contratos.id AND parcela = 3)),'%d/%m/%Y') as vencimento
+                FROM contratos
+                WHERE plano_id = 1 AND financeiro_id = 6 AND EXISTS (SELECT * FROM `clientes` WHERE `contratos`.`cliente_id` = `clientes`.`id` AND cateirinha IS NOT NULL);
+            ");
         }
-
-
 
         return $contratos;
     }
@@ -2204,52 +2670,90 @@ class FinanceiroController extends Controller
 
     public function individualPagamentoTerceiraParcela(Request $request)
     {
-        if($request->mes) {
+        if($request->mes && $request->id) {
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 4)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 7 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL AND user_id = {$request->id})
+                    and month(created_at) = {$request->mes}
+            ");
+        } else if($request->mes && !$request->id) {
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 4)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 7 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
+                    and month(created_at) = {$request->mes}
+            ");
 
-            $contratos = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id",7)
-                ->whereMonth("created_at",$request->mes)
-                ->whereHas('comissao.comissoesLancadas',function($query){
-                    //$query->where("status_financeiro","=",0);
-                    //$query->where("status_gerente",0);
-                    $query->where("parcela",3);
-                    //$query->whereRaw("data_baixa IS NULL");
-                })
-                ->whereHas('clientes',function($query)use($request){
-                    $query->whereRaw('cateirinha IS NOT NULL');
 
-                        if($request->id) {
-                            $query->where('user_id',$request->id);
-                        }
 
-                })
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-                ->orderBy("id","desc")
-                ->get();
+        } else if(!$request->mes && $request->id) {
+
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 4)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 7 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL AND user_id = {$request->id})
+
+            ");
+
+
+
 
         } else {
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 4)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 7 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
 
-            $contratos = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id",7)
-
-                ->whereHas('comissao.comissoesLancadas',function($query){
-                    //$query->where("status_financeiro","=",0);
-                    //$query->where("status_gerente",0);
-                    $query->where("parcela",3);
-                    //$query->whereRaw("data_baixa IS NULL");
-                })
-                ->whereHas('clientes',function($query)use($request){
-                    $query->whereRaw('cateirinha IS NOT NULL');
-                    if($request->id) {
-                        $query->where('user_id',$request->id);
-                    }
-                })
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-                ->orderBy("id","desc")
-                ->get();
+            ");
         }
+
+
+
+
+
+
+
 
         return $contratos;
 
@@ -2357,59 +2861,95 @@ class FinanceiroController extends Controller
 
     public function individualPagamentoQuartaParcela(Request $request)
     {
-        if($request->mes) {
+        if($request->mes && $request->id) {
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 5)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 8 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL AND user_id = {$request->id})
+                    and month(created_at) = {$request->mes}
+            ");
 
-            $contratos = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id",8)
-                ->whereMonth("created_at",$request->mes)
-                ->whereHas('comissao.comissoesLancadas',function($query){
-                    //$query->where("status_financeiro","=",0);
-                    //$query->where("status_gerente",0);
-                    $query->where("parcela",4);
-                    //$query->whereRaw("data_baixa IS NULL");
-                })
-                ->whereHas('clientes',function($query)use($request){
-                    $query->whereRaw('cateirinha IS NOT NULL');
-                    if($request->id) {
-                        $query->where('user_id',$request->id);
-                    }
-                })
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-                ->orderBy("id","desc")
-                ->get();
+
+
+
+        } else if($request->mes && !$request->id) {
+
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 5)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 8 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
+                    and month(created_at) = {$request->mes}
+            ");
+
+
+
+
+        } else if(!$request->mes && $request->id) {
+
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 5)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 8 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL  AND user_id = {$request->id})
+
+            ");
+
 
 
 
         } else {
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 5)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 8 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
 
-            $contratos = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id",8)
-
-                ->whereHas('comissao.comissoesLancadas',function($query){
-                    //$query->where("status_financeiro","=",0);
-                    //$query->where("status_gerente",0);
-                    $query->where("parcela",4);
-                    //$query->whereRaw("data_baixa IS NULL");
-                })
-                ->whereHas('clientes',function($query)use($request){
-                    $query->whereRaw('cateirinha IS NOT NULL');
-                    if($request->id) {
-                        $query->where('user_id',$request->id);
-                    }
-                })
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-                ->orderBy("id","desc")
-                ->get();
-
-
-
-
-
-
-
+            ");
         }
+
+
+
+
+
+
 
 
 
@@ -2489,65 +3029,100 @@ class FinanceiroController extends Controller
 
     public function individualPagamentoQuintaParcela(Request $request)
     {
-        if($request->mes) {
+        if($request->mes && $request->id) {
 
-            $contratos = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id",9)
-                ->whereMonth("created_at",$request->mes)
-                ->whereHas('comissao.comissoesLancadas',function($query){
-                    //$query->where("status_financeiro","=",0);
-                    //$query->where("status_gerente",0);
-                    $query->where("parcela",5);
-                    //$query->whereRaw("data_baixa IS NULL");
-                })
-
-                ->whereHas('clientes',function($query) use($request){
-                    $query->whereRaw('cateirinha IS NOT NULL');
-                    if($request->id) {
-                        $query->where("user_id",$request->id);
-                    }
-
-                })
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-                ->orderBy("id","desc")
-                ->get();
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 6)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 9 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL AND user_id = {$request->id})
+                    and month(created_at) = {$request->mes}
+            ");
 
 
+
+
+
+        } else if($request->mes && !$request->id) {
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 6)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 9 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
+                    and month(created_at) = {$request->mes}
+            ");
+
+
+
+        } else if(!$request->mes && $request->id) {
+
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 6)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 9 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL AND user_id = {$request->id})
+
+            ");
 
 
 
         } else {
 
-            $contratos = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id",9)
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 6)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 9 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
 
-                ->whereHas('comissao.comissoesLancadas',function($query){
-                    //$query->where("status_financeiro","=",0);
-                    //$query->where("status_gerente",0);
-                    $query->where("parcela",5);
-                    //$query->whereRaw("data_baixa IS NULL");
-                })
-
-                ->whereHas('clientes',function($query)use($request){
-                    $query->whereRaw('cateirinha IS NOT NULL');
-                    if($request->id) {
-                        $query->where("user_id",$request->id);
-                    }
-                })
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-                ->orderBy("id","desc")
-                ->get();
-
-
-
+            ");
 
 
 
 
 
         }
+
+
+
+
+
+
 
 
 
@@ -2631,44 +3206,80 @@ class FinanceiroController extends Controller
 
     public function individualPagamentoSextaParcela(Request $request)
     {
-        if($request->mes) {
-            $contratos = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id",10)
-                ->whereMonth("created_at",$request->mes)
-                ->whereDoesntHave('comissao.comissoesLancadas',function($query){
-                    $query->where("status_financeiro",0);
-                })
-                ->whereHas('clientes',function($query)use($request){
-                    $query->whereRaw('cateirinha IS NOT NULL');
-                    if($request->id) {
+        if($request->mes && $request->id) {
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 6)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 10 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL AND user_id = {$request->id})
+                    and month(created_at) = {$request->mes}
+            ");
+        } else if($request->mes && !$request->id) {
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 6)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 10 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
+                    and month(created_at) = {$request->mes}
+            ");
+        } else if(!$request->mes && $request->id) {
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 6)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 10 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
 
-                            $query->where("user_id",$request->id);
-
-                    }
-                })
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-                ->orderBy("id","desc")
-                ->get();
+            ");
         } else {
-            $contratos = Contrato
-                ::where("plano_id",1)
-                ->where("financeiro_id",10)
-                ->whereDoesntHave('comissao.comissoesLancadas',function($query){
-                    $query->where("status_financeiro",0);
-                })
-                ->whereHas('clientes',function($query)use($request){
-                    $query->whereRaw('cateirinha IS NOT NULL');
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    DATE_FORMAT((select data from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where contrato_id = contratos.id AND parcela = 6)),'%d/%m/%Y') as vencimento
+                    from contratos
+                    where plano_id = 1 and financeiro_id = 10 and exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and cateirinha IS NOT NULL)
 
-                        if($request->id) {
-                            $query->where("user_id",$request->id);
-                        }
-
-                })
-                ->with(['administradora','financeiro','cidade','comissao','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-                ->orderBy("id","desc")
-                ->get();
+            ");
         }
+
+
+
+
+
 
 
 
@@ -2830,15 +3441,77 @@ class FinanceiroController extends Controller
 
     public function individualCancelados(Request $request)
     {
-        $contratos = Contrato
-            ::where("plano_id",1)
-            ->where("financeiro_id",12)
-            ->with(['administradora','financeiro','cidade','comissao','comissao.cancelado','acomodacao','plano','comissao.comissaoAtualFinanceiro','comissao.ultimaComissaoPaga','somarCotacaoFaixaEtaria','clientes','clientes.user','clientes.dependentes'])
-            //->whereRaw("data_boleto >= date_add(data_boleto, interval 1 day)")
-            //->whereRaw("NOW() > date_add(updated_at, INTERVAL 30 SECOND)")
-            //->whereRaw("tempo >= now()")
-            ->orderBy("id","desc")
-            ->get();
+        if($request->mes && $request->id) {
+
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    ('Cancelado') as vencimento
+                from contratos where cliente_id in
+                (select id from clientes where id in(select cliente_id from contratos where plano_id = 1 OR financeiro_id = 12) and cateirinha IS NULL and user_id = {$request->id})
+                and month(created_at) = {$request->mes}
+            ");
+        } else if($request->mes && !$request->id) {
+
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    ('Cancelado') as vencimento
+                from contratos where cliente_id in
+                (select id from clientes where id in(select cliente_id from contratos where plano_id = 1 OR financeiro_id = 12) and cateirinha IS NULL)
+                and month(created_at) = {$request->mes}
+            ");
+        } else if(!$request->mes && $request->id) {
+
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    ('Cancelado') as vencimento
+                from contratos where cliente_id in
+                (select id from clientes where id in(select cliente_id from contratos where plano_id = 1 OR financeiro_id = 12) and cateirinha IS NULL and user_id =  {$request->id})
+            ");
+        } else {
+
+            $contratos = DB::select("
+                select
+                    DATE_FORMAT(created_at,'%d/%m/%Y') as data,
+                    (codigo_externo) as orcamento,
+                    (select name from users where id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor,
+                    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                    (select cpf from clientes where clientes.id = contratos.cliente_id) as cpf,
+                    (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id) as quantidade_vidas,
+                    (valor_plano) as valor_plano,
+                    (select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as parcelas,
+                    id,
+                    ('Cancelado') as vencimento
+                from contratos where cliente_id in
+                (select id from clientes where id in(select cliente_id from contratos where plano_id = 1 OR financeiro_id = 12) and cateirinha IS NULL)
+            ");
+        }
         return $contratos;
     }
 
@@ -3640,10 +4313,8 @@ class FinanceiroController extends Controller
                                 ::whereRaw("DATE_FORMAT(data,'%m') = ?",$mes[1])
                                 ->where("documento_gerador",$docu)
                                 ->where("status_financeiro","!=",1)
-
                                 ->update([
                                         'status_financeiro'=>1,
-
                                         'valor_pago' => $d->vlObrigacao,
                                         'data_baixa'=>$data_baixa
                                 ]);
@@ -3670,6 +4341,8 @@ class FinanceiroController extends Controller
         ::where("status_financeiro",1)
         //->where("status_gerente",1)
         ->where("parcela","!=",1)
+        ->where("comissoes_id",$comissoes>id)
+
         ->get();
         foreach($comissoes as $cc) {
 

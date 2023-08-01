@@ -2053,7 +2053,7 @@
 
                         //$("#valor_total_desconto").val(res.desconto);
                         $("#valor_total_desconto_vendedor").val(res.desconto);
-                        $("#total_campo_vendedor").val(res.desconto);
+                        $("#total_campo_vendedor").val(res.total);
                         $(".coletivo_a_receber").removeClass('ativo');
                         $(".individual_a_receber").removeClass('ativo');
                         $(".empresarial_a_receber").removeClass('ativo');
@@ -2630,9 +2630,6 @@
                     $(".listar li").removeClass("ativo");
                     $("#listar_individual_apto").removeClass("ativo");
                     $("#listar_empresarial_apto").addClass("ativo");
-
-
-
                     if($("#tabela_principal").is(':visible')) {
                         $("#tabela_principal").slideUp('fast',function(){
                             if(mes == "") {
@@ -2948,6 +2945,8 @@
             $(".empresarial_a_receber").on('click',empresarial_a_receber);
 
             $("body").on('change',".pagar_comissao",function(){
+
+
                 let mes = $("#mes_folha option:selected").val();
                 let id = $(this).attr('id');
                 id_confirmados.push(id);
@@ -2976,7 +2975,7 @@
                     $("#total_quantidade_coletivo").text(qtd_coletivo);
                     let total_coletivo = valor_total_coletivo + parseFloat(comissao_recebida);
                     $("#valor_total_coletivo").text(total_coletivo.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace("R$",""));
-                    desconto = $(this).closest("tr").children("td:nth-child(11)").text().replace(",",".");
+                    desconto = $(this).closest("tr").find("input[name='porcentagem_change']").val().replace(",",".");
                 } else {
                     let valor_total_empresarial = parseFloat($("#valor_total_empresarial").text().replace("R$","").replace(/\./g,'').replace(',', '.').trim());
                     qtd_empresarial += 1;
@@ -2996,7 +2995,7 @@
                         somar_desconto_campo_formatado = somar_desconto_campo.toLocaleString('pt-BR',{minimumFractionDigits:2});
                         $("#valor_total_desconto_vendedor").val(somar_desconto_campo_formatado);
                     } else {
-                        $("#valor_total_desconto_vendedor").val($(this).closest("tr").children("td:nth-child(11)").text());
+                        $("#valor_total_desconto_vendedor").val($(this).closest("tr").find("input[name='porcentagem_change']").val().replace(",","."));
                     }
                     $(this).addClass('pagar');
                     var linha = $(this).closest('tr');
@@ -3038,7 +3037,7 @@
                 } else {
                     $(this).removeClass('pagar');
                 }
-                /****** Calcular o Total ***/
+                //Calcular o Total
                 $("#comissao_vendedor").val();
                 let salario_vendedor_campo = $("#salario_vendedor").val() != "" || $("#salario_vendedor").val() != 0 ? $("#salario_vendedor").val().replace(/\./g, "") : parseFloat(0);
                 let salario_vendedor_campo_convertido = salario_vendedor_campo != 0 ? parseFloat(salario_vendedor_campo.replace(",", ".")) : 0;
@@ -3054,7 +3053,8 @@
 
                 let somar_ganhos = salario_vendedor_campo_convertido + comissao_vendedor_campo_convertido + premiacao_vendedor_campo_convertido;
                 somar_ganhos = parseFloat(somar_ganhos);
-                desconto = $(this).closest("tr").children("td:nth-child(11)").text().replace(",",".");
+                desconto = $(this).closest("tr").find("input[name='porcentagem_change']").val().replace(",",".");
+
                 let subtrair_desconto = somar_ganhos - valor_total_desconto_vendedor_convertido;
                 let subtrair_desconto_formatado = subtrair_desconto.toLocaleString('pt-BR',{minimumFractionDigits:2})
                 $("#total_campo_vendedor").val(subtrair_desconto_formatado);
@@ -3070,6 +3070,7 @@
                     data:"id="+id+"&mes="+mes+"&desconto="+desconto,
                 });
 
+
             });
 
 
@@ -3077,7 +3078,7 @@
 
             $("#listar_coletivo_apto").on('click',function(){
 
-                console.log("Olaaaaaa coletivooooo");
+
 
                 let id = $("#corretor_escolhido").val();
                 let mes = $("#mes_folha").val();
@@ -3362,7 +3363,8 @@
                     {data:"desconto",name:"desconto",width:"2%",
                         "createdCell":function(td, cellData, rowData, row, col) {
                             let descondo_calc = parseFloat(cellData).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                            $(td).html(descondo_calc)
+                            //$(td).html(descondo_calc)
+                            $(td).html('<input type="text" value='+descondo_calc+' data-id='+rowData.id+' name="porcentagem_change" class="porcentagem_change" style="width:100%;" />')
                         }
                     },
                     {
@@ -3404,9 +3406,21 @@
                 $(this).mask('#.##0,00', {reverse: true});
             });
 
+            $("body").on('keyup','.porcentagem_change',function(){
+                $(this).mask('#.##0,00', {reverse: true});
+            });
 
 
 
+            $("body").on('change','.porcentagem_change',function(){
+                 let id = $(this).attr('data-id');
+                 let porcentagem = $(this).val();
+                 $.ajax({
+                     url:"{{route('gerente.aplicar.desconto')}}",
+                     method:"POST",
+                     data:"id="+id+"&porcentagem="+porcentagem
+                 });
+            });
 
 
             $(".premiacao_usuario_vendedor").on('change',function(){

@@ -244,7 +244,9 @@
 
                             <select style="flex-basis:98%;" id="select_usuario_individual" class="form-control my-2 mx-auto">
                                 <option value="todos" class="text-center" data-id="0">---Escolher Corretor---</option>
-
+                                @foreach($corretores as $c)
+                                    <option value="{{$c->name}}" data-id="{{$c->id}}">{{$c->name}}</option>
+                                @endforeach
                             </select>
 
 
@@ -340,21 +342,21 @@
 
                 <!--COLUNA DA CENTRAL-->
                 <div style="flex-basis:83%;">
-                    <div class="p-2" style="background-color:#123449;color:#FFF;border-radius:5px;">
-                        <table id="tabela_individual" class="table table-sm listarindividual">
+                    <div style="background-color:#123449;color:#FFF;border-radius:5px;">
+                        <table id="tabela_individual" class="table table-sm listarindividual w-100">
                             <thead>
                             <tr>
                                 <th>Data</th>
-                                <th>Orçamento</th>
+                                <th>Cod.</th>
                                 <th>Corretor</th>
                                 <th>Cliente</th>
                                 <th>CPF</th>
                                 <th>Vidas</th>
                                 <th>Valor</th>
-                                <th>Vencimento</th>
-                                <th class="sortable">Atrasado</th>
+                                <th>Venc.</th>
+                                <th>Atrasado</th>
                                 <th>Status</th>
-                                <th>Detalhes</th>
+                                <th>Ver</th>
                             </tr>
                             </thead>
                             <tbody></tbody>
@@ -551,21 +553,21 @@
 
                 <!--COLUNA DA CENTRAL-->
                 <div style="flex-basis:83%;">
-                    <div class="p-2" style="background-color:#123449;color:#FFF;border-radius:5px;">
-                        <table id="tabela_coletivo" class="table table-sm listardados">
+                    <div style="background-color:#123449;color:#FFF;border-radius:5px;">
+                        <table id="tabela_coletivo" class="table table-sm listardados W-100">
                             <thead>
                             <tr>
                                 <th>Data</th>
-                                <th>Orçamento</th>
+                                <th>Cod.</th>
                                 <th>Corretor</th>
                                 <th>Cliente</th>
-                                <th>Administradora</th>
+                                <th>Admin</th>
                                 <th>CPF</th>
                                 <th>Vidas</th>
                                 <th>Valor</th>
-                                <th>Vencimento</th>
+                                <th>Venc.</th>
                                 <th>Status</th>
-                                <th>Detalhes</th>
+                                <th>Ver</th>
                             </tr>
                             </thead>
                             <tbody></tbody>
@@ -879,25 +881,26 @@
                     method:"POST",
                     data:"mes="+mes,
                     success:function(res) {
-
+                        console.log(res);
                         $(".individual_quantidade_1_parcela").html(res.qtd_individual_parcela_01);
                         $(".individual_quantidade_2_parcela").html(res.qtd_individual_parcela_02);
                         $(".individual_quantidade_3_parcela").html(res.qtd_individual_parcela_03);
                         $(".individual_quantidade_4_parcela").html(res.qtd_individual_parcela_04);
                         $(".individual_quantidade_5_parcela").html(res.qtd_individual_parcela_05);
                         $(".individual_quantidade_6_parcela").html(res.qtd_individual_parcela_06);
+                        $(".individual_quantidade_atrasado").html(res.qtd_individual_atrsado);
+
+
+
                         $(".individual_quantidade_cancelado").html(res.qtd_individual_cancelado);
-
-
-
                         let select = $("#select_usuario_individual");
                         $("#select_usuario_individual").html('<option value="todos" class="text-center" data-id="0">--Escolher Corretor--</option>')
                         $.each(res.contratos, function(index, item) {
                             var option = $('<option>', { value: item.name, text: item.name,'data-id':item.id });
                             select.append(option);
                         });
-
-
+                        $("#atrasado_corretor").removeClass('ativo');
+                        $("#listar_individual li").removeClass('ativo');
                     }
 
                 })
@@ -1211,16 +1214,39 @@
                 $('.next').attr('data-cliente','');
                 $('.next').attr('data-contrato','');
                 $('tr').removeClass('textoforte');
+                if($(this).attr('data-id') == "aba_individual") {
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
+                    table_individual.ajax.url("{{ route('financeiro.individual.geralIndividualPendentes') }}").load();
 
-                $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
-                table.ajax.url("{{ route('financeiro.coletivo.em_geral') }}").load();
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
+                    table.ajax.url("{{ route('gerente.listagem.zerar.tabelas') }}").load();
+
+                    $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
+                    tableempresarial.ajax.url('{{route("gerente.listagem.zerar.tabelas")}}').load();
+
+                } else if($(this).attr('data-id') == "aba_coletivo") {
+
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
+                    table_individual.ajax.url("{{ route('gerente.listagem.zerar.tabelas') }}").load();
+
+                    $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
+                    tableempresarial.ajax.url('{{route("gerente.listagem.zerar.tabelas")}}').load();
 
 
-                $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
-                table_individual.ajax.url("{{ route('financeiro.individual.geralIndividualPendentes') }}").load();
+                } else {
 
-                $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;'>Em Análise</h4>");
-                tableempresarial.ajax.url('{{route("contratos.listarEmpresarial.analise")}}').load();
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
+                    table.ajax.url("{{ route('gerente.listagem.zerar.tabelas') }}").load();
+
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
+                    table_individual.ajax.url("{{ route('gerente.listagem.zerar.tabelas') }}").load();
+
+                }
+
+
+
+
+
 
                 $("#cliente_id_alvo").val('');
                 $("#cliente_id_alvo_individual").val('');
@@ -1408,7 +1434,7 @@
 
             var taindividual = $(".listarindividual").DataTable({
                 dom: '<"d-flex justify-content-between"<"#title_individual">ftr><t><"d-flex justify-content-between"lp>',
-                order: [[0, 'desc']],
+                ///order: [[0, 'desc']],
                 "language": {
                     "url": "{{asset('traducao/pt-BR.json')}}"
                 },
@@ -1418,7 +1444,7 @@
                     "dataSrc": ""
                 },
                 "lengthMenu": [10,20],
-                //"ordering": false,
+                "ordering": false,
                 "paging": true,
                 "searching": true,
                 "info": true,
@@ -1426,86 +1452,22 @@
                 "responsive": true,
 
                 columns: [
-                    {data:"created_at",name:"created_at",
-                        "createdCell": function (td, cellData, rowData, row, col) {
-                            let datas = cellData.split("T")[0]
-                            let alvo = datas.split("-").reverse().join("/")
-                            $(td).html(alvo)
-                        },
-
-                    },
-                    {
-                        data:"codigo_externo",name:"codigo_externo"
-                    },
-                    {data:"clientes.user.name",name:"corretor",
-                        "createdCell": function (td, cellData, rowData, row, col) {
-
-                            let palavra = cellData.split(" ");
-                            if(palavra.length >= 3) {
-                                $(td).html(palavra[0]+" "+palavra[1]+"...")
-                            }
-                        }
-                    },
-
-
-                    {data:"clientes.nome",name:"cliente",
-                        "createdCell":function(td,cellData,rowData,row,col) {
-                            let palavras = cellData.ucWords();
-                            let dados = palavras.split(" ");
-                            if(dados.length >= 4) {
-                                $(td).html(dados[0]+" "+dados[1]+" "+dados[2]+"...");
-                            }
-
-                        }
-                    },
-
-
-                    {data:"clientes.cpf",name:"cpf",
+                    {data:"data",name:"data"},
+                    {data:"orcamento",name:"orcamento"},
+                    {data:"corretor",name:"corretor"},
+                    {data:"cliente",name:"cliente"},
+                    {data:"cpf",name:"cpf",
                         "createdCell": function (td, cellData, rowData, row, col) {
                             let cpf = cellData.substr(0,3)+"."+cellData.substr(3,3)+"."+cellData.substr(6,3)+"-"+cellData.substr(9,2);
                             $(td).html(cpf);
                         }
                     },
-
-                    {data:"clientes.quantidade_vidas",name:"vidas",
-
-                    },
-                    {
-                        data:"valor_plano",name:"valor_plano",render: $.fn.dataTable.render.number('.', ',', 2, '')
-                    },
-                    {data:"id",name:"vencimento",
-                        "createdCell": function(td,cellData,rowData,row,col) {
-                            if(rowData.comissao.comissao_atual_financeiro == null) {
-                                $(td).html("Finalizado");
-                            } else {
-                                $(td).html(rowData.comissao.comissao_atual_financeiro.data.split("-").reverse().join("/"));
-                            }
-                        }
-                    },
-                    {data:"id",name:"atrasado",
-                        "createdCell":function(td,cellData,rowData,row,col) {
-                            if(rowData.comissao.comissao_atual_financeiro != null) {
-                                var dataEspecifica = new Date(rowData.comissao.comissao_atual_financeiro.data);
-                                var dataAtual = new Date();
-                                var diferencaEmMilissegundos = dataEspecifica.getTime() - dataAtual.getTime();
-
-
-                                var diferencaEmDias = Math.abs(Math.floor(diferencaEmMilissegundos / (1000 * 60 * 60 * 24)));
-
-
-                                $(td).html(diferencaEmDias);
-
-
-
-                            } else {
-                                $(td).html("---");
-                            }
-                        }
-                    },
-
-
-                    {data:"financeiro.nome",name:"financeiro"},
-                    {data:"financeiro.nome",name:"ver"}
+                    {data:"quantidade_vidas",name:"vidas"},
+                    {data:"valor_plano",name:"valor_plano",render: $.fn.dataTable.render.number('.', ',', 2, '')},
+                    {data:"vencimento",name:"vencimento"},
+                    {data:"vencimento",name:"atrasado"},
+                    {data:"parcelas",name:"parcelas"},
+                    {data:"id",name:"ver"}
                 ],
                 "columnDefs": [
                     {//Data
@@ -1578,7 +1540,7 @@
                         "createdCell": function (td, cellData, rowData, row, col) {
                             // console.log(cellData);
                             if(cellData == "Cancelado") {
-                                var id = rowData.id;
+                                var id = cellData;
                                 $(td).html(`<div class='text-center text-white'>
                                         <a href="/admin/financeiro/cancelado/detalhes/${id}" class="text-white">
                                             <i class="fas fa-ban"></i>
@@ -1602,6 +1564,22 @@
                 ],
                 "initComplete": function( settings, json ) {
                     $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
+                    const colunaNomes = this.api().column(2).data();
+                    const nomesUnicos = new Set();
+                    // Adiciona os nomes únicos ao conjunto
+                    for (let i = 0; i < colunaNomes.length; i++) {
+                        nomesUnicos.add(colunaNomes[i]);
+                    }
+                    const selectUsuarioIndividual = document.getElementById('select_usuario_individual');
+
+                    nomesUnicos.forEach((nome) => {
+                        const option = document.createElement('option');
+                        option.text = nome;
+                        option.value = nome;
+                        selectUsuarioIndividual.appendChild(option);
+                    });
+
+
                     // this.api()
                     //   .columns([2])
                     //   .every(function () {
@@ -1822,38 +1800,32 @@
                 "autoWidth": false,
                 "responsive": true,
                 columns: [
-                    {data:"created_at",name:"data"},
-                    {data:"codigo_externo",name:"codigo_externo"},
-                    {data:"clientes.user.name",name:"corretor",
+                    {data:"created_at",name:"data",width:"1%"},
+                    {data:"codigo_externo",name:"codigo_externo",width:"1%"},
+                    {data:"clientes.user.name",name:"corretor",width:"15%",
                         "createdCell":function(td,cellData,rowData,row,col) {
-                            let palavras = cellData.ucWords();
-                            let dados = palavras.split(" ");
-                            if(dados.length >= 4) {
-                                $(td).html(dados[0]+" "+dados[1]+" "+dados[2]+"...");
-                            }
+                            $(td).html(cellData);
+
                         }
                     },
-                    {data:"clientes.nome",name:"cliente",
+                    {data:"clientes.nome",name:"cliente",width:"15%",
                         "createdCell": function (td, cellData, rowData, row, col) {
-                            let palavra = cellData.split(" ");
-                            if(palavra.length >= 3) {
-                                $(td).html(palavra[0]+" "+palavra[1]+"...")
-                            }
+                            $(td).html(cellData);
                         }
                     },
-                    {data:"administradora.nome",name:"administradora"},
-                    {data:"clientes.cpf",name:"cpf"},
-                    {data:"clientes.quantidade_vidas",name:"vidas"},
-                    {data:"valor_plano",name:"valor_plano",render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ')},
-                    {data:"comissao.comissao_atual_financeiro",name:"Vencimento"},
-                    {data:"financeiro.nome",name:"administradora"},
-                    {data:"financeiro.nome",name:"detalhes"}
+                    {data:"administradora.nome",name:"administradora",width:"5%"},
+                    {data:"clientes.cpf",name:"cpf",width:"10%"},
+                    {data:"clientes.quantidade_vidas",name:"vidas",width:"1%"},
+                    {data:"valor_plano",name:"valor_plano",render: $.fn.dataTable.render.number('.', ',', 2, 'R$ '),width:"10%"},
+                    {data:"comissao.comissao_atual_financeiro",name:"Vencimento",width:"10%"},
+                    {data:"financeiro.nome",name:"administradora",width:"10%"},
+                    {data:"financeiro.nome",name:"detalhes",width:"1%"}
                 ],
                 "columnDefs": [
                     {
                         /**Data*/
                         "targets": 0,
-                        "width":"2%",
+
                         "createdCell": function (td, cellData, rowData, row, col) {
                             let datas = cellData.split("T")[0]
                             let alvo = datas.split("-").reverse().join("/")
@@ -1863,45 +1835,42 @@
                     /**Orçamento*/
                     {
                         "targets": 1,
-                        "width":"5%",
+
 
                     },
                     /** Corretor */
                     {
                         "targets": 2,
-                        "width":"13%",
+
 
                     },
                     /*Cliente*/
                     {
-                        "targets": 3,
-                        "width":"20"
+                        "targets": 3
+
                     },
                     /*Administradora*/
                     {
-                        "targets": 4,
-                        "width":"10%"
+                        "targets": 4
+
                     },
                     /*CPF */
                     {
-                        "targets": 5,
-                        "width":"10%"
+                        "targets": 5
                     },
                     /*Vidas */
                     {
-                        "targets": 6,
-                        "width":"5%"
+                        "targets": 6
 
                     },
                     /*Valor */
                     {
-                        "targets": 7,
-                        "width":"8%"
+                        "targets": 7
                     },
                     /*Vencimento*/
                     {
                         "targets": 8,
-                        "width":"5%",
+
                         "createdCell": function (td, cellData, rowData, row, col) {
 
                             if(rowData.comissao.comissao_atual_financeiro == null) {
@@ -1922,7 +1891,7 @@
                     /*Status*/
                     {
                         "targets": 9,
-                        "width":"10%",
+
                         "createdCell": function (td, cellData, rowData, row, col) {
                             console.log(cellData);
                             // if(rowData.comissao.comissao_atual_last == null) {
@@ -2147,8 +2116,10 @@
 
             $("#select_usuario_individual").on('change',function(){
                 let mes = $("#mudar_mes_table").val();
-
                 let id = $('option:selected', this).attr('data-id');
+
+
+
                 let valorSelecionado = $(this).val();
                 $('#tabela_individual').DataTable().column(2).search(valorSelecionado).draw();
                 $.ajax({
@@ -2156,11 +2127,12 @@
                     method:"POST",
                     data:"id="+id+"&mes="+mes,
                     success:function(res) {
-
+                        console.log(res);
                         $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
                         //table_individual.ajax.url("{{ route('financeiro.individual.geralIndividualPendentes') }}").load();
                         $("ul#listar_individual li.individual").removeClass('textoforte-list');
                         $("#atrasado_corretor").removeClass('textoforte-list');
+                        $("#cancelado_individual").removeClass('textoforte-list');
                         $("#all_pendentes_individual").addClass('textoforte-list');
                         $(".individual_quantidade_pendentes").html(res.qtd_clientes);
                         $(".individual_quantidade_1_parcela").html(res.qtd_individual_parcela_01);
@@ -2175,6 +2147,10 @@
                         $(".individual_quantidade_atrasado").html(res.qtd_individual_atrasado);
                     }
                 });
+
+
+
+
             });
 
 
@@ -2494,8 +2470,12 @@
             // });
 
             $("#list_individual_begin").on('click',function(){
+
+                let mes = $("#mudar_mes_table").val();
                 $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
-                table_individual.ajax.url("{{ route('financeiro.individual.geralIndividualPendentes') }}").load();
+                table_individual.ajax.url(`{{ url('/admin/financeiro/individual/em_geral/${mes}') }}`).load();
+
+                //table_individual.ajax.url(`{{ url('/admin/financeiro/individual/pagamento_primeira_parcela/${dataId}/${mes}') }}`).load();
             });
 
             $("#list_coletivo_begin").on('click',function(){
@@ -2726,13 +2706,9 @@
                 } else if(id_lista == "aguardando_pagamento_1_parcela_individual") {
                     let mes = $("#mudar_mes_table").val();
                     let dataId = $("#select_usuario_individual").find('option:selected').data('id');
-
-
                     table_individual.clear().draw();
                     $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento 1º Parcela</h4>");
-
                     table_individual.ajax.url(`{{ url('/admin/financeiro/individual/pagamento_primeira_parcela/${dataId}/${mes}') }}`).load();
-
                     //table_individual.ajax.url("{{ route('financeiro.individual.pagamento_primeira_parcela') }}").load();
                     $("#atrasado_corretor").removeClass('textoforte-list');
                     // $('.button_individual').empty().html(
@@ -2897,9 +2873,11 @@
             });
 
             $("#atrasado_corretor").on('click',function(){
+                let mes = $("#mudar_mes_table").val();
+                let dataId = $("#select_usuario_individual").find('option:selected').data('id');
                 table_individual.clear().draw();
                 $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Atrasado</h4>");
-                table_individual.ajax.url("{{ route('financeiro.individual.atrasado') }}").load();
+                table_individual.ajax.url(`{{ url('/admin/financeiro/geral/atrsado/${dataId}/${mes}') }}`).load();
                 $("ul#listar_individual li.individual").removeClass('textoforte-list');
                 $("#all_pendentes_individual").removeClass('textoforte-list');
                 $("ul#grupo_finalizados_individual li.individual").removeClass('textoforte-list');
@@ -2907,7 +2885,6 @@
                 $("#aguardando_pagamento_6_parcela_individual").removeClass('textoforte-list');
                 $("#finalizado_corretor").removeClass('textoforte-list');
                 $("#cancelado_individual").removeClass('textoforte-list');
-
             });
 
             $("ul#grupo_finalizados_individual li.individual").on('click',function(){
@@ -2922,14 +2899,18 @@
                     $("#atrasado_corretor").removeClass('textoforte-list');
                     $("ul#grupo_finalizados_individual li.individual").removeClass('textoforte-list');
                     $(this).addClass('textoforte-list');
-
                 } else {
+
                 }
             });
 
             $("#cancelado_individual").on('click',function(){
+
+                let mes = $("#mudar_mes_table").val();
+                let dataId = $("#select_usuario_individual").find('option:selected').data('id');
                 $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Cancelado</h4>");
-                table_individual.ajax.url("{{ route('financeiro.individual.cancelado') }}").load();
+                table_individual.ajax.url(`{{ url('/admin/financeiro/individual/pagamento_individual_cancelado/${dataId}/${mes}') }}`).load();
+
                 $('.button_individual').empty().html('');
                 $(".container_edit").addClass('ocultar');
                 $("#atrasado_corretor").removeClass('textoforte-list');
@@ -3161,6 +3142,18 @@
         #tabela_empresarial_filter input[type='search'] {background-color: #FFF !important;}
 
         #tabela_empresarial td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: clip;
+        }
+
+        #tabela_individual td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: clip;
+        }
+
+        #tabela_coletivo td {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: clip;

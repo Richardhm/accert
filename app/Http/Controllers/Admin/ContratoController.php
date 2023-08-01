@@ -1140,6 +1140,7 @@ class ContratoController extends Controller
 
     public function storeIndividual(Request $request)
     {
+
         $cpf = str_replace([".","-"],"",$request->cpf_individual);
         $dia = $request->vencimento;
         $codigo_externo = $request->codigo_externo_individual;
@@ -1154,6 +1155,13 @@ class ContratoController extends Controller
                 $item['nuMatriculaEmpresa'] == $codigo_externo;
         });
         $resultado = array_values($resultado);
+
+        if(count($resultado) == 0) {
+            return "sem_resultado";
+        }
+
+
+
         $valores_numericos = array_filter($request->faixas_etarias, function ($valor) {
             return is_numeric($valor);
         });
@@ -1184,8 +1192,6 @@ class ContratoController extends Controller
         $cliente->segmentacao_plano = $resultado[0]['segmentacaoPlano'];
         $cliente->cateirinha = $resultado[0]['cdUsuario'];
         $cliente->dados = 1;
-
-
         $cliente->save();
 
         if($cliente->dependente) {
@@ -1245,8 +1251,6 @@ class ContratoController extends Controller
         $comissao->data = date('Y-m-d');
         $comissao->save();
 
-
-
         $comissoes_configuradas_corretor = ComissoesCorretoresConfiguracoes
             ::where("plano_id",1)
             ->where("administradora_id",4)
@@ -1257,14 +1261,11 @@ class ContratoController extends Controller
         $comissao_corretor_contagem = 0;
         $comissao_corretor_default = 0;
 
-
         if(count($comissoes_configuradas_corretor) >= 1) {
             foreach($comissoes_configuradas_corretor as $c) {
                 $valor_comissao = $valor_plano - 25;
                 $comissaoVendedor = new ComissoesCorretoresLancadas();
                 $comissaoVendedor->comissoes_id = $comissao->id;
-                //$comissaoVendedor->user_id = auth()->user()->id;
-                // $comissaoVendedor->documento_gerador = "12345678";
                 $comissaoVendedor->parcela = $c->parcela;
                 $comissaoVendedor->valor = ($valor_comissao * $c->valor) / 100;
                 if($comissao_corretor_contagem == 0) {
@@ -1350,11 +1351,98 @@ class ContratoController extends Controller
         } /****FIm SE Comissoes Lancadas */
 
 
+        $cat = $resultado[0]['cdUsuario'];
+        $url = "https://api-hapvida.sensedia.com/wssrvonline/v1/beneficiario/$cat/financeiro/historico";
+        $curl = curl_init($url);
+        curl_setopt($curl,CURLOPT_URL, $url);
+        curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+        curl_setopt($curl,CURLOPT_SSL_VERIFYHOST,false);
+        curl_setopt($curl,CURLOPT_SSL_VERIFYPEER,false);
+        $resp=curl_exec($curl);
+        curl_close($curl);
+        $dados=json_decode($resp);
+        $data="";
+        $docu="";
+        if(!empty($dados) && $dados != null) {
+            foreach($dados as $d) {
+                if($d->dtPagamento != null && $d->cdStatus != 16) {
+                    $mes = explode("/",$d->dtVencimento);
+                    $data_baixa = implode("-",array_reverse(explode('/',$d->dtPagamento)));
+                    $docu = $d->cdDocumentoGerador;
+                    ComissoesCorretoresLancadas
+                        ::whereRaw("DATE_FORMAT(data,'%m') = ?",$mes[1])
+                        ->where("comissoes_id",$comissao->id)
+                        ->where("status_financeiro","!=",1)
+                        ->update([
+                            'status_financeiro'=>1,
+                            'valor_pago' => $d->vlObrigacao,
+                            'data_baixa'=>$data_baixa
+                        ]);
+                }
+
+
+                if($d->cdStatus == 8 && $d->dsStatus == "CANCELADO") {
+                    $canc = new ComissoesCorretoresCancelados();
+                    $canc->comissoes_id = $comissao->id;
+                    $canc->data = implode("-",array_reverse(explode('/',$d->dtVencimento)));
+                    $canc->documento_gerador = $d->cdDocumentoGerador;
+                    $canc->save();
+                }
 
 
 
 
+            }
+        }
 
+
+
+        $comissoesLancadas = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            //->where("status_gerente",1)
+            ->where("parcela","!=",1)
+            ->where("comissoes_id",$comissao->id)
+            ->orderByDesc('id')
+            ->limit(1)
+            ->first();
+
+        switch($comissoesLancadas->parcela) {
+
+            case 2:
+                $con = Contrato::find($contrato->id);
+                $con->financeiro_id = 6;
+                $con->save();
+            break;
+
+            case 3:
+                $con = Contrato::find($contrato->id);
+                $con->financeiro_id = 7;
+                $con->save();
+            break;
+
+            case 4:
+
+                $con = Contrato::find($contrato->id);
+                $con->financeiro_id = 8;
+                $con->save();
+
+
+            break;
+
+            case 5:
+                $con = Contrato::find($contrato->id);
+                $con->financeiro_id = 9;
+                $con->save();
+
+
+                break;
+
+            case 6:
+                $con = Contrato::find($contrato->id);
+                $con->financeiro_id = 10;
+                $con->save();
+                break;
+        }
 
 
 
