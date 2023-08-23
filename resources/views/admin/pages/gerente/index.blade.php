@@ -55,6 +55,10 @@
         <li data-id="aba_contratos" class="ativo">Contratos</li>
         <li data-id="aba_baixas" class="menu-inativo" style="margin:0 1%;">Baixas</li>
         <li data-id="aba_comissao" class="menu-inativo">Comissão</li>
+        <li data-id="aba_historico" class="menu-inativo" style="margin-left:1%;">Historico</li>
+        <li class="ocultar" id="corretor_em_destaque">
+
+        </li>
     </ul>
 
         <!--------------------------------------Contratos------------------------------------------>
@@ -983,347 +987,455 @@
 
 
        <main id="aba_comissao" class="ocultar aba_comissao_container">
-            <div class="menu_aba_comissao">
+           <section style="display:flex;flex-basis:24%;flex-wrap:wrap;align-items: flex-start;align-content: flex-start;">
 
+               <div class="menu_aba_comissao">
+                   <div style="background-color: #123449;padding:3px;">
 
-                <div style="background-color: #123449;padding:3px;">
+                       <select name="mes_folha" id="mes_folha" class="form-control form-control-sm mb-1 tamanho_de_25" {{$mes != null && !empty($mes) ? 'disabled' : ''}}>
+                           <option value="" class="text-center">---</option>
+                           <option value="01" {{$mes == '01' ? 'selected' : ''}}>Janeiro/2023</option>
+                           <option value="02" {{$mes == '02' ? 'selected' : ''}}>Fevereiro/2023</option>
+                           <option value="03" {{$mes == '03' ? 'selected' : ''}}>Março/2023</option>
+                           <option value="04" {{$mes == '04' ? 'selected' : ''}}>Abril/2023</option>
+                           <option value="05" {{$mes == '05' ? 'selected' : ''}}>Maio/2023</option>
+                           <option value="06" {{$mes == '06' ? 'selected' : ''}}>Junho/2023</option>
+                           <option value="07" {{$mes == '07' ? 'selected' : ''}}>Julho/2023</option>
+                           <option value="08" {{$mes == '08' ? 'selected' : ''}}>Agosto/2023</option>
+                           <option value="09" {{$mes == '09' ? 'selected' : ''}}>Setembro/2023</option>
+                           <option value="10" {{$mes == '10' ? 'selected' : ''}}>Outubro/2023</option>
+                           <option value="11" {{$mes == '11' ? 'selected' : ''}}>Novembro/2023</option>
+                           <option value="12" {{$mes == '12' ? 'selected' : ''}}>Dezembro/2023</option>
+                       </select>
 
-                    <select name="mes_folha" id="mes_folha" class="form-control form-control-sm mb-1 tamanho_de_25" {{$mes != null && !empty($mes) ? 'disabled' : ''}}>
-                        <option value="" class="text-center">---</option>
-                        <option value="01" {{$mes == '01' ? 'selected' : ''}}>Janeiro/2023</option>
-                        <option value="02" {{$mes == '02' ? 'selected' : ''}}>Fevereiro/2023</option>
-                        <option value="03" {{$mes == '03' ? 'selected' : ''}}>Março/2023</option>
-                        <option value="04" {{$mes == '04' ? 'selected' : ''}}>Abril/2023</option>
-                        <option value="05" {{$mes == '05' ? 'selected' : ''}}>Maio/2023</option>
-                        <option value="06" {{$mes == '06' ? 'selected' : ''}}>Junho/2023</option>
-                        <option value="07" {{$mes == '07' ? 'selected' : ''}}>Julho/2023</option>
-                        <option value="08" {{$mes == '08' ? 'selected' : ''}}>Agosto/2023</option>
-                        <option value="09" {{$mes == '09' ? 'selected' : ''}}>Setembro/2023</option>
-                        <option value="10" {{$mes == '10' ? 'selected' : ''}}>Outubro/2023</option>
-                        <option value="11" {{$mes == '11' ? 'selected' : ''}}>Novembro/2023</option>
-                        <option value="12" {{$mes == '12' ? 'selected' : ''}}>Dezembro/2023</option>
-                    </select>
-
-                    <div style="border-top:1px solid white;margin-bottom:5px;"></div>
-                    <ul style="margin:0;padding:0;">
-                        <li style="display:flex;justify-content: space-between;">
+                       <div style="border-top:1px solid white;margin-bottom:5px;"></div>
+                       <ul style="margin:0;padding:0;">
+                           <li style="display:flex;justify-content: space-between;">
                         <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
                             Salario:
                         </span>
-                            <span style="display:flex;flex-basis:50%;">
+                               <span style="display:flex;flex-basis:50%;">
                             <input type="text" name="salario" id="salario" value="{{$total_salario}}" class="form-control form-control-sm salario_usuario" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
 
-                        </li>
-                        <li style="display:flex;justify-content: space-between;margin:5px 0;">
+                           </li>
+                           <li style="display:flex;justify-content: space-between;margin:5px 0;">
                         <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
                             Comissão:
                         </span>
-                            <span style="display:flex;flex-basis:50%;">
+                               <span style="display:flex;flex-basis:50%;">
                             <input type="text" name="comissao" id="comissao" value="{{$total_comissao}}" class="form-control form-control-sm" readonly placeholder="Comissão" value="0" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
-                        </li>
-                        <li style="display:flex;justify-content: space-between;margin:5px 0;">
+                           </li>
+                           <li style="display:flex;justify-content: space-between;margin:5px 0;">
                         <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
                             Premiação:
                         </span>
-                            <span style="display:flex;flex-basis:50%;">
+                               <span style="display:flex;flex-basis:50%;">
                             <input type="text" name="premiacao" id="premiacao" value="{{$total_premiacao}}" class="form-control form-control-sm premiacao_usuario" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
-                        </li>
+                           </li>
 
-                        <li style="display:flex;justify-content: space-between;margin:5px 0;">
+                           <li style="display:flex;justify-content: space-between;margin:5px 0;">
+                            <span style="display:flex;flex-basis:50%;align-self: center;color:#FFF;font-size:0.7em;">
+                                Estorno:
+                            </span>
+                               <span style="display:flex;flex-basis:50%;">
+                                <input type="text" disabled id="valor_total_desconto_geral" value="" name="estorno_geral" id="estorno_geral" class="form-control form-control-sm estorno_usuario" style="text-align:right;height:20px;font-size:0.8em;">
+                            </span>
+                           </li>
+
+                           <li style="display:flex;justify-content: space-between;margin:5px 0;">
                             <span style="display:flex;flex-basis:50%;align-self: center;color:#FFF;font-size:0.7em;">
                                 Desconto:
                             </span>
-                            <span style="display:flex;flex-basis:50%;">
+                               <span style="display:flex;flex-basis:50%;">
                                 <input type="text" disabled id="valor_total_desconto" value="{{$total_desconto}}" name="desconto" id="desconto" class="form-control form-control-sm desconto_usuario" style="text-align:right;height:20px;font-size:0.8em;">
                             </span>
-                        </li>
+                           </li>
 
-                        <li style="display:flex;justify-content: space-between;">
+                           <li style="display:flex;justify-content: space-between;">
                             <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;height:20px;color:#FFF;">
                             Total:
                             </span>
-                            <span style="display:flex;flex-basis:50%;">
+                               <span style="display:flex;flex-basis:50%;">
                                 <input type="text" disabled name="total_campo" value="{{$total_mes}}" id="total_campo" class="form-control form-control-sm total_campo" style="text-align:right;height:20px;font-size:0.8em;">
                             </span>
-                        </li>
+                           </li>
 
-                    </ul>
+                       </ul>
 
-                </div>
+                   </div>
 
-                <div style="background-color: #123449;padding:3px;margin-top:5px;">
-                    <p style="color:white;border-bottom:1px solid white;text-align: center;margin:0;padding: 0;">Planos</p>
-                    <ul style="margin:0 0 0 0;padding:0;">
-                        <li style="display:flex;justify-content: space-between;" data-plano="1" id="listar_individual_apto_total">
-                            <span style="display:flex;flex-basis:60%;font-size:0.7em;">Individual</span>
-                            <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_individual_total">{{$total_individual_quantidade}}</span>
-                            <span style="display:flex;flex-basis:30%;justify-content:flex-end;font-size:0.7em;"><span id="valor_total_individual_total">{{$total_individual}}</span></span>
-                        </li>
-                        <li style="display:flex;justify-content: space-between;" data-plano="3" id="listar_coletivo_apto_total">
-                            <span style="display:flex;flex-basis:60%;font-size:0.7em;">Coletivo</span>
-                            <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_coletivo_total">{{$total_coletivo_quantidade}}</span>
-                            <span style="display:flex;flex-basis:30%;justify-content:flex-end;font-size:0.7em;"><span id="valor_total_coletivo_total">{{$total_coletivo}}</span></span>
-                        </li>
-                        <li style="display:flex;justify-content: space-between;" data-plano="0" id="listar_empresarial_apto_total">
-                            <span style="display:flex;flex-basis:60%;font-size:0.7em;">Empresarial</span>
-                            <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_empresarial_total">{{$total_empresarial_quantidade}}</span>
-                            <span style="display:flex;flex-basis:30%;justify-content: flex-end;font-size:0.7em;"><span id="valor_total_empresarial_total">{{$total_empresarial}}</span></span>
-                        </li>
-                    </ul>
-                </div>
-
-
-
-                <div id="footer_user" class="finalizar_mes_container">
-
-                </div>
+                   <div style="background-color: #123449;padding:3px;margin-top:5px;margin-bottom:5px;">
+                       <p style="color:white;border-bottom:1px solid white;margin:0;padding: 0;display:flex;">
+                           <span style="flex-basis:90%;justify-content: center;display:flex;">Planos</span>
+                           <a style="flex-basis:10%;" id="criar_excel" href=""><i class="far fa-file-excel fa-sm text-white"></i></a>
+                       </p>
+                       <ul style="margin:0 0 0 0;padding:0;">
+                           <li style="display:flex;justify-content: space-between;" data-plano="1" id="listar_individual_apto_total">
+                               <span style="display:flex;flex-basis:50%;font-size:0.7em;">Individual</span>
+                               <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_individual_total">{{$total_individual_quantidade}}</span>
+                               <span style="display:flex;flex-basis:40%;justify-content:flex-end;font-size:0.7em;"><span id="valor_total_individual_total">{{$total_individual}}</span></span>
+                           </li>
+                           <li style="display:flex;justify-content: space-between;" data-plano="3" id="listar_coletivo_apto_total">
+                               <span style="display:flex;flex-basis:50%;font-size:0.7em;">Coletivo</span>
+                               <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_coletivo_total">{{$total_coletivo_quantidade}}</span>
+                               <span style="display:flex;flex-basis:40%;justify-content:flex-end;font-size:0.7em;"><span id="valor_total_coletivo_total">{{$total_coletivo}}</span></span>
+                           </li>
+                           <li style="display:flex;justify-content: space-between;" data-plano="0" id="listar_empresarial_apto_total">
+                               <span style="display:flex;flex-basis:50%;font-size:0.7em;">Empresarial</span>
+                               <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_empresarial_total">{{$total_empresarial_quantidade}}</span>
+                               <span style="display:flex;flex-basis:40%;justify-content: flex-end;font-size:0.7em;"><span id="valor_total_empresarial_total">{{$total_empresarial}}</span></span>
+                           </li>
+                       </ul>
+                   </div>
 
 
 
-                    <div id="list_user">
+{{--                   <div id="footer_user" class="finalizar_mes_container">--}}
 
-                        <ul style="list-style:none;margin:0;padding:0;" class="w-100">
-                            @foreach($users_apto_apagar as $uu)
-                                @php
-                                    $texto = $uu->user;
-                                    $palavras = \Illuminate\Support\Str::words($texto, 2, '');
-                                    $primeiroNome = explode(' ', $palavras)[0]; // Obtém o primeiro nome
-                                    $sobrenome = explode(' ', $palavras)[1];
-                                    $iniciaisSobrenome = $sobrenome[0];
-                                    $nomeAbreviado = $primeiroNome . ' ' . $iniciaisSobrenome . '.';
-                                    //$textoLimitado = \Illuminate\Support\Str::before($palavras, ' ') . (\Illuminate\Support\Str::contains($texto, ' ') ? '...' : '');
-                                @endphp
-                                <li class="d-flex justify-content-between border-top border-bottom border-white text-white w-100 py-2">
-                                    <span style="font-size:0.8em;display:flex;flex-basis:50%;" class="user_destaque ml-1" data-id="{{$uu->user_id}}">{{$nomeAbreviado}}</span>
-                                    <span style="font-size:0.8em;display:flex;flex-basis:40%;justify-content:right;margin-right:5%;" class="total_pagamento_finalizado user_destaque" data-id="{{$uu->user_id}}">{{number_format($uu->total,2,",",".")}}</span>
-                                    <span style="display:flex;flex-basis:10%;"><i class="fas fa-file-pdf criar_pdf mr-1" data-id="{{$uu->user_id}}"></i></span>
-                                </li>
-                            @endforeach
-                        </ul>
+{{--                   </div>--}}
 
-                    </div>
-            </div>
 
-           <section style="flex-basis:12%;margin-right: 1%;">
-                <div style="background-color: #123449;padding:3px;">
-                    <select name="escolher_vendedor" id="escolher_vendedor" class="form-control form-control-sm mb-1 tamanho_de_25" {{$status_disabled ? 'disabled' : ''}}>
-                        <option value="" class="text-center">--Corretores--</option>
-                        @foreach($users as $u)
-                            <option value="{{$u->id}}" data-name="{{$u->name}}">{{$u->name}}</option>
-                        @endforeach
-                    </select>
-                    <div style="border-top:1px solid white;margin-bottom:5px;"></div>
-                    <ul style="margin:0;padding:0;">
-                        <li style="display:flex;justify-content: space-between;">
+
+                   <div id="list_user">
+                       <p style="color:white;border-bottom:1px solid white;text-align: center;margin:0;padding: 0;background-color:#123449;">Corretores</p>
+                       <ul style="list-style:none;margin:0;padding:0;" class="w-100">
+                           @php
+                               $iix = 0;
+                           @endphp
+                           @foreach($users_apto_apagar as $uu)
+                               @php  $iix++; @endphp
+                               <li class="d-flex justify-content-between text-white w-100 py-1 {{ $iix % 2 == 0 ? 'user_destaque_impar' : '' }}">
+                                   <span class="user_nome user_destaque" data-id="{{ $uu->user_id }}">
+                                       @php
+                                           echo Illuminate\Support\Str::limit($uu->user,20,"");
+                                       @endphp
+                                   </span>
+                                   <span class="user_total total_pagamento_finalizado user_destaque" data-id="{{ $uu->user_id }}">{{ number_format($uu->total, 2, ",", ".") }}</span>
+                               </li>
+                           @endforeach
+                       </ul>
+
+                   </div>
+               </div>
+
+               <section style="flex-basis:47%;margin-right: 1%;">
+                   <div style="background-color: #123449;padding:3px;">
+                       <select name="escolher_vendedor" id="escolher_vendedor" class="form-control form-control-sm mb-1 tamanho_de_25" {{$status_disabled ? 'disabled' : ''}}>
+                           <option value="" class="text-center">--Corretores--</option>
+                           @foreach($users as $u)
+                               <option value="{{$u->id}}" data-name="{{$u->name}}">{{$u->name}}</option>
+                           @endforeach
+                       </select>
+                       <div style="border-top:1px solid white;margin-bottom:5px;"></div>
+                       <ul style="margin:0;padding:0;">
+                           <li style="display:flex;justify-content: space-between;">
                         <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
                             Salario:
                         </span>
-                            <span style="display:flex;flex-basis:50%;">
+                               <span style="display:flex;flex-basis:50%;">
                             <input type="text" name="salario_vendedor" id="salario_vendedor" class="form-control form-control-sm salario_usuario_vendedor" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
 
-                        </li>
-                        <li style="display:flex;justify-content: space-between;margin:5px 0;">
+                           </li>
+                           <li style="display:flex;justify-content: space-between;margin:5px 0;">
                         <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
                             Comissão:
                         </span>
-                            <span style="display:flex;flex-basis:50%;">
+                               <span style="display:flex;flex-basis:50%;">
                             <input type="text" name="comissao_vendedor" id="comissao_vendedor" class="form-control form-control-sm" readonly placeholder="Comissão" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
-                        </li>
-                        <li style="display:flex;justify-content: space-between;margin:5px 0;">
+                           </li>
+                           <li style="display:flex;justify-content: space-between;margin:5px 0;">
                         <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
                             Premiação:
                         </span>
-                            <span style="display:flex;flex-basis:50%;">
+                               <span style="display:flex;flex-basis:50%;">
                             <input type="text" name="premiacao_vendedor" id="premiacao_vendedor" class="form-control form-control-sm premiacao_usuario_vendedor" style="text-align:right;height:20px;font-size:0.8em;">
                         </span>
-                        </li>
-                        <li style="display:flex;justify-content: space-between;margin:5px 0;">
-                        <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
-                            Desconto:
-                        </span>
-                            <span style="display:flex;flex-basis:50%;">
-                            <input type="text" disabled id="valor_total_desconto_vendedor" name="desconto_vendedor" class="form-control form-control-sm desconto_usuario_vendedor" style="text-align:right;height:20px;font-size:0.8em;">
-                        </span>
-                        </li>
-                        <li style="display:flex;justify-content: space-between;">
+                           </li>
+
+                           <li style="display:flex;justify-content: space-between;margin:5px 0;">
+                            <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
+                            Estorno:
+                            </span>
+                               <span style="display:flex;flex-basis:50%;">
+                                <input type="text" id="valor_total_estorno_vendedor" name="estorno_vendedor" class="form-control form-control-sm estorno_usuario_vendedor" style="text-align:right;height:20px;font-size:0.8em;">
+                            </span>
+                           </li>
+
+                           <li style="display:flex;justify-content: space-between;margin:5px 0;">
+                            <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;color:#FFF;">
+                                Desconto:
+                            </span>
+                               <span style="display:flex;flex-basis:50%;">
+                                <input type="text" disabled id="valor_total_desconto_vendedor" name="desconto_vendedor" class="form-control form-control-sm desconto_usuario_vendedor" style="text-align:right;height:20px;font-size:0.8em;">
+                            </span>
+                           </li>
+                           <li style="display:flex;justify-content: space-between;">
                             <span style="display:flex;flex-basis:50%;align-self: center;font-size:0.7em;height:20px;color:#FFF;">
                             Total:
                             </span>
-                            <span style="display:flex;flex-basis:50%;">
+                               <span style="display:flex;flex-basis:50%;">
                                 <input type="text" disabled name="total_campo_vendedor" id="total_campo_vendedor" class="form-control form-control-sm total_campo_vendedor" style="text-align:right;height:20px;font-size:0.8em;">
                             </span>
-                        </li>
+                           </li>
+                       </ul>
+                   </div>
 
-                    </ul>
+                   <div style="background-color: #123449;padding:3px;margin-top:5px;">
+                       <p style="color:white;border-bottom:1px solid white;text-align: center;margin:0;padding: 0;">Planos</p>
+                       <ul style="margin:0 0 0 0;padding:0;" id="lista_apto_a_pagar_ul">
+                           <li style="display:flex;justify-content: space-between;" id="listar_individual_apto">
+                               <span style="display:flex;flex-basis:60%;font-size:0.7em;">Individual</span>
+                               <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_individual">0</span>
+                               <span style="display:flex;flex-basis:30%;justify-content:flex-end;font-size:0.7em;"><span id="valor_total_individual">0</span></span>
+                           </li>
+                           <li style="display:flex;justify-content: space-between;" id="listar_coletivo_apto">
+                               <span style="display:flex;flex-basis:60%;font-size:0.7em;">Coletivo</span>
+                               <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_coletivo">0</span>
+                               <span style="display:flex;flex-basis:30%;justify-content:flex-end;font-size:0.7em;"><span id="valor_total_coletivo">0</span></span>
+                           </li>
+                           <li style="display:flex;justify-content: space-between;" id="listar_empresarial_apto">
+                               <span style="display:flex;flex-basis:60%;font-size:0.7em;">Empresarial</span>
+                               <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_empresarial">0</span>
+                               <span style="display:flex;flex-basis:30%;justify-content: flex-end;font-size:0.7em;"><span id="valor_total_empresarial">0</span></span>
+                           </li>
+                       </ul>
+                   </div>
 
-                </div>
+                   <div style="background-color:#123449;border-radius:5px;padding:3px;margin:5px 0;">
+                       <p class="border-bottom text-center" style="margin:0;padding:0;color:white;">Recebidas</p>
+                       <ul style="margin:0 0 0 0;padding:0;list-style:none;" class="listar">
+                           <li style="display:flex;font-size:0.7em;" class="individual_recebidas ml-1 ativo">Individual</li>
+                           <li style="display:flex;font-size:0.7em;color:#FFF;" class="coletivo_recebidas ml-1">Coletivo</li>
+                           <li style="display:flex;font-size:0.7em;color:#FFF;" class="empresarial_recebidas ml-1">Empresarial</li>
+                       </ul>
+                   </div>
 
+                   <div style="background-color:#123449;border-radius:5px;padding:3px;margin:5px 0;">
+                       <p class="border-bottom text-center" style="margin:0;padding: 0;color: white;">A Receber</p>
+                       <ul style="margin:0 0 0 0;padding:0;list-style:none;" class="listar listar_a_receber_ul">
+                           <li style="display:flex;font-size:0.7em;color:#FFF;" class="individual_a_receber ml-1">Individual</li>
+                           <li style="display:flex;font-size:0.7em;color:#FFF;" class="coletivo_a_receber ml-1">Coletivo</li>
+                           <li style="display:flex;font-size:0.7em;color:#FFF;" class="empresarial_a_receber ml-1">Empresarial</li>
+                       </ul>
+                   </div>
 
-               <div style="background-color: #123449;padding:3px;margin-top:5px;">
-                   <p style="color:white;border-bottom:1px solid white;text-align: center;margin:0;padding: 0;">Planos</p>
-                   <ul style="margin:0 0 0 0;padding:0;">
-                       <li style="display:flex;justify-content: space-between;" id="listar_individual_apto">
-                           <span style="display:flex;flex-basis:60%;font-size:0.7em;">Individual</span>
-                           <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_individual">0</span>
-                           <span style="display:flex;flex-basis:30%;justify-content:flex-end;font-size:0.7em;"><span id="valor_total_individual">0</span></span>
-                       </li>
-                       <li style="display:flex;justify-content: space-between;" id="listar_coletivo_apto">
-                           <span style="display:flex;flex-basis:60%;font-size:0.7em;">Coletivo</span>
-                           <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_coletivo">0</span>
-                           <span style="display:flex;flex-basis:30%;justify-content:flex-end;font-size:0.7em;"><span id="valor_total_coletivo">0</span></span>
-                       </li>
-                       <li style="display:flex;justify-content: space-between;" id="listar_empresarial_apto">
-                           <span style="display:flex;flex-basis:60%;font-size:0.7em;">Empresarial</span>
-                           <span style="display:flex;flex-basis:10%;font-size:0.7em;" id="total_quantidade_empresarial">0</span>
-                           <span style="display:flex;flex-basis:30%;justify-content: flex-end;font-size:0.7em;"><span id="valor_total_empresarial">0</span></span>
-                       </li>
-                   </ul>
-               </div>
+                   <div style="background-color:#123449;border-radius:5px;padding:3px;margin:5px 0;">
+                       <p class="border-bottom text-center" style="margin:0;padding: 0;color: white;">Estorno</p>
+                       <ul style="margin:0 0 0 0;padding:0;list-style:none;" class="listar listar_estorno_ul">
+                           <li style="display:flex;font-size:0.7em;color:#FFF;" class="individual_estorno_receber ml-1">Individual</li>
+                           <li style="display:flex;font-size:0.7em;color:#FFF;" class="coletivo_estorno_receber ml-1">Coletivo</li>
+                           <li style="display:flex;font-size:0.7em;color:#FFF;" class="empresarial_estorno_receber ml-1">Empresarial</li>
+                       </ul>
+                   </div>
 
+                   <button class="btn btn-block mt-2" id="finalizar_folha" style="background-color:#2D7BAC;color:white;font-size: 0.7em;">
+                       Finalizar
+                   </button>
 
+                   <button class="btn btn-block btn-secondary mt-2" id="all_cadastrados" style="color:white;font-size: 0.7em;">
+                       Cadastrados
+                   </button>
 
+                   <div class="container_criar_pdf">
 
+                   </div>
 
+               </section>
 
-
-
-
-
-
-               <div style="background-color:#123449;border-radius:5px;padding:3px;margin:5px 0;">
-                   <p class="border-bottom text-center" style="margin:0;padding:0;color:white;">Recebidas</p>
-                   <ul style="margin:0 0 0 0;padding:0;list-style:none;" class="listar">
-                       <li style="display:flex;font-size:0.7em;" class="individual_recebidas ml-1 ativo">Individual</li>
-                       <li style="display:flex;font-size:0.7em;color:#FFF;" class="coletivo_recebidas ml-1">Coletivo</li>
-                       <li style="display:flex;font-size:0.7em;color:#FFF;" class="empresarial_recebidas ml-1">Empresarial</li>
-                   </ul>
-               </div>
-
-               <div style="background-color:#123449;border-radius:5px;padding:3px;margin:5px 0;">
-                   <p class="border-bottom text-center" style="margin:0;padding: 0;color: white;">A Receber</p>
-                   <ul style="margin:0 0 0 0;padding:0;list-style:none;" class="listar listar_a_receber_ul">
-                       <li style="display:flex;font-size:0.7em;color:#FFF;" class="individual_a_receber ml-1">Individual</li>
-                       <li style="display:flex;font-size:0.7em;color:#FFF;" class="coletivo_a_receber ml-1">Coletivo</li>
-                       <li style="display:flex;font-size:0.7em;color:#FFF;" class="empresarial_a_receber ml-1">Empresarial</li>
-                   </ul>
-               </div>
-
-                <button class="btn btn-block mt-2" id="finalizar_folha" style="background-color:#2D7BAC;color:white;font-size: 0.7em;">
-                    Finalizar
-                </button>
-
-               <button class="btn btn-block btn-warning mt-2" id="all_cadastrados" style="color:white;font-size: 0.7em;">
-                   Cadastrados
-               </button>
+               <section id="footer_user" class="finalizar_mes_container" style="display:flex;flex-basis:100%;"></section>
 
            </section>
 
+            <section style="display:flex;flex-basis:75%;">
 
-           <section style="flex-basis:75%;">
-               <div style="color:#FFF;border-radius:5px;" id="tabela_aptos_a_pagar" class="dsnone">
-                   <div class="p-2" style="background-color:#123449;border-radius:5px;">
-                       <table id="tabela_aptos_a_pagar_table" class="table table-sm listaraptosapagar w-100">
-                           <thead>
-                           <tr>
-                               <th>Adminsss</th>
-                               <th>Parcela</th>
-                               <th>Cliente</th>
-                               <th align="center">Vencimento</th>
-                               <th>Baixa</th>
-                               <th>Valor</th>
-                               <th>Desconto</th>
-                               <th>Comissão</th>
-                               <th>Ação</th>
-                           </tr>
-                           </thead>
-                           <tbody></tbody>
-                       </table>
-                   </div>
-               </div>
+                <section style="flex-basis:100%;">
+                    <div style="color:#FFF;border-radius:5px;" id="tabela_aptos_a_pagar" class="dsnone">
+                        <div class="p-2" style="background-color:#123449;border-radius:5px;">
+                            <table id="tabela_aptos_a_pagar_table" class="table table-sm listaraptosapagar w-100">
+                                <thead>
+                                <tr>
+                                    <th>Admin</th>
+                                    <th>Data</th>
+                                    <th>Cod.</th>
+                                    <th>Cliente</th>
+                                    <th>Parcela</th>
+                                    <th>Valor</th>
+                                    <th align="center">Vencimento</th>
+                                    <th>Baixa</th>
+                                    <th>%</th>
+                                    <th>Pagar</th>
+                                    <th>Desconto</th>
+                                    <th>Ação</th>
+                                    <th>Ver</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
 
-               <div style="color:#FFF;border-radius:5px;" id="tabela_principal">
-                   <div style="background-color:#123449;border-radius:5px;">
-                       <table id="tabela_mes_recebidas" class="table table-sm listarcomissaomesrecebidas w-100">
-                           <thead>
-                           <tr>
-                               <th>Admin</th>
-                               <th>Data</th>
-                               <th>Cod.</th>
-                               <th>Cliente</th>
-                               <th>Parcela</th>
-                               <th>Valor</th>
-                               <th align="center">Vencimento</th>
-                               <th>Baixa</th>
-                               <th>Comissão</th>
-                               <th>%</th>
-                               <th>Pagar</th>
-                               <th>Vidas</th>
-                               <th>Desconto</th>
-                               <th>Status</th>
-                           </tr>
-                           </thead>
-                           <tbody></tbody>
-                       </table>
-                   </div>
-               </div>
+                    <div style="color:#FFF;border-radius:5px;" id="tabela_principal">
+                        <div style="background-color:#123449;border-radius:5px;">
+                            <table id="tabela_mes_recebidas" class="table table-sm listarcomissaomesrecebidas w-100">
+                                <thead>
+                                <tr>
+                                    <th>Admin</th>
+                                    <th>Data</th>
+                                    <th>Cod.</th>
+                                    <th>Cliente</th>
+                                    <th>Parcela</th>
+                                    <th>Valor</th>
+                                    <th align="center">Vencimento</th>
+                                    <th>Baixa</th>
+                                    <th>Comissão</th>
+                                    <th>%</th>
+                                    <th>Pagar</th>
+                                    <th>Vidas</th>
+                                    <th>Desconto</th>
+                                    <th>Status</th>
+                                    <th>Ver</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
 
-               <div style="color:#FFF;" id="listar_a_receber" class="dsnone">
-                   <div style="background-color:#123449;border-radius:5px;">
-                       <table id="tabela_mes_diferente" class="table table-sm listarcomissaomesdiferente" >
-                           <thead>
-                           <tr>
-                               <th>Admin</th>
-                               <th>Data</th>
-                               <th>Cod.</th>
-                               <th>Cliente</th>
-                               <th>Parcela</th>
-                               <th>Valor</th>
-                               <th align="center">Vencimento</th>
-                               <th>Baixa</th>
-                               <th>%</th>
-                               <th>Pagar</th>
-                               <th>Vidas</th>
-                               <th>Desconto</th>
-                               <th>Antecipar</th>
-                           </tr>
-                           </thead>
-                           <tbody></tbody>
-                       </table>
-                   </div>
-               </div>
+                    <div style="color:#FFF;" id="listar_a_receber" class="dsnone">
+                        <div style="background-color:#123449;border-radius:5px;">
+                            <table id="tabela_mes_diferente" class="table table-sm listarcomissaomesdiferente" >
+                                <thead>
+                                <tr>
+                                    <th>Admin</th>
+                                    <th>Data</th>
+                                    <th>Cod.</th>
+                                    <th>Cliente</th>
+                                    <th>Par.</th>
+                                    <th>Valor</th>
+                                    <th align="center">Venc.</th>
+                                    <th>Baixa</th>
+                                    <th>Porc(%)</th>
+                                    <th>Pagar</th>
+                                    <th>Vidas</th>
+                                    <th>Desconto</th>
+                                    <th>Antecipar</th>
+                                    <th>Ver</th>
+
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="color:#FFF;border-radius:5px;" id="tabela_estorno" class="dsnone">
+                        <div class="p-2" style="background-color:#123449;border-radius:5px;">
+                            <table id="tabela_estorno_table" class="table table-sm listarestornos w-100">
+                                <thead>
+                                <tr>
+                                    <th>Admin</th>
+                                    <th>Data</th>
+                                    <th>Cod.</th>
+                                    <th>Cliente</th>
+                                    <th>Parcela</th>
+                                    <th>Valor</th>
+                                    <th>Estorno</th>
+                                    <th>Ação</th>
+                                    <th>Ver</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
 
 
-               <div style="color:#FFF;" id="listar_cadastrados" class="dsnone">
-                   <div style="background-color:#123449;border-radius:5px;">
-                       <table id="tabela_cadastrados" class="table table-sm listarcadastrados" >
-                           <thead>
-                           <tr>
-                               <th>Admin</th>
-                               <th>Cliente</th>
-                               <th>Corretor</th>
-                               <th>Plano</th>
-                               <th>Estagio</th>
 
-                           </tr>
-                           </thead>
-                           <tbody></tbody>
-                       </table>
-                   </div>
-               </div>
+                    <div style="color:#FFF;" id="listar_cadastrados" class="dsnone">
+                        <div style="background-color:#123449;border-radius:5px;">
+                            <table id="tabela_cadastrados" class="table table-sm listarcadastrados" >
+                                <thead>
+                                <tr>
+                                    <th>Admin</th>
+                                    <th>Cliente</th>
+                                    <th>Corretor</th>
+                                    <th>Plano</th>
+                                    <th>Estagio</th>
 
-
-
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
 
 
-
-           </section>
+                </section>
        </main>
+
+       <main id="aba_historico" class="ocultar aba_historico_container">
+           <select name="select_aba_historico" id="select_aba_historico" class="form-control" style="margin-bottom:5px;">
+               <option value="" class="text-center">---</option>
+               <option value="01">Janeiro/2023</option>
+               <option value="02">Fevereiro/2023</option>
+               <option value="03">Março/2023</option>
+               <option value="04">Abril/2023</option>
+               <option value="05">Maio/2023</option>
+               <option value="06">Junho/2023</option>
+               <option value="07">Julho/2023</option>
+               <option value="08">Agosto/2023</option>
+               <option value="09">Setembro/2023</option>
+               <option value="10">Outubro/2023</option>
+               <option value="11">Novembro/2023</option>
+               <option value="12">Dezembro/2023</option>
+           </select>
+       </main>
+
+        <div style="background-color:#123449;border-radius:5px;color:#FFF;" class="ocultar" id="container_table_aba_historico">
+
+            <table id="tabelaResultados" class="w-100">
+                <!-- Conteúdo da tabela -->
+                <thead>
+                <tr>
+                    <th style="width:5%;">Admin</th>
+                    <th style="width:4%;">Data</th>
+                    <th style="width:5%;">Codigo</th>
+                    <th style="width:30%;">Cliente</th>
+                    <th style="width:2%;">Parcela</th>
+                    <th style="width:10%;">Valor</th>
+                    <th style="width:10%;">Vencimento</th>
+                    <th style="width:5%;">Baixa</th>
+                    <th style="width:5%;">Porcentagem</th>
+                    <th style="width:5%;">Pagar</th>
+                    <th style="width:5%;">Desconto</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+
+        </div>
+
+        <div id="aba_historico_empty"></div>
+
     </section>
+
+
+
+
+
+
+
+
+
+
+
 
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -1349,6 +1461,13 @@
                         <span class="d-flex" style="flex-basis:20%;">Premiação:</span>
                         <span class="d-flex premiacao_usuario_modal"></span>
                     </p>
+
+                    <p class="d-flex">
+                        <span class="d-flex" style="flex-basis:20%;">Estorno:</span>
+                        <span class="d-flex estorno_usuario_modal"></span>
+                    </p>
+
+
                     <p class="d-flex">
                         <span class="d-flex" style="flex-basis:20%;">Desconto:</span>
                         <span class="d-flex desconto_usuario_modal"></span>
@@ -1357,12 +1476,6 @@
                         <span class="d-flex" style="flex-basis:20%;">Total:</span>
                         <span class="d-flex total_a_pagar_modal"></span>
                     </p>
-
-
-
-
-
-
 
                 </div>
                 <div class="modal-footer" style="display:flex;justify-content: center;">
@@ -1401,25 +1514,397 @@
             </div>
         </div>
     </div>
-
-
-
-
-
-
 @stop
-
-
-
-
-
-
-
 
 @section('js')
     <script src="{{asset('js/jquery.mask.min.js')}}"></script>
     <script>
+
         $(function(){
+
+            var listarestornos = $(".listarestornos").DataTable({
+                dom: '<"d-flex justify-content-between"<"#title_estorno_confirmados"><"estilizar_search"f>><t><"d-flex justify-content-between align-items-center"<"por_pagina"l><"estilizar_pagination"p>>',
+                "language": {
+                    "url": "{{asset('traducao/pt-BR.json')}}"
+                },
+                ajax: {
+                    "url":`{{ route('gerente.listagem.zerar.tabelas') }}`,
+                    "dataSrc": "",
+                },
+                "lengthMenu": [50,100,150,200,300,500],
+                // "lengthMenu": [1,2,3,4,5,6],
+                "ordering": false,
+                "paging": true,
+                "searching": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                columns: [
+                    {data:"administradora",name:"administradora",width:"4%"},
+                    {data:"data",name:"data",width:"2%"},
+                    {data:"codigo",name:"codigo",width:"2%"},
+                    {data:"cliente",name:"cliente",width:"25%"},
+                    {data:"parcela",name:"parcela",width:"1%",className: 'dt-center'},
+                    {data:"valor",name:"valor",width:"8%",render: $.fn.dataTable.render.number('.',',',2,'R$ '),className: 'dt-center'},
+                    {data:"total_estorno",width:"5%",className: 'dt-center total_estorno',render: $.fn.dataTable.render.number('.',',',2,'R$ ')},
+                    {
+                        data: "id", name: "id", width: "5%",
+                        "createdCell": function (td, cellData, rowData, row, col) {
+                            let selected = $('<select />', {
+                                name: 'confirmar_estorno',
+                                class: "confirmar_estorno",
+                                id: cellData,
+                                'data-plano':rowData.plano,
+                                append: [
+                                    $('<option />', {value: "1", text: "---",className:"dt-center"}),
+                                    $('<option />', {value: "2", text: "Estornar"}),
+                                ]
+                            });
+                            $(td).html(selected)
+                        }
+                    },
+                    {data:"id",name:"id",width:"5%",
+                    "createdCell": function (td, cellData, rowData, row, col) {
+                        let contrato_id = cellData;
+                        $(td).html(`<div class='text-center text-white'>
+                                    <a href="/admin/financeiro/detalhes/coletivo/${contrato_id}" target="_blank" class="text-white">
+                                        <i class='fas fa-eye'></i>
+                                    </a>
+                                </div>
+                            `);
+                    }},
+
+
+            ],
+                "initComplete": function( settings, json ) {
+                    $('#title_estorno_confirmados').html("<h4>Estorno Individual</h4>");
+                },
+                footerCallback: function (row, data, start, end, display) {
+
+                }
+            });
+
+            $("body").on('change','.confirmar_estorno',function(){
+                let id = $(this).attr('id');
+                let mes = $("#mes_folha").val();
+                let user_id = $("#corretor_escolhido").val();
+                let linha = $(this).closest('tr');
+                let plano = $(this).attr('data-plano');
+                let estorno = linha.find('.total_estorno').text().replace("R$","").replace(/\./g,'').replace(',', '.').trim();
+                let total_estorno = $("#valor_total_estorno_vendedor").val().replace(/\./g, '').replaceAll(',', '.').trim();
+                let calcular_estorno = parseFloat(total_estorno) + parseFloat(estorno);
+                $("#valor_total_estorno_vendedor").val(calcular_estorno.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace("R$",""));
+                let total_input = $("#total_campo_vendedor").val().replace(/\./g, '').replaceAll(',', '.').trim();
+                let total_calculado = total_input - parseFloat(estorno);
+                $("#total_campo_vendedor").val(total_calculado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace("R$",""));
+                $.ajax({
+                   url:"{{route('gerente.contrato.estorno')}}",
+                   data:"id="+id+"&mes="+mes+"&user_id="+user_id+"&valor="+calcular_estorno.toFixed(2)+"&total="+total_calculado+"&plano="+plano,
+                   method:"POST",
+                   success:function(res) {
+                       listarestornos.ajax.reload();
+                   }
+                });
+            });
+
+            $(".individual_estorno_receber").on('click',function(){
+                let id = $("#corretor_escolhido").val();
+                $(this).addClass('ativo');
+                if(id) {
+                    $("#lista_apto_a_pagar_ul li").removeClass("ativo");
+                    $(".listar li").removeClass("ativo");
+                    $(".coletivo_estorno_receber").removeClass("ativo");
+                    $(".empresarial_estorno_receber").removeClass("ativo");
+                    if($("#tabela_estorno").is(":visible")) {
+                        $("#title_estorno_confirmados").html("<h4>Estorno Individual</h4>")
+                        listarestornos.ajax.url(`{{ url('/admin/gerente/estorno/individual/${id}') }}`).load();
+                    } else {
+                        if($("#tabela_principal").is(":visible")) {
+                            $("#tabela_principal").slideUp(1000,function(){
+                                $("#tabela_estorno").slideDown('slow',function(){
+                                    $("#title_estorno_confirmados").html("<h4>Estorno Individual</h4>")
+                                    listarestornos.ajax.url(`{{ url('/admin/gerente/estorno/individual/${id}') }}`).load();
+                                });
+                            });
+                        }
+
+                        if($("#tabela_aptos_a_pagar").is(":visible")) {
+                            $("#tabela_aptos_a_pagar").slideUp(1000,function(){
+                                $("#tabela_estorno").slideDown('slow',function(){
+                                    $("#title_estorno_confirmados").html("<h4>Estorno Individual</h4>")
+                                    listarestornos.ajax.url(`{{ url('/admin/gerente/estorno/individual/${id}') }}`).load();
+                                });
+                            });
+                        }
+
+                        if($("#listar_cadastrados").is(":visible")) {
+                            $("#listar_cadastrados").slideUp(1000,function(){
+                                $("#tabela_estorno").slideDown('slow',function(){
+                                    $("#title_estorno_confirmados").html("<h4>Estorno Individual</h4>")
+                                    listarestornos.ajax.url(`{{ url('/admin/gerente/estorno/individual/${id}') }}`).load();
+                                });
+                            });
+                        }
+                    }
+
+                } else {
+                    $("#listar_coletivo_apto").removeClass("ativo");
+                    $(".listar li").removeClass("ativo");
+                    $("#listar_individual_apto").removeClass("ativo");
+                    toastr["error"]("Escolha um Corretor")
+                    toastr.options = {
+                        'time-out': 3000,
+                        'close-button':true,
+                        'position-class':'toast-top-full-width',
+                        'class' : 'fullwidth',
+                        'fixed': false
+                    }
+                }
+            });
+
+
+            $(".coletivo_estorno_receber").on('click',function(){
+                let id = $("#corretor_escolhido").val();
+                $(this).addClass('ativo');
+                if(id) {
+
+                    //$("#listar_individual_apto").removeClass("ativo");
+                    if($("#tabela_estorno").is(":visible")) {
+                        $("#title_estorno_confirmados").html("<h4>Estorno Coletivo</h4>")
+                        listarestornos.ajax.url(`{{ url('/admin/gerente/estorno/coletivo/${id}') }}`).load();
+
+                    } else {
+
+                        if($("#tabela_principal").is(":visible")) {
+                            $("#tabela_principal").slideUp(1000,function(){
+                                $("#tabela_estorno").slideDown('slow',function(){
+                                    $("#title_estorno_confirmados").html("<h4>Estorno Coletivo</h4>")
+                                    listarestornos.ajax.url(`{{ url('/admin/gerente/estorno/coletivo/${id}') }}`).load();
+                                });
+                            });
+                        }
+
+                        if($("#tabela_aptos_a_pagar").is(":visible")) {
+                            $("#tabela_aptos_a_pagar").slideUp(1000,function(){
+                                $("#tabela_estorno").slideDown('slow',function(){
+                                    $("#title_estorno_confirmados").html("<h4>Estorno Coletivo</h4>")
+                                    listarestornos.ajax.url(`{{ url('/admin/gerente/estorno/coletivo/${id}') }}`).load();
+                                });
+                            });
+                        }
+
+                        if($("#listar_cadastrados").is(":visible")) {
+                            $("#listar_cadastrados").slideUp(1000,function(){
+                                $("#tabela_estorno").slideDown('slow',function(){
+                                    $("#title_estorno_confirmados").html("<h4>Estorno Coletivo</h4>")
+                                    listarestornos.ajax.url(`{{ url('/admin/gerente/estorno/coletivo/${id}') }}`).load();
+                                });
+                            });
+                        }
+                    }
+                } else {
+                    $("#listar_coletivo_apto").removeClass("ativo");
+                    $(".listar li").removeClass("ativo");
+                    $("#listar_individual_apto").removeClass("ativo");
+                    toastr["error"]("Escolha um Corretor")
+                    toastr.options = {
+                        'time-out': 3000,
+                        'close-button':true,
+                        'position-class':'toast-top-full-width',
+                        'class' : 'fullwidth',
+                        'fixed': false
+                    }
+                }
+            });
+
+            $(".empresarial_estorno_receber").on('click',function(){
+                let id = $("#corretor_escolhido").val();
+                $(this).addClass('ativo');
+                if(id) {
+
+                    if($("#tabela_estorno").is(":visible")) {
+                        $("#title_estorno_confirmados").html("<h4>Estorno Empresarial</h4>")
+                        listarestornos.ajax.url(`{{ url('/admin/gerente/estorno/empresarial/${id}') }}`).load();
+
+                    } else {
+
+                        if($("#tabela_principal").is(":visible")) {
+                            $("#tabela_principal").slideUp(1000,function(){
+                                $("#tabela_estorno").slideDown('slow',function(){
+                                    $("#title_estorno_confirmados").html("<h4>Estorno Empresarial</h4>")
+                                    listarestornos.ajax.url(`{{ url('/admin/gerente/estorno/empresarial/${id}') }}`).load();
+                                });
+                            });
+                        }
+
+                        if($("#tabela_aptos_a_pagar").is(":visible")) {
+                            $("#tabela_aptos_a_pagar").slideUp(1000,function(){
+                                $("#tabela_estorno").slideDown('slow',function(){
+                                    $("#title_estorno_confirmados").html("<h4>Estorno Empresarial</h4>")
+                                    listarestornos.ajax.url(`{{ url('/admin/gerente/estorno/empresarial/${id}') }}`).load();
+                                });
+                            });
+                        }
+
+                        if($("#listar_cadastrados").is(":visible")) {
+                            $("#listar_cadastrados").slideUp(1000,function(){
+                                $("#tabela_estorno").slideDown('slow',function(){
+                                    $("#title_estorno_confirmados").html("<h4>Estorno Empresarial</h4>")
+                                    listarestornos.ajax.url(`{{ url('/admin/gerente/estorno/empresarial/${id}') }}`).load();
+                                });
+                            });
+                        }
+                    }
+
+
+
+
+
+
+
+
+
+
+
+
+                } else {
+                    $("#listar_coletivo_apto").removeClass("ativo");
+                    $(".listar li").removeClass("ativo");
+                    $("#listar_individual_apto").removeClass("ativo");
+                    toastr["error"]("Escolha um Corretor")
+                    toastr.options = {
+                        'time-out': 3000,
+                        'close-button':true,
+                        'position-class':'toast-top-full-width',
+                        'class' : 'fullwidth',
+                        'fixed': false
+                    }
+                }
+            });
+
+
+
+
+
+
+
+            var table_aba_historico = $('#tabelaResultados').DataTable({
+                dom: '<"d-flex justify-content-between"<"#title_aba_historico"><"estilizar_search"f>><t><"d-flex justify-content-between align-items-center"<"por_pagina"l><"estilizar_pagination"p>>',
+                "language": {
+                    "url": "{{asset('traducao/pt-BR.json')}}"
+                },
+                "lengthMenu": [50,100,150,200,300,500],
+                "ordering": false,
+                "paging": true,
+                "searching": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                columns: [
+                    { data: 'Admin',width:"5%"},
+                    { data: 'Data',width:"4%"},
+                    { data: 'Codigo',width:"4%"},
+                    { data: 'Cliente',width:"30%"},
+                    { data: 'Parcela',width:"2%"},
+                    { data: 'Valor',width:"8%"},
+                    { data: 'Vencimento',width:"10%"},
+                    { data: 'Baixa',width:"5%"},
+                    { data: 'Porcentagem',width:"5%"},
+                    { data: 'Pagar',width:"5%"},
+                    { data: 'Desconto',width:"5%"}
+                ],
+                columnDefs: [
+                    {
+                        "targets": 0,
+                        "width": "1%"
+                    },
+                    {
+                        "targets": 1,
+                        "width": "1%"
+                    },
+                    {
+                        "targets": 2,
+                        "width": "5%"
+                    },
+                    {
+                        "targets": 3,
+                        "width": "30%"
+                    },
+                    {
+                        "targets": 4,
+                        "width": "1%"
+                    },
+                    {
+                        "targets": 5,
+                        "width": "5%"
+                    },
+                    {
+                        "targets": 6,
+                        "width": "3%"
+                    },
+                    {
+                        "targets": 7,
+                        "width": "3%"
+                    },
+                    {
+                        "targets": 8,
+                        "width": "5%"
+                    },
+                    {
+                        "targets": 9,
+                        "width": "5%"
+                    },
+                    {
+                        "targets": 10,
+                        "width": "5%"
+                    },
+                ],
+                "initComplete": function( settings, json ) {
+                    $('#title_aba_historico').html("<h4 style='font-size:1em;margin-top:10px;'>Historico</h4>");
+                }
+
+            });
+
+            $("#select_aba_historico").on('change', function() {
+                let mesSelecionado = $(this).val(); // Obter o valor seleciona
+                // Realizar a requisição AJAX para filtrar os resultados no backend
+                $.ajax({
+                    url: '{{route('gerente.buscar.historico')}}', // Ajuste para apontar para o seu backend
+                    method: 'GET',
+                    data: {
+                        mes: mesSelecionado
+                    },
+                    success: function(data) {
+                        if(data && data != null && data != "") {
+                            $("#aba_historico_empty").html("");
+                            $("#container_table_aba_historico").slideDown('slow');
+                            table_aba_historico.clear().rows.add(data).draw();
+                        } else {
+                           if ($("#container_table_aba_historico").is(":visible")) {
+                                $("#container_table_aba_historico").slideUp('slow',function(){
+                                    table_aba_historico.clear().draw();
+                                    $("#aba_historico_empty").html("<p class='alert alert-danger text-center'>Nada encontrado para este mês especifico</p>");
+                                });
+                            } else {
+
+                            }
+                        }
+                    },
+                    error: function(error) {
+                        console.error('Erro na requisição AJAX:', error);
+                    }
+                });
+            });
+
+
+
+
+            function link_excel() {
+                let mes = $("#mes_folha").val();
+                $("#criar_excel").attr("href",`/admin/gerente/excel/exportar/${mes}`);
+
+            }
+            link_excel();
 
             function total_mes_atual() {
                 let mes_atual = $("#mes_folha").val();
@@ -1433,7 +1918,8 @@
                        $("#comissao").val(res.total_comissao);
                        $(".premiacao_usuario").val(res.valor_premiacao);
                        $(".desconto_usuario").val(res.valor_desconto);
-                       $(".total_campo").val(res.total_mes)
+                       $(".total_campo").val(res.total_mes);
+                       //$("#valor_total_estorno_vendedor").val(res.valor_estorno);
 
                    }
                 });
@@ -1495,9 +1981,6 @@
                                 });
                             });
                         }
-
-
-
                     }
                 } else {
                     $("#listar_coletivo_apto").removeClass("ativo");
@@ -1536,7 +2019,7 @@
                 $(this).addClass('ativo');
                 if(id) {
                     $("#listar_individual_apto").removeClass("ativo");
-                    if($("#listar_a_receber").is(":visible")) {
+                    if($("#tabela_estorno").is(":visible")) {
                         $("#title_comissao_diferente").html("<h4>A Receber Individual</h4>")
                         listarcomissaomesdfirente.ajax.url(`{{ url('/admin/gerente/listagem/comissao_mes_diferente/${id}') }}`).load();
                     } else {
@@ -1567,11 +2050,6 @@
                                 });
                             });
                         }
-
-
-
-
-
                     }
                 } else {
                     $("#listar_coletivo_apto").removeClass("ativo");
@@ -1592,6 +2070,11 @@
 
 
 
+
+
+
+
+
             $(".individual_a_receber").on('click',individual_a_receber);
             function showConfirmationMessage() {
                 let confirmationMessage = $('#confirmationMessage');
@@ -1604,13 +2087,14 @@
             }
             var total_valor = 0;
             function finalizarMes() {
+
                 $('.total_pagamento_finalizado').each(function(){
                     total_valor += parseFloat($(this).text().replace(/\./g, '').replace(',', '.'));
                 });
                 if(total_valor != 0) {
                     let value = total_valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-                    $(".finalizar_mes_container").css({"height":"30px","margin-top":"5px"}).html(`<button class="btn finalizar_mes btn-block btn-info" style="display: flex;justify-content: center;font-size: 0.7em;flex-basis: 100%;height:30px;align-items:center;color:#FFF;padding:0;margin:0;">${value}</button>`);
+                    $(".finalizar_mes_container").css({"height":"60px","margin-top":"5px"}).html(`<button class="btn finalizar_mes btn-block btn-success rounded" style="display: flex;justify-content: center;font-size: 0.7em;flex-basis: 100%;height:30px;align-items:center;color:#FFF;padding:0;margin:0;">${value} (Fechar Mês)</button>`);
                 }
                 total_valor = 0;
             }
@@ -1619,10 +2103,59 @@
 
             $("body").on('click','.user_destaque',function(){
                 let id = $(this).attr("data-id");
+                let nome_corretor = $(this).text();
                 $("#escolher_vendedor option[value='"+id+"']").prop("selected",true);
                 $("#corretor_escolhido").val(id);
                 $("#list_user ul li").removeClass('user_destaque_ativo');
                 $(this).closest("li").addClass('user_destaque_ativo');
+
+                $(".container_criar_pdf").html(`<button class="btn btn-primary btn-block mt-1 criar_pdf" data-id="${id}" style="height:30.8px;max-height:30.8px;font-size:0.7em;"  target="_blank">Criar PDF</button>`)
+                // $("#corretor_em_destaque")
+                //         .removeClass('ocultar')
+                //         .html(`Folha Do Corretor ${nome_corretor}`)
+                //         .show(
+
+                if ($(".listarcomissaomesdiferente").is(":visible")) {
+
+                    if($(".listar_a_receber_ul .individual_a_receber").hasClass('ativo')) {
+
+                        $("#title_comissao_diferente").html(`<h4>A Receber Individual - ${nome_corretor}</h4>`)
+                    } else if($(".listar_a_receber_ul .coletivo_a_receber").hasClass('ativo')) {
+
+                        $("#title_comissao_diferente").html(`<h4>A Receber Coletivo - ${nome_corretor}</h4>`)
+                    } else {
+
+                        $("#title_comissao_diferente").html(`<h4>A Receber Empresarial - ${nome_corretor}</h4>`)
+                    }
+
+                } else if ($(".listarcomissaomesrecebidas").is(":visible")) {
+
+                    if($(".listar .individual_recebidas").hasClass('ativo')) {
+                        $("#title_recebidas").html(`<h4>Recebidas Individual - ${nome_corretor}</h4>`)
+                    } else if($(".listar .coletivo_recebidas").hasClass('ativo')) {
+                        $("#title_recebidas").html(`<h4>Recebidas Coletivo - ${nome_corretor}</h4>`)
+                    } else {
+                        $("#title_recebidas").html(`<h4>Recebidas Empresarial - ${nome_corretor}</h4>`)
+                    }
+
+
+
+                } else if ($(".listaraptosapagar").is(":visible")) {
+
+                    if($("#lista_apto_a_pagar_ul #listar_individual_apto").hasClass('ativo')) {
+                        $("#title_individual_confirmadas").html(`<h4>Recebidas Individual - ${nome_corretor}</h4>`)
+                    } else if($("#lista_apto_a_pagar_ul #listar_coletivo_apto").hasClass('ativo')) {
+                        $("#title_individual_confirmadas").html(`<h4>Recebidas Coletivo - ${nome_corretor}</h4>`)
+                    } else {
+                        $("#title_individual_confirmadas").html(`<h4>Recebidas Empresarial - ${nome_corretor}</h4>`)
+                    }
+
+                } else {
+                    return "Nenhuma DataTable visível";
+                }
+
+                $("#list_user").css({"height":"330px"});
+
                 if($("#mes_folha").val() != null) {
                     let mes = $("#mes_folha").val();
                     $.ajax({
@@ -1643,7 +2176,9 @@
                            $("#valor_total_empresarial").text(res.total_empresarial);
                            $("#valor_total_coletivo").text(res.total_coletivo);
                            $("#valores_confirmados").val(res.id_confirmados);
+                           $("#valor_total_estorno_vendedor").val(res.estorno);
                            $(".total_a_pagar").text(res.total);
+
                            $("#listar_individual_apto").removeClass("ativo");
                            $("#listar_coletivo_apto").removeClass("ativo");
                            listaraptosapagar.ajax.reload(function() {
@@ -1653,16 +2188,10 @@
                        }
                     });
                 }
-
-
-
             });
 
-
             var id_confirmados = [];
-
             $("body").on('click','#finalizar_folha',function(){
-
                 if($("#mes_folha").val() == "") {
                     toastr["error"]("Mês é campo obrigatório")
                     toastr.options = {
@@ -1715,16 +2244,16 @@
                 let salario = $(".salario_usuario_vendedor").val();
                 let premiacao = $(".premiacao_usuario_vendedor").val();
                 let desconto = $("#valor_total_desconto_vendedor").val();
+                let estorno = $("#valor_total_estorno_vendedor").val();
                 let user_id = $("#cliente_id").val();
                 let mes = $("#mes_folha").val();
                 let total_a_pagar = $(".total_campo_vendedor").val();
-
                 $(".salario_usuario_modal").text(salario);
                 $(".comissao_usuario_modal").text(comissao);
                 $(".premiacao_usuario_modal").text(premiacao);
                 $(".desconto_usuario_modal").text(desconto);
+                $(".estorno_usuario_modal").text(estorno);
                 $(".total_a_pagar_modal").text(total_a_pagar);
-
                 let selectedOptionText = $('#escolher_vendedor option:selected').text();
                 let selectMesText = $("#mes_folha option:selected").text();
                 $(".btn_usuario").text("Finalizar folha de "+selectedOptionText+" do mes "+selectMesText);
@@ -1745,19 +2274,15 @@
                     data:"mes="+mes,
                     method:"POST",
                     success:function(res) {
-
                         $("#resultado_tabela").html(res)
                     }
                 });
-                // Outras ações que você deseja executar quando a modal for aberta
             });
 
             $('#confirmBtn').click(function() {
-
                 let password = $('#passwordInput').val();
                 let mes = $("#mes_folha").find('option:selected').val();
                 let ano = $("#mes_folha").find('option:selected').text().split("/")[1];
-
                 if (password === '0000') {
                     $.ajax({
                        url:"{{route('gerente.pagamento.mes.finalizado')}}",
@@ -1770,11 +2295,6 @@
                                $("#list_user").html('');
                                $('#mes_folha').removeAttr('disabled');
                                $('#mes_folha option').removeAttr('selected');
-
-                               //const queryParam = "?ac=comissao";
-                               ///window.location.href = window.location.origin + window.location.pathname + queryParam;
-
-
                            }
                        }
                     });
@@ -1784,7 +2304,6 @@
                     $(".premiacao_usuario").val("");
                     $("#valor_total_desconto").val("");
                     $("#total_campo").val("");
-
 
                     $('#errorMessage').text('');
                     $('#myModal').modal('hide');
@@ -1808,7 +2327,6 @@
 
                     showConfirmationMessage();
                 } else {
-
                     $('#errorMessage').text('Senha incorreta. Por favor, tente novamente.');
                 }
             });
@@ -1819,6 +2337,7 @@
 
             $("#mes_folha").on('change',function(){
                let mes = $(this).val();
+
                if(mes == "") {
                    //$("#escolher_vendedor").prop("disabled",true)
                } else {
@@ -1832,7 +2351,9 @@
                    method:"POST",
                    data:"data="+formattedDate,
                    success:function(res) {
+                       console.log(res);
                        if(res.resposta != "cadastrado") {
+                           console.log("Entrei no IF");
                            $(".salario_usuario").val(res.dados.total_salario);
                            $("#comissao").val(res.dados.total_comissao);
                            $("#premiacao").val(res.dados.valor_premiacao);
@@ -1865,7 +2386,7 @@
                                });
                            } else {
                                let selectedTextMudou = $("#mes_folha option:selected").text();
-                               $(".list_abas").append("<li id='mes_existe' style='width:910px;margin-left:5px;background-color:#B22222;'>O Mês "+selectedTextMudou+" já esta fechado</li>");
+                               $(".list_abas").append(`<li id='mes_existe' style='width:580px;margin-left:5px;background-color:#B22222;display:flex;justify-content: space-between;'><span>O Mês ${selectedTextMudou} já esta fechado</span><button class="btn_valores_mes d-flex justify-content-center" style="border:none;font-size:0.8em;background-color:#FFF;color:#000;" data-mes="${mes}">Criar PDF</button></li>`);
                            }
                            //$('.footer_user').html();
 
@@ -1873,33 +2394,9 @@
 
 
 
-                           $("#footer_user").css({"height":"95px","margin-bottom":"5px"}).html(
-                               `<div class='d-flex flex-column text-white w-100 mt-1' style='background-color:#123449;'>
-                                    <p class='d-flex' style='margin-bottom:0px;'>
-                                        <span style="flex-basis:30%;font-size:0.7em;">Salario:</span>
-                                        <span style="flex-basis:70%;font-size:0.7em;text-align:right;margin-right:3px;">${res.valores.salario}</span>
-                                    </p>
-                                    <p class='d-flex' style='margin-bottom:0px;'>
-                                        <span style="flex-basis:30%;font-size:0.7em;">Comissão:</span>
-                                        <span style="flex-basis:70%;font-size:0.7em;text-align:right;margin-right:3px;">${res.valores.comissao}</span>
-                                    </p>
-                                    <p class='d-flex' style='margin-bottom:0px;'>
-                                        <span style="flex-basis:30%;font-size:0.7em;">Premiação:</span>
-                                        <span style="flex-basis:70%;font-size:0.7em;text-align:right;margin-right:3px;">${res.valores.premiacao}</span>
-                                    </p>
-                                    <p class='d-flex' style='margin-bottom:0px;'>
-                                        <span style="flex-basis:30%;font-size:0.7em;">Total:</span>
-                                        <span style="flex-basis:70%;font-size:0.7em;text-align:right;">${res.valores.total}</span>
-                                    </p>
-                                    <p class='d-flex justify-content-center' style="padding:0;margin:0;text-align">
-                                        <button class="btn_valores_mes d-flex w-100 justify-content-center" style="background-color:rgba(0,0,0,0.5);color:#FFF;border:none;" data-mes='${res.valores.mes}'>Criar PDF</button>
-                                    </p>
-                               </div>
 
-`
-                           );
 
-                           $("#list_user").css({"max-height":"150px","overflow":"auto"}).html(res.view);
+                           $("#list_user").css({"height":"330px","max-height":"330px","overflow":"auto"}).html(res.view);
 
 
                            $("#mes_fechado").val(mes);
@@ -1931,7 +2428,7 @@
                            $("#valor_total_empresarial").text(0);
 
                        } else {
-
+                           console.log("Entrei no Else");
                            $("#mes_existe").hide();
                            $(".individual_recebidas").on('click',individual_recebidas);
                            $(".coletivo_recebidas").on('click',coletivo_recebidas);
@@ -2039,7 +2536,6 @@
                    method:"POST",
                    data:"id="+id+"&mes="+mes,
                     success:function(res) {
-                        console.log(res);
                         $("#total_quantidade_individual").text(res.total_individual_quantidade);
                         $("#total_quantidade_coletivo").text(res.total_coletivo_quantidade);
                         $("#valor_total_individual").text(res.total_individual);
@@ -2075,9 +2571,6 @@
                         listaraptosapagar.ajax.url("{{route('gerente.listagem.zerar.tabelas')}}").load();
                         listarcomissaomesdfirente.ajax.reload();
                         listarcomissaomesdfirente.ajax.url("{{route('gerente.listagem.zerar.tabelas')}}").load();
-
-
-
                     }
                 });
             });
@@ -2096,13 +2589,10 @@
                 let linha = $(this).closest('tr');
 
                 if(acao == 2) {
-                    let valor = $(this).closest("tr").find('.comissao_recebida').text().replace("R$","").replace(/\./g,'').replace(',', '.').trim();
-                    let valor_total = $("#comissao").val().replace(',', '.').trim();
-                    let calculado = valor_total - valor;
-                    $("#comissao_vendedor").val()
 
-                    // $("#comissao").val(calculado.toFixed(2).replace('.', ','));
-                    // $(".total_a_pagar").html(calculado.toFixed(2).replace('.', ','));
+
+                    let valor = $(this).closest("tr").find('.comissao_recebida').text().replace("R$","").replace(/\./g,'').replace(',', '.').trim();
+                    let valor_total = $("#comissao_vendedor").val().replace(/\./g,'').replace(',', '.').trim();
 
                     if(plano == 1) {
 
@@ -2170,12 +2660,28 @@
                         let total_campo_vendedor_calculado = total_campo_vendedor - valor;
                         $("#total_campo_vendedor").val(total_campo_vendedor_calculado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace("R$",""));
 
+
+                        let desconto_vendedor_empresarial = $("#valor_total_desconto_vendedor").val().replace(/\./g, '').replaceAll(',', '.').trim();
+                        let desconto_empresarial = tabela.row(linha).data()['desconto'];
+                        let desconto_calculado_empresarial = desconto_vendedor_empresarial - desconto_empresarial;
+                        $("#valor_total_desconto_vendedor").val(desconto_calculado_empresarial.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace("R$",""));
+
+
+                        if(desconto_empresarial != 0) {
+                            let total_recalculado_empresarial = parseFloat($("#total_campo_vendedor").val().replace(/\./g, '').replaceAll(',', '.').trim()) + parseFloat(desconto_empresarial);
+                            $("#total_campo_vendedor").val(total_recalculado_empresarial.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace("R$",""));
+                        }
+
+
+
+
+
                     }
                     listaraptosapagar.row(linha).remove().draw();
                     let salario = $("#salario_vendedor").val();
                     let premiacao = $("#premiacao_vendedor").val();
                     let comissao = $("#comissao_vendedor").val().trim();
-                    let desconto = $("#valor_total_desconto_vendedor").val();
+                    let desconto = $("#valor_total_desconto_vendedor").val().trim();
                     let total = $("#total_campo_vendedor").val().trim();
                     $.ajax({
                         url:"{{route('gerente.mudar.para_a_nao_pago')}}",
@@ -2191,6 +2697,7 @@
                             "&total="+total+
                             "&id_confirmados="+id_confirmados,
                         success:function(res) {
+
                             if(res == true) {
                                  listaraptosapagar.ajax.reload();
                                  listarcomissaomesrecebidas.ajax.reload();
@@ -2312,28 +2819,17 @@
                 "responsive": true,
 
                 columns: [
-                    {data:"administradora",name:"administradora",width:"8%"},
-                    {data:"parcela",name:"parcela",width:"5%",className: 'dt-center'},
-                    {data:"cliente",name:"cliente",width:"30%"},
-                    {data:"data",name:"data",width:"5%",className: 'dt-center'},
-                    {data:"data_baixa_gerente",name:"baixa",width:"5%",
-                        "createdCell":function(td,cellData,rowData,row,col) {
-                            if(cellData == null) {
-                                let alvo = rowData.data_antecipacao.split("-").reverse().join("/")
-                                $(td).html(alvo);
-                            } else {
-                                let alvo = cellData.split("-").reverse().join("/")
-                                $(td).html(alvo);
-                            }
-                        }
-                    },
-
-                    {data:"valor_plano_contratado",name:"valor_plano",render: $.fn.dataTable.render.number('.',',',2,'R$ '),className: 'dt-center'},
-                    {
-                        data:"desconto",name:"desconto",className:"desconto_atual",
-                        render: $.fn.dataTable.render.number('.',',',2,'R$ ')
-                    },
-                    {data:"comissao_esperada",name:"comissao_esperada",render: $.fn.dataTable.render.number('.',',',2,'R$ '),className: 'dt-center comissao_recebida'},
+                    {data:"administradora",name:"administradora",width:"4%"},
+                    {data:"created_at",name:"created_at",width:"2%"},
+                    {data:"codigo",name:"codigo",width:"2%"},
+                    {data:"cliente",name:"cliente",width:"25%"},
+                    {data:"parcela",name:"parcela",width:"1%",className: 'dt-center'},
+                    {data:"valor_plano",name:"valor_plano",width:"8%",render: $.fn.dataTable.render.number('.',',',2,'R$ '),className: 'dt-center'},
+                    {data:"vencimento",name:"vencimento",width:"2%",className: 'dt-center'},
+                    {data:"data_baixa",name:"data_baixa",width:"2%"},
+                    {data:"porcentagem",name:"porcentagem",width:"2%"},
+                    {data:"valor",name:"valor",width:"8%",render: $.fn.dataTable.render.number('.',',',2,'R$ ')},
+                    {data:"desconto",name:"desconto",className:"desconto_atual",render: $.fn.dataTable.render.number('.',',',2,'R$ '),width:"5%"},
                     {data:"id",name:"id",width:"5%",
                         "createdCell": function (td, cellData, rowData, row, col) {
                             let selected = $('<select />', {
@@ -2347,6 +2843,18 @@
                                 ]
                             });
                             $(td).html(selected)
+                        }
+                    },
+                    {
+                        data: "contrato_id", name: "contrato_id", width: "1%",
+                        "createdCell": function (td, cellData, rowData, row, col) {
+                            let contrato_id = cellData;
+                            $(td).html(`<div class='text-center text-white'>
+                                    <a href="/admin/financeiro/detalhes/coletivo/${contrato_id}" target="_blank" class="text-white">
+                                        <i class='fas fa-eye'></i>
+                                    </a>
+                                </div>
+                            `);
                         }
                     }
                 ],
@@ -2468,6 +2976,34 @@
                                 ]
                             });
                             $(td).html(selected)
+                        }
+                    },
+                    {
+                        data: "contrato_id", name: "contrato_id", width: "1%",
+                        "createdCell": function (td, cellData, rowData, row, col) {
+                            let contrato_id = cellData;
+                            if (rowData.plano == 3) {
+                                $(td).html(`<div class='text-center text-white'>
+                                        <a href="/admin/financeiro/detalhes/coletivo/${contrato_id}" target="_blank" class="text-white">
+                                            <i class='fas fa-eye'></i>
+                                        </a>
+                                    </div>
+                                `);
+                            } else if (rowData.plano == 1) {
+                                $(td).html(`<div class='text-center text-white'>
+                                        <a href="/admin/financeiro/detalhes/${contrato_id}" target="_blank" class="text-white">
+                                            <i class='fas fa-eye'></i>
+                                        </a>
+                                    </div>
+                                `);
+                            } else {
+                                $(td).html(`<div class='text-center text-white'>
+                                        <a href="/admin/financeiro/detalhes/empresarial/${contrato_id}" target="_blank" class="text-white">
+                                            <i class='fas fa-eye'></i>
+                                        </a>
+                                    </div>
+                                `);
+                            }
                         }
                     }
                 ],
@@ -2766,7 +3302,7 @@
 
 
             $("#listar_individual_apto").on('click',function(){
-                console.log("Olaaaaa");
+
                 let id = $("#corretor_escolhido").val();
                 let mes = $("#mes_folha").val();
                 if(id) {
@@ -2847,8 +3383,9 @@
                     method:"POST",
                     data:"id="+id+"&valor="+valor+"&valor_plano="+valor_plano,
                     success:function(res) {
-                        self.closest("tr").find(".comissao_paga_change").val(res.porcentagem);
-                        self.closest("tr").children("td:nth-child(10)").text(res.valor);
+                        console.log(res);
+                        //self.closest("tr").find(".comissao_paga_change").val(res.porcentagem);
+                        //self.closest("tr").children("td:nth-child(10)").text(res.valor);
                     }
                 });
             });
@@ -2982,6 +3519,7 @@
                     $("#total_quantidade_empresarial").text(qtd_empresarial);
                     let total_empresarial = valor_total_empresarial + parseFloat(comissao_recebida);
                     $("#valor_total_empresarial").text(total_empresarial.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace("R$",""));
+                    desconto = $(this).closest("tr").find("input[name='porcentagem_change']").val().replace(",",".");
                 }
 
                 if($(this).val() == 2) {
@@ -3077,13 +3615,9 @@
 
 
             $("#listar_coletivo_apto").on('click',function(){
-
-
-
                 let id = $("#corretor_escolhido").val();
                 let mes = $("#mes_folha").val();
                 if(id) {
-
                     $(".listar li").removeClass("ativo");
                     $("#listar_coletivo_apto").addClass("ativo");
                     $("#listar_individual_apto").removeClass("ativo");
@@ -3144,13 +3678,14 @@
 
             $("body").on('click','.btn_usuario',function(){
                 $('#exampleModal').modal('hide')
-                let comissao =  $("#comissao_vendedor").val();
+                let comissao =  $("#comissao_vendedor").val().trim();
                 let salario = $(".salario_usuario_vendedor").val();
                 let premiacao = $("#premiacao_vendedor").val();
-                let desconto = $("#valor_total_desconto_vendedor").val();
+                let desconto = $("#valor_total_desconto_vendedor").val().trim();
+                let estorno = $("#valor_total_estorno_vendedor").val();
                 let user_id = $("#corretor_escolhido").val();
                 let mes = $("#mes_folha").val();
-                let total_a_pagar = $(".total_campo_vendedor").val();
+                let total_a_pagar = $(".total_campo_vendedor").val().trim();
                 let id_confirmados = $("#valores_confirmados").val();
                 $.ajax({
                     url:"{{route('gerente.finalizar.pagamento')}}",
@@ -3170,10 +3705,11 @@
                         +mes+
                         "&total="
                         +total_a_pagar+
-                        "&id="+id_confirmados,
-
+                        "&id="+id_confirmados+
+                        "&estorno="+estorno,
                     success:function(res) {
-                        console.log(res);
+
+
                         const select = $("#escolher_vendedor");
                         select.html('<option value="" class="text-center">--Corretores--</option>');
                         $.each(res.users_aptos, function(index, corretor) {
@@ -3184,6 +3720,7 @@
                         $("#premiacao_vendedor").val('');
                         $("#corretor_escolhido").val('');
                         $('#valor_total_desconto_vendedor').val('');
+                        $("#valor_total_estorno_vendedor").val('');
                         $('#total_campo_vendedor').val('');
                         //$("#mes_folha").val('');
                         //$(".total_a_pagar").text('0,00');
@@ -3225,6 +3762,8 @@
                         id_confirmados = [];
                         finalizarMes();
                         total_mes_atual();
+
+
                     }
                 });
 
@@ -3313,54 +3852,44 @@
                 "searching": true,
                 "info": true,
                 "autoWidth": false,
-                "responsive": true,
-                keys: true,
+                "responsive": false,
+
                 columns: [
-                    {data:"administradora",name:"administradora",width:"1%"},
+                    {data:"administradora",name:"administradora",width:"5%"},
                     {data:"data_criacao",name:"data_criacao",
                         "createdCell": function(td, cellData, rowData, row, col) {
                             let datas = cellData.split(" ")[0].split("-").reverse().join("/");
                             $(td).html(datas);
-                        },width:"1%"
+                        },width:"7%"
                     },
-                    {data:"orcamento",name:"orcamento",width:"1%"},
-                    {data:"cliente",name:"cliente",width:"50%",
-                        "createdCell": function(td, cellData, rowData, row, col) {
-                            $(td).html(cellData);
-                            // let palavra = cellData.split(" ");
-                            // let nomeAbreviado = palavra[0] + " " + palavra[1];
-                            // if(palavra.length >= 3) {
-                            //     $(td).html(nomeAbreviado).attr("title", cellData);
-                            //     //$(td).html(palavra[0]+" "+palavra[1]+" "+palavra[2])
-                            // }
-                        }
-                    },
-                    {data:"parcela",name:"parcela",className: 'dt-center',width:"1%"},
-                    {data:"valor_plano_contratado",name:"valor_plano_contratado",width:"10%",
+                    {data:"orcamento",name:"orcamento",width:"5%"},
+                    {data:"cliente",name:"cliente",width:"25%"},
+                    {data:"parcela",name:"parcela",className: 'dt-center',width:"3%"},
+                    {data:"valor_plano_contratado",name:"valor_plano_contratado",width:"5%",
                         render: $.fn.dataTable.render.number('.',',',2,'')
                     },
-                    {data:"data",name:"data",className: 'dt-center',width:"1%"},
+                    {data:"data",name:"data",className: 'dt-center',width:"7%"},
                     {data:"data_baixa",name:"data_baixa",
-                        "createdCell": function(td, cellData, rowData, row, col) {
+                        "createdCell": function(td, cellData, rowData,row, col) {
                             let datas = cellData.split("-").reverse().join("/");
                             $(td).html(datas);
-                        },width:"1%"
+                        },width:"7%"
                     },
 
-                    {data:"porcentagem_parcela_corretor",name:"porcentagem_parcela_corretor",width:"10%",
+                    {data:"porcentagem_parcela_corretor",name:"porcentagem_parcela_corretor",width:"5%",
                         "createdCell":function(td, cellData, rowData, row, col) {
 
                             $(td).html('<input type="text" data-valor-plano='+rowData.valor_plano_contratado+'  data-id='+rowData.id+' value='+cellData+' name="comissao_paga_change" class="comissao_paga_change" style="width:100%;" />')
                         }
                     },
-                    {data:"id",name:"comissao_pagando",render: $.fn.dataTable.render.number('.',',',2,'R$ '),width:"15%",
+                    {data:"id",name:"comissao_pagando",render: $.fn.dataTable.render.number('.',',',2,'R$ '),width:"7%",
                         "createdCell":function(td, cellData, rowData, row, col) {
                             let valor_comisao = parseFloat(rowData.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                             $(td).html('<input type="text" value='+valor_comisao+' data-id='+cellData+' name="comissao_pagando" class="comissao_pagando" style="width:100%;" />')
                         }
                     },
-                    {data:"quantidade_vidas",name:"quantidade_vidas",width:"2%"},
-                    {data:"desconto",name:"desconto",width:"2%",
+                    {data:"quantidade_vidas",name:"quantidade_vidas",width:"5%"},
+                    {data:"desconto",name:"desconto",width:"8%",
                         "createdCell":function(td, cellData, rowData, row, col) {
                             let descondo_calc = parseFloat(cellData).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                             //$(td).html(descondo_calc)
@@ -3368,7 +3897,7 @@
                         }
                     },
                     {
-                        data:"id",name:"id",width:"2%",
+                        data:"id",name:"id",width:"8%",
                         "createdCell": function (td, cellData, rowData, row, col) {
                             let selected = $('<select />', {
                                 name: 'pagar_agora',
@@ -3382,8 +3911,41 @@
                             })
                             $(td).html(selected);
                         }
+                    },
+                    {
+                        data:"contrato_id",name:"contrato_id",width:"3%",
+                        "createdCell": function (td, cellData, rowData, row, col) {
+                            let contrato_id = cellData;
+                            if(rowData.plano == 3) {
+                                $(td).html(`<div class='text-center text-white'>
+                                        <a href="/admin/financeiro/detalhes/coletivo/${contrato_id}" target="_blank" class="text-white">
+                                            <i class='fas fa-eye'></i>
+                                        </a>
+                                    </div>
+                                `);
+                            } else if(rowData.plano == 1) {
+                                $(td).html(`<div class='text-center text-white'>
+                                        <a href="/admin/financeiro/detalhes/${contrato_id}" target="_blank" class="text-white">
+                                            <i class='fas fa-eye'></i>
+                                        </a>
+                                    </div>
+                                `);
+                            } else {
+                                $(td).html(`<div class='text-center text-white'>
+                                        <a href="/admin/financeiro/detalhes/empresarial/${contrato_id}" target="_blank" class="text-white">
+                                            <i class='fas fa-eye'></i>
+                                        </a>
+                                    </div>
+                                `);
+                            }
+
+
+
+
+                        },
                     }
                 ],
+
                 "initComplete": function( settings, json ) {
                     $('#title_comissao_diferente').html("<h4>A Receber Individual</h4>");
                 }
@@ -3395,6 +3957,8 @@
 
             $('.salario_usuario').mask("#.##0,00", {reverse: true});
             $('.premiacao_usuario').mask("#.##0,00", {reverse: true});
+
+            $('.estorno_usuario_vendedor').mask("#.##0,00", {reverse: true});
 
             $("#salario_vendedor").mask("#.##0,00", {reverse: true});
             $("#premiacao_vendedor").mask("#.##0,00", {reverse: true});
@@ -3421,6 +3985,50 @@
                      data:"id="+id+"&porcentagem="+porcentagem
                  });
             });
+
+            $("#valor_total_estorno_vendedor").on('change',function(){
+
+                let comissao_numerica = 0;
+                if($("#comissao_vendedor").val() != "") {
+                    let comissao = $("#comissao_vendedor").val().replace("R$","").replace(/\./g,'').replace(',', '.').trim()
+                    comissao_numerica = parseFloat(comissao);
+                }
+
+                let valor_salario = 0;
+                if($('#salario_vendedor').val() != "") {
+                    valor_salario = parseFloat($('#salario_vendedor').val().replace(/\./g,'').replace(".","").replace(',', '.'));
+                }
+
+                let desconto = 0;
+                if($("#valor_total_desconto_vendedor").val() != "") {
+                    desconto = parseFloat($('#valor_total_desconto_vendedor').val().replace(',', '.'));
+                }
+
+                let premiacao = 0;
+                if($("#premiacao_vendedor").val() != "") {
+                    premiacao = parseFloat($('#premiacao_vendedor').val().replace(',', '.'));
+                }
+
+
+
+                let valor = $(this).val().replace(/\./g,'').replace(',', '.');
+                // console.log(valor);
+                let valor_numerico = parseFloat(valor);
+                // let total = $(".total_a_pagar").text().trim().replace("R$","").replace(/\./g,'').replace(',', '.');
+                // let total_numero = parseFloat(total);
+
+                let valor_input = (comissao_numerica + valor_salario + premiacao) - desconto;
+                let valor_com_estorno = valor_input - valor_numerico
+                f = valor_com_estorno.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}).replace("R$","").trim();
+
+                $(".total_campo_vendedor").val(f);
+
+                //total_mes_atual()
+
+
+
+            });
+
 
 
             $(".premiacao_usuario_vendedor").on('change',function(){
@@ -3463,11 +4071,19 @@
                 if (event.key === "Tab") {
 
                     event.preventDefault();
+                    $("input[name='estorno_vendedor']").removeAttr('disabled');
+                    $("input[name='estorno_vendedor']").focus().prop('disabled',true);
+                }
+            });
+
+            $(".estorno_usuario_vendedor").on('keydown',function(event){
+                if (event.key === "Tab") {
+
+                    event.preventDefault();
                     $("input[name='desconto_vendedor']").removeAttr('disabled');
                     $("input[name='desconto_vendedor']").focus().prop('disabled',true);
                 }
             });
-
 
 
 
@@ -3727,78 +4343,84 @@
             });
 
             $("body").on('click','.criar_pdf',function(){
-                let comissao =  $("#comissao").val();
-                let salario = $(".salario_usuario").val();
-                let premiacao = $(".premiacao_usuario").val();
                 let user_id = $(this).attr('data-id');
                 let mes = $("#mes_folha option:selected").val();
-                let total_a_pagar = $(".total_a_pagar").text().replace("R$","").trim();
-                let id_confirmados = $("#valores_confirmados").val();
-                $.ajax({
-                    url:"{{route('gerente.finalizar.criarpdf')}}",
-                    method:"POST",
-                    data:
-                        "comissao="
-                        +comissao+
-                        "&salario="
-                        +salario+"" +
-                        "&premiacao="
-                        +premiacao+
-                        "&user_id="
-                        +user_id+
-                        "&mes="
-                        +mes+
-                        "&total="
-                        +total_a_pagar+
-                        "&id="+id_confirmados,
+                let url = "{{ route('gerente.finalizar.criarpdf') }}";
+                url += "?user_id=" + user_id + "&mes=" + mes;
+                window.open(url,'_blank');
+                {{--let comissao =  $("#comissao").val();--}}
+                {{--let salario = $(".salario_usuario").val();--}}
+                {{--let premiacao = $(".premiacao_usuario").val();--}}
+                {{--let user_id = $(this).attr('data-id');--}}
+                {{--let mes = $("#mes_folha option:selected").val();--}}
+                {{--let total_a_pagar = $(".total_a_pagar").text().replace("R$","").trim();--}}
+                {{--let id_confirmados = $("#valores_confirmados").val();--}}
+                {{--$.ajax({--}}
+                {{--    url:"{{route('gerente.finalizar.criarpdf')}}",--}}
+                {{--    method:"POST",--}}
+                {{--    data:--}}
+                {{--        "comissao="--}}
+                {{--        +comissao+--}}
+                {{--        "&salario="--}}
+                {{--        +salario+"" +--}}
+                {{--        "&premiacao="--}}
+                {{--        +premiacao+--}}
+                {{--        "&user_id="--}}
+                {{--        +user_id+--}}
+                {{--        "&mes="--}}
+                {{--        +mes+--}}
+                {{--        "&total="--}}
+                {{--        +total_a_pagar+--}}
+                {{--        "&id="+id_confirmados,--}}
 
-                    // success:function(res) {
-                    //     console.log(res);
-                    // }
+                {{--    // success:function(res) {--}}
+                {{--    //     console.log(res);--}}
+                {{--    // }--}}
 
 
-                    xhrFields: {
-                        responseType: 'blob'
-                    },
-                    success:function(blob,status,xhr,ppp) {
-                        var filename = "";
-                        var disposition = xhr.getResponseHeader('Content-Disposition');
-                        if (disposition && disposition.indexOf('attachment') !== -1) {
-                            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-                            var matches = filenameRegex.exec(disposition);
-                            if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
-                        }
-                        if (typeof window.navigator.msSaveBlob !== 'undefined') {
-                            window.navigator.msSaveBlob(blob,filename);
-                        } else {
-                            $(".salario_usuario").val("");
-                            $("#comissao").val("");
-                            $("#premiacao").val("");
-                            $("#valor_total_individual").val('0.00');
-                            $("#valor_total_coletivo").val('0.00');
-                            $("#valor_total_empresarial").val('0.00');
+                {{--    xhrFields: {--}}
+                {{--        responseType: 'blob'--}}
+                {{--    },--}}
+                {{--    success:function(blob,status,xhr,ppp) {--}}
+                {{--        var filename = "";--}}
+                {{--        var disposition = xhr.getResponseHeader('Content-Disposition');--}}
+                {{--        if (disposition && disposition.indexOf('attachment') !== -1) {--}}
+                {{--            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;--}}
+                {{--            var matches = filenameRegex.exec(disposition);--}}
+                {{--            if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');--}}
+                {{--        }--}}
+                {{--        if (typeof window.navigator.msSaveBlob !== 'undefined') {--}}
+                {{--            window.navigator.msSaveBlob(blob,filename);--}}
+                {{--        } else {--}}
+                {{--            $(".salario_usuario").val("");--}}
+                {{--            $("#comissao").val("");--}}
+                {{--            $("#premiacao").val("");--}}
+                {{--            $("#valor_total_individual").val('0.00');--}}
+                {{--            $("#valor_total_coletivo").val('0.00');--}}
+                {{--            $("#valor_total_empresarial").val('0.00');--}}
 
-                            var URL = window.URL || window.webkitURL;
-                            var downloadUrl = URL.createObjectURL(blob);
-                            if (filename) {
-                                var a = document.createElement("a");
-                                if (typeof a.download === 'undefined') {
-                                    window.location.href = downloadUrl;
-                                } else {
-                                    a.href = downloadUrl;
-                                    a.download = filename;
-                                    document.body.appendChild(a);
-                                    a.click();
-                                }
-                            } else {
-                                window.location.href = downloadUrl;
-                            }
-                            setTimeout(function () {
-                                URL.revokeObjectURL(downloadUrl);
-                            },100);
-                        }
-                    }
-                });
+                {{--            var URL = window.URL || window.webkitURL;--}}
+                {{--            var downloadUrl = URL.createObjectURL(blob);--}}
+                {{--            if (filename) {--}}
+                {{--                var a = document.createElement("a");--}}
+                {{--                if (typeof a.download === 'undefined') {--}}
+                {{--                    window.location.href = downloadUrl;--}}
+                {{--                } else {--}}
+                {{--                    a.href = downloadUrl;--}}
+                {{--                    a.download = filename;--}}
+                {{--                    document.body.appendChild(a);--}}
+                {{--                    a.click();--}}
+                {{--                }--}}
+                {{--            } else {--}}
+                {{--                window.location.href = downloadUrl;--}}
+                {{--            }--}}
+                {{--            setTimeout(function () {--}}
+                {{--                URL.revokeObjectURL(downloadUrl);--}}
+                {{--            },100);--}}
+
+                {{--        }--}}
+                {{--    }--}}
+                {{--});--}}
             });
 
 
@@ -4072,6 +4694,22 @@
 
 @section('css')
     <style>
+
+
+        .client-cell {
+            max-width: 40%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+        #corretor_em_destaque {
+            margin-left:1%;
+            background-color:#123449;
+            width:600px;
+
+        }
+
         .tamanho_de_25 {
             height: 26px;
         }
@@ -4086,38 +4724,44 @@
         }
 
         #list_user {
-            max-height:200px;
+            height:330px;
+            overflow:auto;
             background-color:#123449;
-            margin-top:10px;
-            overflow: auto;
-
         }
+
 
         /* Estilização da barra de rolagem */
         #list_user::-webkit-scrollbar {
-            width: 5px; /* Largura da barra de rolagem */
-            height: 5px !important;
+            width: 2px; /* Largura da barra de rolagem */
+            height: 2px !important;
             background-color: white; /* Cor de fundo da barra de rolagem */
         }
 
         /* Estilização do polegar (scrollbar thumb) */
         #list_user::-webkit-scrollbar-thumb {
-            background-color: #123449; /* Cor do polegar (scrollbar thumb) */
+            background-color: #1a88ff; /* Cor do polegar (scrollbar thumb) */
         }
 
+        .user_destaque_impar {
+            background-color:rgba(0,0,0,0.5) !important;
+        }
 
+        .user_destaque_hover {
+            background-color:red;
+        }
 
-
-
+        /*#tabela_mes_diferente td {*/
+        /*    white-space: nowrap;*/
+        /*    overflow: hidden;*/
+        /*    text-overflow: clip;*/
+        /*}*/
 
 
         .dataTables_wrapper .dataTables_wrapper .dataTables_scrollBody td,
 .dataTables_wrapper .dataTables_wrapper .dataTables_scrollBody th {
     padding: 0;
 }
-
-
-        .menu_aba_comissao {flex-basis: 12%;margin-right: 1%;position:relative;}
+        .menu_aba_comissao {flex-basis: 49%;margin-right: 1%;position:relative;}
         .list_administradoras {display:flex;flex-direction: column;color:#fff;justify-content: center;}
         .total_mes_comissao {color:#FFF;text-align: center;}
         #container_mostrar_comissao {width:439px;height:555px;background-color: #123449;position: absolute;right:5px;border-radius: 5px;}
@@ -4163,6 +4807,9 @@
         .estilizar_pagination .pagination {font-size: 0.8em !important;color:#FFF;}
         .estilizar_pagination .pagination li {height:10px;color:#FFF;}
         .por_pagina {font-size: 12px !important;color:#FFF;}
+        #tabela_mes_diferente {
+            table-layout: fixed;
+        }
         .por_pagina #tabela_mes_atual_length {display: flex;align-items: center;align-self: center;margin-top: 8px;}
         .por_pagina #tabela_mes_diferente_length {display: flex;align-items: center;align-self: center;margin-top: 8px;}
         .por_pagina select {color:#FFF !important;}
@@ -4189,10 +4836,32 @@
         .link_empresarial_seis:hover {background-color: rgb(254,200,109) !important;}
 
 
-        .user_destaque_ativo {
-            background-color:rgb(255,255,255);
-            color:black !important;
+        .user_nome {
+            font-size: 0.7em;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+
+        .user_total {
+            font-size: 0.6em;
+            flex-shrink: 0;
+            margin-left: 5px; /* Ajuste a margem conforme necessário */
+        }
+
+
+
+
+
+
+        .user_destaque_ativo {
+            /*background-color:red !important;*/
+            /*color:black !important;*/
+            /*font-weight:bold;*/
+            background-color:#FFF !important;
+            color:black !important;
+       }
 
         #tabela_mes_diferente_filter input[type="search"],
         #tabela_mes_recebidas_filter input[type="search"],

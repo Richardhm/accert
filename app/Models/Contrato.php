@@ -8,6 +8,26 @@ use Illuminate\Database\Eloquent\Model;
 class Contrato extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        "cliente_id",
+        "administradora_id",
+        "acomodacao_id",
+        "tabela_origens_id",
+        "plano_id",
+        "financeiro_id",
+        "coparticipacao",
+        "odonto",
+        "codigo_externo",
+        "data_vigencia",
+        "data_boleto",
+        "data_baixa",
+        "valor_plano",
+        "desconto_corretora",
+        "desconto_corretor"
+    ];
+
+
+
 
     public function administradora()
     {
@@ -54,7 +74,7 @@ class Contrato extends Model
         return $this->hasOne(Premiacoes::class);
     }
 
-    
+
 
 
 

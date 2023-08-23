@@ -57,6 +57,11 @@
                <span style="width:89%;left:0;float:left;">1 Desconto</span>
                <span style="width:11%;right:0;top:0;float:right;text-align:right;">{{number_format($desconto,2,",",".")}}</span>
            </div>
+           <div style="clear: both;"></div>
+           <div>
+               <span style="width:89%;left:0;float:left;">1 Estorno</span>
+               <span style="width:11%;right:0;top:0;float:right;text-align:right;">{{number_format($estorno,2,",",".")}}</span>
+           </div>
 
            <div style="clear: both;"></div>
             <div>
@@ -84,6 +89,14 @@
             $total_comissao_coletivo = 0;
             $total_plano_empresarial = 0;
             $total_comissao_empresarial = 0;
+            $total_desconto_empresarial = 0;
+            $total_estorno_calculado = 0;
+
+            $total_empresarial = 0;
+            $i_individual = 0;
+            $i_coletivo = 0;
+            $i_empresarial = 0;
+            $i_estorno = 0;
         @endphp
 
         @if(count($individual) >= 1)
@@ -97,6 +110,7 @@
         <table style="width:95%;margin:0 auto;">
             <thead style="border-bottom:1px solid black;">
                 <tr>
+                    <td>#</td>
                     <td>Admin</td>
                     <td>Contrato</td>
                     <td>Data</td>
@@ -104,40 +118,35 @@
                     <td>Parcela</td>
                     <td align="center">Valor</td>
                     <td align="center">Desconto</td>
-                    <td align="center">Plano</td>
                     <td align="right">Comissão</td>
                 </tr>
             </thead>
             <tbody>
-
-                @foreach($individual as $d)
+                @foreach($individual as $dd)
                     @php
-                        $total_plano_individual += $d->comissao->contrato->valor_plano;
-                        $total_comissao_individual += $d->valor_pago != null ? $d->valor_pago : $d->valor;
-
-                        $total_desconto_individual += $d->comissao->contrato->desconto_corretor;
-                        $total_valor_individual    += $d->comissao->contrato->valor_plano;
-
-
+                        ++$i_individual;
+                        $total_plano_individual += $dd->valor_plano_contratado;
+                        $total_comissao_individual += $dd->comissao != null ? $dd->comissao : $dd->comissao;
+                        $total_desconto_individual += $dd->desconto;
+                        $total_valor_individual    += $dd->valor_plano_contratado;
                     @endphp
                     <tr>
+                        <td style="width:3%;">{{$i_individual}}</td>
                         <td style="width:10%;">HAPVIDA</td>
-                        <td style="width:8%;">{{$d->comissao->contrato->codigo_externo}}</td>
-                        <td style="width:8%;">{{date('d/m/Y',strtotime($d->comissao->contrato->created_at))}}</td>
-                        <td style="font-size:0.6em;width:35%;">{{mb_convert_case($d->comissao->contrato->clientes->nome,MB_CASE_UPPER,"UTF-8")}}</td>
-                        <td style="width:7%;">Parcela {{$d->parcela}}</td>
-                        <td style="width:7%;" align="center">{{number_format($d->comissao->contrato->valor_plano,2,",",".")}}</td>
-                        <td style="width:8%;" align="center">{{$d->comissao->contrato->desconto_corretor}}</td>
-                        <td style="width:7%;" align="center">{{number_format($d->comissao->contrato->valor_plano,2,",",".")}}</td>
-                        <td style="width:5%;" align="right">{{$d->valor_pago != null ? number_format($d->valor_pago,2,",",".") : number_format($d->valor,2,",",".")}}</td>
+                        <td style="width:8%;">{{$dd->codigo_externo}}</td>
+                        <td style="width:8%;">{{date('d/m/Y',strtotime($dd->created_at))}}</td>
+                        <td style="font-size:0.6em;width:35%;">{{mb_convert_case($dd->cliente,MB_CASE_UPPER,"UTF-8")}}</td>
+                        <td style="width:7%;">Parcela {{$dd->parcela}}</td>
+                        <td style="width:7%;" align="center">{{number_format($dd->valor_plano_contratado,2,",",".")}}</td>
+                        <td style="width:8%;" align="center">{{$dd->desconto}}</td>
+                        <td style="width:5%;" align="right">{{$dd->comissao != null ? number_format($dd->comissao,2,",",".") : 0}}</td>
                     </tr>
                 @endforeach
-
             </tbody>
 
             <tfoot style="border-top:1px solid black;">
                 <tr>
-                    <td colspan="5"></td>
+                    <td colspan="6"></td>
                     <td align="center">
                         @php
                             echo number_format($total_valor_individual,2,",",".");
@@ -148,11 +157,7 @@
                             echo number_format($total_desconto_individual,2,",",".");
                         @endphp
                     </td>
-                    <td align="center">
-                        @php
-                            echo number_format($total_plano_individual,2,",",".");
-                        @endphp
-                    </td>
+
                     <td align="right">
                         @php
                            echo number_format($total_comissao_individual,2,",",".");
@@ -160,18 +165,11 @@
                     </td>
                 </tr>
             </tfoot>
-
-
-
         </table>
-
-
         @endif
-
         @if(count($coletivo) >= 1)
-
             @php
-                $contrato_coletivo = $coletivo[0]->comissao->contrato->codigo_externo;
+                $contrato_coletivo = $coletivo[0]->codigo_externo;
                 $contrato_coletivo_total = 0;
                 $contrato_coletivo_plano = 0;
                 $ii=0;
@@ -181,6 +179,7 @@
         <table style="width:95%;margin:0 auto;">
             <thead style="border-bottom:1px solid black;">
                 <tr>
+                    <td>#</td>
                     <td>Admin</td>
                     <td>Contrato</td>
                     <td>Data</td>
@@ -188,96 +187,68 @@
                     <td>Parcela</td>
                     <td align="center">Valor</td>
                     <td align="center">Desconto</td>
-                    <td align="center">Plano</td>
                     <td align="right">Comissão</td>
                 </tr>
             </thead>
             <tbody>
                 @foreach($coletivo as $d)
                     @php
-                    if($d->comissao->contrato->codigo_externo == $contrato_coletivo) {
-                        $status=1;
-                        $ii++;
+                        ++$i_coletivo;
+                        if($d->codigo_externo == $contrato_coletivo) {
+                            $status=1;
+                            $ii++;
 
-                    } else {
-                        $contrato_coletivo = $d->comissao->contrato->codigo_externo;
-                        $status=1;
-                        $ii=1;
-                    }
-
-
+                        } else {
+                            $contrato_coletivo = $d->codigo_externo;
+                            $status=1;
+                            $ii=1;
+                        }
                     @endphp
                     @php
-                        if(isset($d->comissao->contrato->valor_plano) && !empty($d->comissao->contrato->valor_plano) && $d->comissao->contrato->valor_plano) {
-                            $total_plano_coletivo += $d->comissao->contrato->valor_plano;
-                            $total_comissao_coletivo += $d->valor_pago != null ? $d->valor_pago : $d->valor;
+                        if(isset($d->valor_plano_contratado) && !empty($d->valor_plano_contratado) && $d->valor_plano_contratado) {
+                            $total_plano_coletivo += $d->valor_plano_contratado;
+                            $total_comissao_coletivo += $d->comissao_esperada;
                         }
                     @endphp
                     <tr>
-                        <td style="width:10%;">{{$d->comissao->administradoras->nome}}</td>
-                        <td style="width:8%;">{{$d->comissao->contrato->codigo_externo}}</td>
-                        <td style="width:8%;">{{date('d/m/Y',strtotime($d->comissao->contrato->created_at))}}</td>
-                        <td style="font-size:0.6em;width:35%;">{{mb_convert_case($d->comissao->contrato->clientes->nome,MB_CASE_UPPER,"UTF-8")}}</td>
+                        <td style="width:3%;">{{$i_coletivo}}</td>
+                        <td style="width:10%;">{{$d->administradora}}</td>
+                        <td style="width:8%;">{{$d->codigo_externo}}</td>
+                        <td style="width:8%;">{{date('d/m/Y',strtotime($d->created_at))}}</td>
+                        <td style="font-size:0.6em;width:35%;">{{mb_convert_case($d->cliente,MB_CASE_UPPER,"UTF-8")}}</td>
                         <td style="width:7%;">Parcela {{$d->parcela}}</td>
                         <td style="width:7%;" align="center">
                             @php
-                                $contrato_coletivo_plano += $d->comissao->contrato->valor_plano;
-                                echo number_format($d->comissao->contrato->valor_plano,2,",",".");
+                                $contrato_coletivo_plano += $d->valor_plano_contratado;
+                                echo number_format($d->valor_plano_contratado,2,",",".");
                             @endphp
                         </td>
                         <td style="width:8%;" align="center">
-                                @if($status == 1 && $ii == 1)
-                                    @php
-                                        $contrato_coletivo_total += $d->comissao->contrato->desconto_corretor;
-                                        echo number_format($d->comissao->contrato->desconto_corretor,2,",",".");
-                                    @endphp
-                                @else
-                                        0
-                                @endif
+                            @php
+                                $contrato_coletivo_total += $d->desconto;
+                                echo number_format($d->desconto,2,",",".");
+                            @endphp
                         </td>
-                        <td style="width:7%;" align="center">{{number_format($d->comissao->contrato->valor_plano,2,",",".")}}</td>
-                        <td style="width:5%;" align="right">{{$d->valor_pago != null ? number_format($d->valor_pago,2,",",".") : number_format($d->valor,2,",",".")}}</td>
+                        <td style="width:5%;" align="right">{{number_format($d->comissao_esperada,2,",",".")}}</td>
                     </tr>
-                    @php
-                        $status=0;
-                    @endphp
+                    @php $status=0;@endphp
                 @endforeach
             </tbody>
-
             <tfoot style="border-top:1px solid black;">
                 <tr>
-                    <td colspan="5"></td>
-
+                    <td colspan="6"></td>
                     <td align="center">
-                        @php
-                            echo number_format($contrato_coletivo_plano,2,",",".");
-                        @endphp
+                        @php echo number_format($contrato_coletivo_plano,2,",",".");@endphp
                     </td>
-
                     <td align="center">
-                        @php
-                            echo number_format($contrato_coletivo_total,2,",",".");
-                        @endphp
-                    </td>
-
-                    <td align="center">
-                        @php
-                            echo number_format($total_plano_coletivo,2,",",".") ?? '';
-                        @endphp
+                        @php echo number_format($contrato_coletivo_total,2,",",".");@endphp
                     </td>
                     <td align="right">
-                        @php
-                           echo number_format($total_comissao_coletivo,2,",",".") ?? '';
-                        @endphp
+                        @php echo number_format($total_comissao_coletivo,2,",",".") ?? '';@endphp
                     </td>
                 </tr>
             </tfoot>
-
-
-
-
         </table>
-
 
         @endif
 
@@ -286,63 +257,115 @@
         <table style="width:95%;margin:0 auto;">
             <thead style="border-bottom:1px solid black;">
                 <tr>
+                    <td>#</td>
                     <td>Admin</td>
                     <td>Contrato</td>
                     <td align="center">Data</td>
                     <td>Cliente</td>
                     <td align="center">Parcela</td>
-                    <td align="center">Valor</td>
+                    <td >Valor</td>
                     <td>Desconto</td>
                     <td align="center">Comissão</td>
                 </tr>
             </thead>
             <tbody>
-                @foreach($empresarial as $d)
+                @foreach($empresarial as $e)
                     @php
-                        $total_plano_empresarial += $d->comissao->contrato_empresarial->valor_plano;
-                        $total_comissao_empresarial += $d->valor_pago != null ? $d->valor_pago : $d->valor;
+                       ++$i_empresarial;
+
+                       $total_plano_empresarial += $e->valor_plano_contratado;
+                       $total_comissao_empresarial += $e->comissao;
+                       $total_desconto_empresarial += $e->desconto;
                     @endphp
                     <tr>
-                        <td>HAPVIDA</td>
-                        <td>{{$d->comissao->contrato_empresarial->codigo_externo}}</td>
-                        <td align="center">{{date('d/m/Y',strtotime($d->comissao->contrato_empresarial->created_at))}}</td>
-                        <td>{{mb_convert_case($d->comissao->contrato_empresarial->responsavel,MB_CASE_UPPER,"UTF-8")}}</td>
-                        <td align="center">Parcela {{$d->parcela}}</td>
-                        <td align="center">{{number_format($d->comissao->contrato_empresarial->valor_plano,2,",",".")}}</td>
-                        <td>{{number_format($d->comissao->contrato_empresarial->desconto_corretor,2,",",".")}}</td>
-                        <td align="center">{{$d->valor_pago != null ? number_format($d->valor_pago,2,",",".") : number_format($d->valor,2,",",".")}}</td>
+                        <td style="width:3%;">{{$i_empresarial}}</td>
+                        <td style="width:8%;">HAPVIDA</td>
+                        <td style="width:6%;">{{$e->codigo_externo}}</td>
+                        <td style="width:8%;" align="center">{{$e->data}}</td>
+                        <td style="width:30%;">{{mb_convert_case($e->cliente,MB_CASE_UPPER,"UTF-8")}}</td>
+                        <td style="width:8%;"  align="center">Parcela {{$e->parcela}}</td>
+                        <td style="width:8%;">{{$e->comissao}}</td>
+                        <td style="width:8%;">{{number_format($e->desconto,2,",",".")}}</td>
+                        <td style="width:8%;" align="center">{{number_format($e->comissao,2,",",".")}}</td>
                     </tr>
                 @endforeach
-
             </tbody>
-
             <tfoot style="border-top:1px solid black;">
                 <tr>
                     <td colspan="6"></td>
+
                     <td>
                         @php
-                            echo number_format($total_plano_empresarial,2,",",".") ?? '';
+                                echo number_format($total_plano_empresarial,2,",",".") ?? '';
                         @endphp
                     </td>
+
                     <td>
                         @php
-                           echo number_format($total_comissao_empresarial,2,",",".") ?? '';
+                            echo number_format($total_desconto_empresarial,2,",",".") ?? '';
                         @endphp
                     </td>
+
+                    <td align="center">
+                        @php
+                            echo number_format($total_comissao_empresarial,2,",",".") ?? '';
+                        @endphp
+                    </td>
+
+
                 </tr>
             </tfoot>
-
-
-
-
-
-
-
-
         </table>
-
-
         @endif
+
+        @if($estorno_table)
+            <div style="width:95%;border-bottom:1px solid black;margin:0 auto;background-color:rgb(231,230,230);font-weight:bold;padding:5px 0;">Estorno</div>
+            <table style="width:95%;margin:0 auto;">
+                <thead style="border-bottom:1px solid black;">
+                <tr>
+                    <td>#</td>
+                    <td>Admin</td>
+                    <td>Plano</td>
+                    <td>Contrato</td>
+                    <td align="center">Data</td>
+                    <td>Cliente</td>
+                    <td >Valor</td>
+                    <td align="center">Estorno</td>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach($estorno_table as $et)
+                    @php
+                        ++$i_estorno;
+
+                        $total_estorno_calculado += $et->total_estorno;
+                    @endphp
+                    <tr>
+                        <td style="width:3%;">{{$i_estorno}}</td>
+                        <td style="width:8%;">{{$et->administradora}}</td>
+                        <td style="width:8%;">{{$et->plano}}</td>
+                        <td style="width:6%;">{{$et->contrato}}</td>
+                        <td style="width:8%;" align="center">{{$et->data}}</td>
+                        <td style="width:30%;">{{mb_convert_case($et->cliente,MB_CASE_UPPER,"UTF-8")}}</td>
+                        <td style="width:8%;">{{number_format($et->valor,2,",",".")}}</td>
+                        <td style="width:8%;" align="center">{{number_format($et->total_estorno,2,",",".")}}</td>
+                    </tr>
+                @endforeach
+                </tbody>
+                <tfoot style="border-top:1px solid black;">
+                    <tr>
+                        <td colspan="7"></td>
+                        <td align="center">
+                            @php
+                                echo number_format($total_estorno_calculado,2,",",".") ?? '';
+                            @endphp
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        @endif
+
+
 
 
 

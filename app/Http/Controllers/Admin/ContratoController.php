@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\ContratosExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,7 @@ use App\Models\{
     Dependentes
 };
 use Illuminate\Support\Facades\DB;
-
+use Maatwebsite\Excel\Facades\Excel;
 class ContratoController extends Controller
 {
     public function index()
@@ -408,14 +409,24 @@ class ContratoController extends Controller
             "qtd_empresarial_finalizado" => $qtd_empresarial_finalizado,
             "qtd_empresarial_cancelado" => $qtd_empresarial_cancelado
 
-
-
-
-
-
-
         ]);
     }
+
+    public function exportarContratoExcel(Request $request)
+    {
+        $meses = ["01" => "Janeiro","02"=>"Fevereiro","03"=>"Março","04"=>"Abril","05"=>"Maio","06"=>"Junho","07"=>"Julho","08"=>"Agosto","09"=>"Setembro","10"=>"Outubro","11"=>"Novembro","12"=>"Dezembro"];
+        $meses_folha = $meses[$request->mes];
+        $nome = "folha_mes_".$meses_folha;
+        return Excel::download(new ContratosExport($request->mes), $nome.'.xlsx');
+    }
+
+
+
+
+
+
+
+
 
     public function formContratoCreate()
     {
@@ -429,13 +440,6 @@ class ContratoController extends Controller
     {
         $comissao = Comissoes::with(["plano"])->get();
     }
-
-
-
-
-
-
-
 
     public function contrato()
     {

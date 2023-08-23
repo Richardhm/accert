@@ -51,24 +51,14 @@ class ContratoEmpresarial extends Model
             return $this->belongsTo(User::class);
         }
 
-
-
-
         public function comissao()
         {
             return $this->hasOne(Comissoes::class);
-        }   
+        }
 
         public function financeiro()
         {
             return $this->belongsTo(EstagioFinanceiros::class,'financeiro_id','id');
         }
-        
-            
-
-
-
-
-
 
 }

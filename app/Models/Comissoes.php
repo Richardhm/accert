@@ -9,6 +9,23 @@ class Comissoes extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+       'data',
+       'plano_id',
+        'user_id',
+        'administradora_id',
+        'tabela_origens_id',
+        'contrato_id',
+        'contrato_empresarial_id',
+        'empresarial'
+
+
+
+
+    ];
+
+
+
     public function plano()
     {
         return $this->belongsTo(Planos::class);
@@ -161,7 +178,25 @@ class Comissoes extends Model
         return $this->belongsTo(ContratoEmpresarial::class);
     }
 
+    public function relacionamento()
+    {
+        if ($this->empresarial) {
+            return $this->contrato();
+        } else {
+            return $this->contrato_empresarial();
+        }
+    }
 
+    /*
+    public function relacionamento()
+    {
+        if ($this->empresarial == 0) {
+            return $this->belongsTo(Contrato::class, 'contrato_id', 'id');
+        } else {
+            return $this->belongsTo(ContratoEmpresarial::class, 'contrato_empresarial_id', 'id');
+        }
+    }
 
+    */
 
 }

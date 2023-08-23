@@ -40,8 +40,8 @@ class OrcamentoController extends Controller
         $consultas_eletivas = 0;
         $consultas_de_urgencia = 0;
         $exames_simples = 0;
-        $exames_complexos = 0;    
-        $terapias = 0;    
+        $exames_complexos = 0;
+        $terapias = 0;
 
 
         $odonto = $request->odonto == "Com Odonto" ? 1 : 0;
@@ -55,7 +55,7 @@ class OrcamentoController extends Controller
         $plano = "";
         $plano_nome = "";
         $administradora_search = Administradoras::find($administradora);
-        
+
         // if($administradora_search->nome == "Hapvida" || $administradora_search->nome == "hapvida") {
         //     $plano = "Indidivual";
         // } else {
@@ -64,7 +64,7 @@ class OrcamentoController extends Controller
 
         $pdf = Corretora::first();
 
-       
+
             $plano = "Individual";
             $plano_nome = "individual";
             $linha01 = $pdf->linha_01_individual;
@@ -76,7 +76,7 @@ class OrcamentoController extends Controller
             $exames_complexos       = $pdf->exames_complexos_individual;
             $terapias               = $pdf->terapias_individual;
             $nome_pdf = "orcamento ".$administradora_search->nome." ".$plano_nome."_".date('d/m/Y')."_".date('H:i').".pdf";
-       
+
         $quantidade = 0;
         $sql = "";
         $chaves = [];
@@ -84,7 +84,7 @@ class OrcamentoController extends Controller
             if($v != null) {
                 $quantidade += $v;
                 $sql .= "WHEN (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) = $k THEN $v ";
-                $chaves[] = $k; 
+                $chaves[] = $k;
             }
         }
 
@@ -92,15 +92,15 @@ class OrcamentoController extends Controller
             return "error_quantidade";
         } else {
             $chaves = implode(",",$chaves);
-        }    
+        }
         $ambulatorial = DB::select("
-            SELECT 
+            SELECT
             nome,id_faixas,admin_logo,cidade,admin_id,plano,plano_id,titulos,card,admin_nome,quantidade,ambulatorial_com_coparticipacao,ambulatorial_com_coparticipacao_total,
             ambulatorial_sem_coparticipacao,ambulatorial_sem_coparticipacao_total
             FROM (
-                SELECT 
-                    (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS nome, 
-                    (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS id_faixas,          
+                SELECT
+                    (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS nome,
+                    (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS id_faixas,
                     CASE
                         $sql
                         ELSE 0
@@ -111,10 +111,10 @@ class OrcamentoController extends Controller
                     (SELECT nome FROM tabela_origens as cc WHERE cc.id = fora.tabela_origens_id) AS cidade,
                     (SELECT nome FROM planos as pp WHERE pp.id = fora.plano_id) AS plano,
                     (SELECT id FROM planos as pp WHERE pp.id = fora.plano_id) AS plano_id,
-                    
+
                     (SELECT if(dentro.odonto = 0,'Sem Odonto','Com Odonto') AS odontos  FROM tabelas AS dentro WHERE dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.coparticipacao = fora.coparticipacao AND dentro.odonto = fora.odonto AND dentro.tabela_origens_id = fora.tabela_origens_id AND dentro.faixa_etaria_id = fora.faixa_etaria_id LIMIT 1) AS titulos,
                     (SELECT CONCAT((SELECT nome FROM administradoras as aa WHERE aa.id = dentro.administradora_id),'_ambulatorial_',dentro.plano_id,'_',dentro.tabela_origens_id,'_',dentro.coparticipacao,'_',dentro.odonto) FROM tabelas AS dentro WHERE dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.coparticipacao = fora.coparticipacao AND dentro.odonto = fora.odonto AND dentro.tabela_origens_id = fora.tabela_origens_id AND dentro.faixa_etaria_id = fora.faixa_etaria_id LIMIT 1) AS card,
-                    
+
                     (SELECT valor FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 3 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 1 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS ambulatorial_com_coparticipacao,
                     (SELECT valor  FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 3 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 1 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS ambulatorial_com_coparticipacao_total,
 
@@ -122,15 +122,15 @@ class OrcamentoController extends Controller
                     (SELECT valor  FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 3 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 0 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS ambulatorial_sem_coparticipacao_total
 
 
-                    from tabelas AS fora 
+                    from tabelas AS fora
                     WHERE fora.faixa_etaria_id IN($chaves) AND tabela_origens_id = $cidade AND administradora_id = $administradora AND
                     acomodacao_id = 3 AND valor != 0 AND odonto = $odonto
                     GROUP BY faixa_etaria_id,administradora_id,plano_id,tabela_origens_id,odonto ORDER BY id
-                    ) 
+                    )
                     AS full_tabela
         ");
-            
-        
+
+
         $site = $pdf->site;
         $endereco = $pdf->endereco;
 
@@ -148,15 +148,15 @@ class OrcamentoController extends Controller
         $logo = 'data:image/png;base64,'.base64_encode(file_get_contents(public_path("storage/".$pdf->logo)));
 
         $cidade_nome = TabelaOrigens::find($cidade)->nome;
-            
+
         $img = $pdf->logo;
 
-        
+
 
 
 
         // if($administradora_search->nome == "Hapvida" || $administradora_search->nome == "hapvida" || $administradora_search->nome == "PME" || $administradora_search->nome == "Super Simples" || $administradora_search->nome == "Sindicato - Sindipão") {
-            
+
         //     $linha01 = $pdf->linha_01_individual;
         //     $linha02 = $pdf->linha_02_individual;
         //     $linha03 = $pdf->linha_03_individual;
@@ -167,8 +167,8 @@ class OrcamentoController extends Controller
         //     $exames_complexos       = $pdf->exames_complexos_individual;
         //     $terapias               = $pdf->terapias_individual;
 
-            
-            
+
+
         //     $nome_pdf = "orcamento ".$administradora_search->nome." ".$plano_nome."_".date('d/m/Y')."_".date('H:i').".pdf";
 
         // } else {
@@ -187,8 +187,8 @@ class OrcamentoController extends Controller
         // }
 
         $user = User::find(auth()->user()->id);
-       
-       if($user) {               
+
+       if($user) {
             $nome = $user->name;
             if($user->celular) {
                 $telefone_user = $user->celular;
@@ -206,7 +206,7 @@ class OrcamentoController extends Controller
         }
 
         $frase_consultor = "";
-        
+
         $view = \Illuminate\Support\Facades\View::make('admin.pages.orcamento.pdfambulatorial',[
             "frase_consultor" => $frase_consultor,
             "ambulatorial" => $ambulatorial,
@@ -239,15 +239,15 @@ class OrcamentoController extends Controller
             "terapias" => $terapias,
             "site_icone" => $site_icone,
             "texto_odonto" => $request->odonto
-            
-        ]);  
 
-        $nome_img = "orcamento_".$administradora_search->nome."_Ambulatorial_".date('d')."_".date('m')."_".date("Y")."_".date('H')."_".date("i");        
-        
+        ]);
+
+        $nome_img = "orcamento_".$administradora_search->nome."_Ambulatorial_".date('d')."_".date('m')."_".date("Y")."_".date('H')."_".date("i");
+
         $pdfPath = storage_path('app/temp/temp.pdf');
         PDF::loadHTML($view)->save($pdfPath);
 
-        
+
         $imagick = new \Imagick();
         $imagick->setResolution(300, 300); // Ajuste a resolução para 300 DPI (ou a resolução desejada)
         $imagick->readImage($pdfPath);
@@ -255,29 +255,12 @@ class OrcamentoController extends Controller
 
         $imagick->writeImage(storage_path("app/temp/{$nome_img}.png"));
         $imagick->clear();
-        $imagick->destroy();        
+        $imagick->destroy();
         // Retornar a imagem ou fazer qualquer outra operação necessária
         // Exemplo de download da imagem
         return response()
             ->download(storage_path("app/temp/{$nome_img}.png"))
             ->deleteFileAfterSend(true);
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
 
@@ -295,8 +278,8 @@ class OrcamentoController extends Controller
         $consultas_eletivas = 0;
         $consultas_de_urgencia = 0;
         $exames_simples = 0;
-        $exames_complexos = 0;    
-        $terapias = 0;    
+        $exames_complexos = 0;
+        $terapias = 0;
 
 
         $odonto = $request->odonto == "Com Odonto" ? 1 : 0;
@@ -310,7 +293,7 @@ class OrcamentoController extends Controller
         $plano = "";
         $plano_nome = "";
         $administradora_search = Administradoras::find($administradora);
-        
+
         // if($administradora_search->nome == "Hapvida" || $administradora_search->nome == "hapvida") {
         //     $plano = "Indidivual";
         // } else {
@@ -339,7 +322,7 @@ class OrcamentoController extends Controller
                 $exames_simples         = $pdf->exames_simples_individual;
                 $exames_complexos       = $pdf->exames_complexos_individual;
                 $terapias               = $pdf->terapias_individual;
-            }    
+            }
 
 
 
@@ -347,7 +330,7 @@ class OrcamentoController extends Controller
 
 
 
-           
+
             $nome_pdf = "orcamento ".$administradora_search->nome." ".$plano_nome."_".date('d/m/Y')."_".date('H:i').".pdf";
             $nome_img = "orcamento_".$administradora_search->nome."_".$plano_nome."_".date('d')."_".date('m')."_".date("Y")."_".date("H")."_".date("i")."_".date("s");
         } else if($plano_id == 2) {
@@ -409,7 +392,7 @@ class OrcamentoController extends Controller
             if($v != null) {
                 $quantidade += $v;
                 $sql .= "WHEN (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) = $k THEN $v ";
-                $chaves[] = $k; 
+                $chaves[] = $k;
             }
         }
 
@@ -419,14 +402,14 @@ class OrcamentoController extends Controller
             $chaves = implode(",",$chaves);
 
         $dados = DB::select("
-        SELECT 
+        SELECT
         nome,id_faixas,quantidade,admin_logo,cidade,admin_id,plano,titulos,card,admin_nome,apartamento_com_coparticipacao,
         enfermaria_com_coparticipacao,apartamento_sem_coparticipacao,enfermaria_sem_coparticipacao
-             
+
          FROM (
-             SELECT 
-                 (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS nome, 
-                 (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS id_faixas,          
+             SELECT
+                 (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS nome,
+                 (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS id_faixas,
                  CASE
             $sql
             ELSE 0
@@ -442,14 +425,14 @@ class OrcamentoController extends Controller
                  (SELECT valor FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 2 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 1 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS enfermaria_com_coparticipacao,
                  (SELECT valor FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 1 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 0 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS apartamento_sem_coparticipacao,
                  (SELECT valor FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 2 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 0 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS enfermaria_sem_coparticipacao
-                 from tabelas AS fora 
+                 from tabelas AS fora
                  WHERE fora.faixa_etaria_id IN($chaves) AND tabela_origens_id =  $cidade AND administradora_id = $administradora AND odonto = $odonto AND plano_id = $plano_id
                  GROUP BY faixa_etaria_id ORDER BY faixa_etaria_id
-                 ) 
+                 )
         AS full_tabela
         ");
-            
-        
+
+
         $site = $pdf->site;
         $endereco = $pdf->endereco;
 
@@ -467,15 +450,15 @@ class OrcamentoController extends Controller
         $logo = 'data:image/png;base64,'.base64_encode(file_get_contents(public_path("storage/".$pdf->logo)));
 
         $cidade_nome = TabelaOrigens::find($cidade)->nome;
-            
+
         $img = $pdf->logo;
 
-        
+
 
 
 
         // if($administradora_search->nome == "Hapvida" || $administradora_search->nome == "hapvida" || $administradora_search->nome == "PME" || $administradora_search->nome == "Super Simples" || $administradora_search->nome == "Sindicato - Sindipão") {
-            
+
         //     $linha01 = $pdf->linha_01_individual;
         //     $linha02 = $pdf->linha_02_individual;
         //     $linha03 = $pdf->linha_03_individual;
@@ -486,8 +469,8 @@ class OrcamentoController extends Controller
         //     $exames_complexos       = $pdf->exames_complexos_individual;
         //     $terapias               = $pdf->terapias_individual;
 
-            
-            
+
+
         //     $nome_pdf = "orcamento ".$administradora_search->nome." ".$plano_nome."_".date('d/m/Y')."_".date('H:i').".pdf";
 
         // } else {
@@ -506,8 +489,8 @@ class OrcamentoController extends Controller
         // }
 
         $user = User::find(auth()->user()->id);
-       
-       if($user) {               
+
+       if($user) {
             $nome = $user->name;
             if($user->celular) {
                 $telefone_user = $user->celular;
@@ -518,14 +501,14 @@ class OrcamentoController extends Controller
             }
             if($user->image) {
                 $t = new \App\Support\Thumb();
-               
+
 
                 $image_user = 'data:image/png;base64,'.base64_encode(file_get_contents(public_path("storage/".$user->image)));
             } else {
                 $image_user = null;
             }
         }
-        
+
         if(auth()->user()->name == "Felipe Barros") {
             $frase_consultor = "Supervisor Comercial";
         } else {
@@ -571,7 +554,7 @@ class OrcamentoController extends Controller
         $pdfPath = storage_path('app/temp/temp.pdf');
         PDF::loadHTML($view)->save($pdfPath);
 
-        
+
         $imagick = new \Imagick();
         $imagick->setResolution(300, 300); // Ajuste a resolução para 300 DPI (ou a resolução desejada)
         $imagick->readImage($pdfPath);
@@ -579,7 +562,7 @@ class OrcamentoController extends Controller
 
         $imagick->writeImage(storage_path("app/temp/{$nome_img}.png"));
         $imagick->clear();
-        $imagick->destroy();        
+        $imagick->destroy();
         // Retornar a imagem ou fazer qualquer outra operação necessária
         // Exemplo de download da imagem
         return response()
@@ -593,7 +576,7 @@ class OrcamentoController extends Controller
         // // Carrega o HTML no Dompdf
         // $pdf = PDF::loadHTML($html);
 
-        
+
 
         // //$pdfPath = $pdf->download('documento.pdf');
         // $imagePath = url('teste.png');
@@ -646,7 +629,7 @@ class OrcamentoController extends Controller
         //     "endereco" => $endereco,
         //     "terapias" => $terapias,
         //     "site_icone" => $site_icone
-        // ]); 
+        // ]);
 
         // return $pdf;
 
@@ -661,7 +644,7 @@ class OrcamentoController extends Controller
         }
 
 
-        
+
     }
 
 
@@ -678,15 +661,15 @@ class OrcamentoController extends Controller
 
 
 
-  
+
 
 
 //     public function criarPDF(Request $request)
 //     {
 
-        
 
-        
+
+
 //         $odonto = $request->odonto == "Com Odonto" ? 1 : 0;
 //         $cidade = $request->tabela_origem;
 //         $administradora = $request->administradora_id;
@@ -695,7 +678,7 @@ class OrcamentoController extends Controller
 //         $plano = "";
 //         $plano_nome = "";
 //         $administradora_search = Administradoras::find($administradora);
-        
+
 //         // if($administradora_search->nome == "Hapvida" || $administradora_search->nome == "hapvida") {
 //         //     $plano = "Indidivual";
 //         // } else {
@@ -732,7 +715,7 @@ class OrcamentoController extends Controller
 //         foreach($request->faixas[0] as $k => $v) {
 //             if($v != null) {
 //                 $sql .= "WHEN (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) = $k THEN $v ";
-//                 $chaves[] = $k; 
+//                 $chaves[] = $k;
 //             }
 //         }
 //         $chaves = implode(",",$chaves);
@@ -741,14 +724,14 @@ class OrcamentoController extends Controller
 
 
 
-//         $dados = DB::select("SELECT 
+//         $dados = DB::select("SELECT
 //             nome,id_faixas,admin_logo,cidade,admin_id,plano,titulos,card,admin_nome,quantidade,apartamento_com_coparticipacao,apartamento_com_coparticipacao_total,
 //     enfermaria_com_coparticipacao,enfermaria_com_coparticipacao_total,apartamento_sem_coparticipacao,apartamento_sem_coparticipacao_total,enfermaria_sem_coparticipacao,
 //     enfermaria_sem_coparticipacao_total
 //             FROM (
-//                 SELECT 
-//                     (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS nome, 
-//                     (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS id_faixas,          
+//                 SELECT
+//                     (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS nome,
+//                     (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS id_faixas,
 //                     CASE
 //                         $sql
 //                         ELSE 0
@@ -768,16 +751,16 @@ class OrcamentoController extends Controller
 //                     (SELECT valor * quantidade FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 1 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 0 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS apartamento_sem_coparticipacao_total,
 //                     (SELECT valor FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 2 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 0 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS enfermaria_sem_coparticipacao,
 //                     (SELECT valor * quantidade FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 2 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 0 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS enfermaria_sem_coparticipacao_total
-//                     from tabelas AS fora 
+//                     from tabelas AS fora
 //                     WHERE fora.faixa_etaria_id IN($chaves) AND tabela_origens_id =  $cidade AND administradora_id = $administradora AND odonto = $odonto AND plano_id = $plano_id
 //                     GROUP BY faixa_etaria_id,administradora_id,plano_id,tabela_origens_id,odonto ORDER BY id
-//                     ) 
+//                     )
 // AS full_tabela");
 
 
 
 
-            
+
 //         $pdf = Corretora::first();
 //         $site = $pdf->site;
 //         $endereco = $pdf->endereco;
@@ -795,7 +778,7 @@ class OrcamentoController extends Controller
 //         $logo = 'data:image/png;base64,'.base64_encode(file_get_contents(public_path("storage/".$pdf->logo)));
 
 //         $cidade_nome = TabelaOrigens::find($cidade)->nome;
-            
+
 //         $img = $pdf->logo;
 
 //         $linha01 = "";
@@ -805,13 +788,13 @@ class OrcamentoController extends Controller
 //         $consultas_eletivas = 0;
 //         $consultas_de_urgencia = 0;
 //         $exames_simples = 0;
-//         $exames_complexos = 0;    
-//         $terapias = 0;    
+//         $exames_complexos = 0;
+//         $terapias = 0;
 
 
 
 //         if($administradora_search->nome == "Hapvida" || $administradora_search->nome == "hapvida" || $administradora_search->nome == "PME" || $administradora_search->nome == "Super Simples" || $administradora_search->nome == "Sindicato - Sindipão") {
-            
+
 //             $linha01 = $pdf->linha_01_individual;
 //             $linha02 = $pdf->linha_02_individual;
 //             $linha03 = $pdf->linha_03_individual;
@@ -822,8 +805,8 @@ class OrcamentoController extends Controller
 //             $exames_complexos       = $pdf->exames_complexos_individual;
 //             $terapias               = $pdf->terapias_individual;
 
-            
-            
+
+
 //             $nome_pdf = "orcamento ".$administradora_search->nome." ".$plano_nome."_".date('d/m/Y')."_".date('H:i').".pdf";
 
 //         } else {
@@ -842,8 +825,8 @@ class OrcamentoController extends Controller
 //         }
 
 //         $user = User::find(auth()->user()->id);
-       
-//        if($user) {               
+
+//        if($user) {
 //             $nome = $user->name;
 //             if($user->celular) {
 //                 $telefone_user = $user->celular;
@@ -893,13 +876,13 @@ class OrcamentoController extends Controller
 //             "site" => $site,
 //             "endereco" => $endereco,
 //             "terapias" => $terapias
-//         ]);  
+//         ]);
 //         return $pdf->download(Str::kebab($nome_pdf));
 //     }
- 
+
     public function montarOrcamento(Request $request)
     {
-        
+
 
         if(count(array_filter($request->faixas[0])) >= 7) {
             return "error_pdf";
@@ -910,20 +893,20 @@ class OrcamentoController extends Controller
         foreach($request->faixas[0] as $k => $v) {
             if($v != null AND $v != 0) {
                 $sql .= "WHEN (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) = $k THEN $v ";
-                $chaves[] = $k; 
+                $chaves[] = $k;
             }
         }
         $chaves = implode(",",$chaves);
         $cidade = $request->tabela_origem;
         $administradora = $request->administradora;
-        $dados = DB::select("SELECT 
+        $dados = DB::select("SELECT
             nome,id_faixas,admin_logo,cidade,admin_id,plano,plano_id,titulos,card,admin_nome,quantidade,apartamento_com_coparticipacao,apartamento_com_coparticipacao_total,
             enfermaria_com_coparticipacao,enfermaria_com_coparticipacao_total,apartamento_sem_coparticipacao,apartamento_sem_coparticipacao_total,enfermaria_sem_coparticipacao,
             enfermaria_sem_coparticipacao_total
             FROM (
-                SELECT 
-                    (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS nome, 
-                    (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS id_faixas,          
+                SELECT
+                    (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS nome,
+                    (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS id_faixas,
                     CASE
                         $sql
                         ELSE 0
@@ -944,23 +927,23 @@ class OrcamentoController extends Controller
                     (SELECT valor  FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 1 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 0 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS apartamento_sem_coparticipacao_total,
                     (SELECT valor FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 2 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 0 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS enfermaria_sem_coparticipacao,
                     (SELECT valor  FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 2 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 0 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS enfermaria_sem_coparticipacao_total
-                    from tabelas AS fora 
+                    from tabelas AS fora
                     WHERE fora.faixa_etaria_id IN($chaves) AND tabela_origens_id = $cidade AND administradora_id = $administradora
                     GROUP BY faixa_etaria_id,administradora_id,plano_id,tabela_origens_id,odonto ORDER BY id
-                    ) 
+                    )
                     AS full_tabela");
 
 
-        
 
 
-        $ambulatorial = DB::select("SELECT 
+
+        $ambulatorial = DB::select("SELECT
             nome,id_faixas,admin_logo,cidade,admin_id,plano,plano_id,titulos,card,admin_nome,quantidade,ambulatorial_com_coparticipacao,ambulatorial_com_coparticipacao_total,
             ambulatorial_sem_coparticipacao,ambulatorial_sem_coparticipacao_total
             FROM (
-                SELECT 
-                    (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS nome, 
-                    (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS id_faixas,          
+                SELECT
+                    (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS nome,
+                    (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS id_faixas,
                     CASE
                         $sql
                         ELSE 0
@@ -971,10 +954,10 @@ class OrcamentoController extends Controller
                     (SELECT nome FROM tabela_origens as cc WHERE cc.id = fora.tabela_origens_id) AS cidade,
                     (SELECT nome FROM planos as pp WHERE pp.id = fora.plano_id) AS plano,
                     (SELECT id FROM planos as pp WHERE pp.id = fora.plano_id) AS plano_id,
-                    
+
                     (SELECT if(dentro.odonto = 0,'Sem Odonto','Com Odonto') AS odontos  FROM tabelas AS dentro WHERE dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.coparticipacao = fora.coparticipacao AND dentro.odonto = fora.odonto AND dentro.tabela_origens_id = fora.tabela_origens_id AND dentro.faixa_etaria_id = fora.faixa_etaria_id LIMIT 1) AS titulos,
                     (SELECT CONCAT((SELECT nome FROM administradoras as aa WHERE aa.id = dentro.administradora_id),'_ambulatorial_',dentro.plano_id,'_',dentro.tabela_origens_id,'_',dentro.coparticipacao,'_',dentro.odonto) FROM tabelas AS dentro WHERE dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.coparticipacao = fora.coparticipacao AND dentro.odonto = fora.odonto AND dentro.tabela_origens_id = fora.tabela_origens_id AND dentro.faixa_etaria_id = fora.faixa_etaria_id LIMIT 1) AS card,
-                    
+
                     (SELECT valor FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 3 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 1 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS ambulatorial_com_coparticipacao,
                     (SELECT valor  FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 3 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 1 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS ambulatorial_com_coparticipacao_total,
 
@@ -982,26 +965,26 @@ class OrcamentoController extends Controller
                     (SELECT valor  FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 3 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 0 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS ambulatorial_sem_coparticipacao_total
 
 
-                    from tabelas AS fora 
+                    from tabelas AS fora
                     WHERE fora.faixa_etaria_id IN($chaves) AND tabela_origens_id = $cidade AND administradora_id = $administradora AND
                     acomodacao_id = 3 AND valor != 0
                     GROUP BY faixa_etaria_id,administradora_id,plano_id,tabela_origens_id,odonto ORDER BY id
-                    ) 
+                    )
                     AS full_tabela");
 
-        
-        
-       
 
-        
-    
+
+
+
+
+
         return view('admin.pages.orcamento.montarPlanos',[
             "planos" => $dados,
             "ambulatorial" => $ambulatorial,
             'card_inicial' => count($dados) >= 1 ? $dados[0]->card : "",
             'card_incial_ambulatorial' => count($ambulatorial) >= 1 ? $ambulatorial[0]->card : ""
-        ]);    
-        
+        ]);
+
     }
 
     public function criarPDFEmpresarial(Request $request)
@@ -1013,8 +996,8 @@ class OrcamentoController extends Controller
         $consultas_eletivas = 0;
         $consultas_de_urgencia = 0;
         $exames_simples = 0;
-        $exames_complexos = 0;    
-        $terapias = 0;    
+        $exames_complexos = 0;
+        $terapias = 0;
 
         $odonto = $request->odonto == "Com Odonto" ? 1 : 0;
         $cidade = $request->tabela_origem;
@@ -1037,7 +1020,7 @@ class OrcamentoController extends Controller
         $exames_simples         = 16.48;
         $exames_complexos       = 67.92;
         $terapias               = 61.20;
-        $nome_pdf = "orcamento ".$administradora_search->nome." ".$plano_nome."_".date('d/m/Y')."_".date('H:i').".pdf";  
+        $nome_pdf = "orcamento ".$administradora_search->nome." ".$plano_nome."_".date('d/m/Y')."_".date('H:i').".pdf";
 
         $quantidade = 0;
         $sql = "";
@@ -1046,7 +1029,7 @@ class OrcamentoController extends Controller
             if($v != null) {
                 $quantidade += $v;
                 $sql .= "WHEN (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) = $k THEN $v ";
-                $chaves[] = $k; 
+                $chaves[] = $k;
             }
         }
 
@@ -1054,17 +1037,17 @@ class OrcamentoController extends Controller
             //return "error_quantidade";
         //} else {
             $chaves = implode(",",$chaves);
-        //}    
+        //}
 
         $dados = DB::select("
-        SELECT 
+        SELECT
         nome,id_faixas,quantidade,admin_logo,cidade,admin_id,plano,titulos,card,admin_nome,apartamento_com_coparticipacao,
         enfermaria_com_coparticipacao,apartamento_sem_coparticipacao,enfermaria_sem_coparticipacao
-             
+
          FROM (
-             SELECT 
-                 (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS nome, 
-                 (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS id_faixas,          
+             SELECT
+                 (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS nome,
+                 (SELECT id FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS id_faixas,
                  CASE
             $sql
             ELSE 0
@@ -1080,16 +1063,16 @@ class OrcamentoController extends Controller
                  (SELECT valor FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 2 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 1 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS enfermaria_com_coparticipacao,
                  (SELECT valor FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 1 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 0 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS apartamento_sem_coparticipacao,
                  (SELECT valor FROM tabelas AS dentro where dentro.administradora_id = fora.administradora_id AND dentro.plano_id = fora.plano_id AND dentro.tabela_origens_id = fora.tabela_origens_id AND acomodacao_id = 2 AND dentro.faixa_etaria_id = fora.faixa_etaria_id AND dentro.coparticipacao = 0 AND dentro.odonto = fora.odonto GROUP BY dentro.coparticipacao) AS enfermaria_sem_coparticipacao
-                 from tabelas AS fora 
+                 from tabelas AS fora
                  WHERE fora.faixa_etaria_id IN($chaves) AND tabela_origens_id =  $cidade AND administradora_id = $administradora AND odonto = $odonto AND plano_id = $plano_id
                  GROUP BY faixa_etaria_id ORDER BY faixa_etaria_id
-                 ) 
+                 )
         AS full_tabela
         ");
 
         $user = User::find(auth()->user()->id);
-       
-       if($user) {               
+
+       if($user) {
             $nome = $user->name;
             if($user->celular) {
                 $telefone_user = $user->celular;
@@ -1100,7 +1083,7 @@ class OrcamentoController extends Controller
             }
             if($user->image) {
                 $t = new \App\Support\Thumb();
-               
+
 
                 $image_user = 'data:image/png;base64,'.base64_encode(file_get_contents(public_path("storage/".$user->image)));
             } else {
@@ -1141,11 +1124,11 @@ class OrcamentoController extends Controller
             "endereco" => "",
             "terapias" => "",
             "site_icone" => ""
-        ]);  
+        ]);
         return $pdf->download(Str::kebab($nome_pdf));
 
-        
+
     }
 
-    
+
 }

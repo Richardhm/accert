@@ -25,8 +25,6 @@
     </div>
 
 
-
-
     <input type="hidden" id="janela_atual" value="aba_individual">
     <div id="container_mostrar_comissao" class="ocultar"></div>
 
@@ -135,10 +133,6 @@
                                 <i class="fas fa-window-close fa-lg"></i>
                             </div>
                         </div>
-
-
-
-
                     </form>
                 </div>
             </div>
@@ -202,7 +196,7 @@
             <section class="d-flex justify-content-between" style="flex-wrap: wrap;align-content: flex-start;">
 
                 <!--COLUNA DA ESQUERDA-->
-                <div class="d-flex flex-column text-white ml-1" style="flex-basis:16%;border-radius:5px;">
+                <div class="d-flex flex-column text-white" style="flex-basis:16%;border-radius:5px;">
 
                     <div class="d-flex justify-content-between mb-1">
                         <a class="btn btn-block btn-info" href="{{route('contratos.create')}}" style="background-color:#123449;color:#FFF;font-size:1.2em;flex-basis:100%;">Cadastrar</a>
@@ -214,7 +208,7 @@
                         <span class="btn btn-atualizar" style="background-color:#123449;color:#FFF;font-size:1.2em;flex-basis:49%;">Atualizar</span>
                     </div>
 
-                    <div class="mb-1 py-2" style="background-color:#123449;border-radius:5px;margin-bottom:3px;">
+                    <div class="mb-1 py-2" style="background-color:#123449;border-radius:5px;margin-bottom:3px;" id="content_list_individual_begin">
 
                         <div class="d-flex justify-content-around" style="flex-wrap:wrap;">
 
@@ -375,14 +369,11 @@
 
         <!------------------------------------------COLETIVO---------------------------------------------------->
         <main id="aba_coletivo" class="ocultar">
-            <section class="d-flex justify-content-between" style="flex-wrap: wrap;">
+            <section class="d-flex justify-content-between" style="flex-wrap: wrap;align-content:flex-start;">
                 <!--COLUNA DA ESQUERDA-->
-                <div class="d-flex flex-column text-white ml-1" style="flex-basis:16%;border-radius:5px;">
+                <div class="d-flex flex-column text-white" style="flex-basis:16%;border-radius:5px;">
 
-
-
-
-                    <div class="d-flex justify-content-between mb-1">
+                    <div class="d-flex mb-1">
                         <span class="btn" style="background-color:#123449;color:#FFF;font-size:1.2em;flex-basis:49%;">
                             <a class="text-center text-white" href="{{route('contratos.create.coletivo')}}">Cadastrar</a>
                         </span>
@@ -391,51 +382,36 @@
                         </span>
                     </div>
 
-
-
-
-
                     <div class="py-2" style="background-color:#123449;border-radius:5px;">
-
                         <div class="d-flex justify-content-around" style="flex-wrap:wrap;">
-
                             <div style="display:flex;flex-basis:48%;">
                                 <select id="mudar_ano_table_coletivo" class="form-control">
                                     <option value="todos" class="text-center">-Anos-</option>
                                     @foreach($anos_coletivo as $ac)
                                         <option value="{{$ac->anos}}" {{date('Y') == $ac->anos ? 'selected' : ''}}>{{$ac->anos}}</option>
-
                                     @endforeach
-
                                 </select>
                             </div>
-
                             <div style="display:flex;flex-basis:48%;margin-bottom:1%;">
                                 <select id="mudar_mes_table_coletivo" class="form-control">
                                     <option value="todos" class="text-center">-Meses-</option>
                                     @foreach($meses as $k =>$m)
-                                        <option value="{{$k}}" {{date('m') == $k ? 'selected' : ''}}>{{$m}}</option>
+                                        <option value="{{$k}}">{{$m}}</option>
                                     @endforeach
                                 </select>
                             </div>
-
                             <select class="form-control" style="flex-basis:98%;" id="select_usuario">
                                 <option value="todos" class="text-center">---Escolher Corretor---</option>
                                 @foreach($users as $u)
                                     <option value="{{$u->name}}" data-id="{{$u->id}}">{{$u->name}}</option>
                                 @endforeach
                             </select>
-
                             <select class="my-1 form-control" style="flex-basis:98%;" id="select_coletivo_administradoras">
                                 <option value="todos" class="text-center">---Administradora---</option>
                                 @foreach($administradoras as $ad)
                                     <option value="{{$ad->nome}}" data-id="{{$ad->id}}">{{$ad->nome}}</option>
                                 @endforeach
-
-
                             </select>
-
-
                         </div>
 
                         <ul style="list-style:none;margin:0;padding:4px 0;" id="list_coletivo_begin">
@@ -458,7 +434,7 @@
                         <ul style="list-style:none;margin:0;padding:5px 0;" id="atrasado_corretor_coletivo">
                             <li style="padding:0px 3px;display:flex;justify-content:space-between;" id="" class="coletivo">
                                 <span>Atrasados</span>
-                                <span class="badge badge-light coletivo_quantidade_atrasado" style="width:45px;text-align:right;">0</span>
+                                <span class="badge badge-light coletivo_quantidade_atrasado" style="width:45px;text-align:right;">{{$qtd_coletivo_atrasado}}</span>
                             </li>
                         </ul>
                     </div>
@@ -471,26 +447,6 @@
                             </li>
                         </ul>
                     </div>
-
-
-                    <!-- <div style="background-color:#123449;border-radius:5px;margin:3px 0px;">
-                        <ul style="list-style:none;margin:0;padding:10px 0;">
-                            <li style="padding:0px 4px;display:flex;justify-content:space-between;margin-bottom:5px;" class="coletivo">
-                                <span>Orçamento:</span>
-                                <span class="badge badge-light total_por_orcamento_coletivo" style="width:80px;text-align:right;">0</span>
-                            </li>
-                            <li style="padding:0px 4px;display:flex;justify-content:space-between;margin-bottom:5px;" class="coletivo">
-                                <span>Vidas:</span>
-                                <span class="badge badge-light total_por_vida_coletivo" style="width:80px;text-align:right;">0</span>
-                            </li>
-                            <li style="padding:0px 4px;display:flex;justify-content:space-between;" class="coletivo">
-                                <span>Valor:</span>
-                                <span class="badge badge-light total_por_page_coletivo" style="width:80px;text-align:right;">0</span>
-                            </li>
-                        </ul>
-                    </div> -->
-
-
 
 
                     <div style="margin:0 0 3px 0;padding:0;background-color:#123449;border-radius:5px;">
@@ -514,19 +470,19 @@
                             </li>
                             <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:3px;" id="pagamento_segunda_parcela" class="coletivo">
                                 <span>Pag. 2º Parcela</span>
-                                <span class="badge badge-light coletivo_quantidade_segunda_parcela" style="width:45px;text-align:right;">{{$qtd_coletivo_03_parcela}}</span>
+                                <span class="badge badge-light coletivo_quantidade_segunda_parcela" style="width:45px;text-align:right;">{{$qtd_coletivo_02_parcela}}</span>
                             </li>
                             <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:3px;" id="pagamento_terceira_parcela" class="coletivo">
                                 <span>Pag. 3º Parcela</span>
-                                <span class="badge badge-light coletivo_quantidade_terceira_parcela" style="width:45px;text-align:right;">{{$qtd_coletivo_04_parcela}}</span>
+                                <span class="badge badge-light coletivo_quantidade_terceira_parcela" style="width:45px;text-align:right;">{{$qtd_coletivo_03_parcela}}</span>
                             </li>
                             <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:3px;" id="pagamento_quarta_parcela" class="coletivo">
                                 <span>Pag. 4º Parcela</span>
-                                <span class="badge badge-light coletivo_quantidade_quarta_parcela" style="width:45px;text-align:right;">{{$qtd_coletivo_05_parcela}}</span>
+                                <span class="badge badge-light coletivo_quantidade_quarta_parcela" style="width:45px;text-align:right;">{{$qtd_coletivo_04_parcela}}</span>
                             </li>
                             <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:3px;" id="pagamento_quinta_parcela" class="coletivo">
                                 <span>Pag. 5º Parcela</span>
-                                <span class="badge badge-light coletivo_quantidade_quinta_parcela" style="width:45px;text-align:right;">{{$qtd_coletivo_06_parcela}}</span>
+                                <span class="badge badge-light coletivo_quantidade_quinta_parcela" style="width:45px;text-align:right;">{{$qtd_coletivo_05_parcela}}</span>
                             </li>
                             <li style="padding:0px 5px;display:flex;justify-content:space-between;margin-bottom:3px;" id="pagamento_sexta_parcela" class="coletivo">
                                 <span>Pag. 6º Parcela</span>
@@ -554,10 +510,11 @@
                 <!--COLUNA DA CENTRAL-->
                 <div style="flex-basis:83%;">
                     <div style="background-color:#123449;color:#FFF;border-radius:5px;">
-                        <table id="tabela_coletivo" class="table table-sm listardados W-100">
+                        <table id="tabela_coletivo" class="table table-sm listardados w-100">
+
                             <thead>
                             <tr>
-                                <th>Data</th>
+                                <th>Datas</th>
                                 <th>Cod.</th>
                                 <th>Corretor</th>
                                 <th>Cliente</th>
@@ -591,7 +548,7 @@
                 <div class="d-flex flex-column text-white ml-1" style="flex-basis:16%;border-radius:5px;">
 
                     <div style="background-color:#123449;border-radius:5px;margin:1px 0;">
-                        <ul style="list-style:none;margin:0;padding:5px 0;" id="atrasado_corretor_coletivo">
+                        <ul style="list-style:none;margin:0;padding:5px 0;" id="cadastrar_empresarial">
                             <li style="padding:0px 3px;display:flex;text-align:center;justify-content:center;">
                                 <a class="text-center" href="{{route('contratos.create.empresarial')}}" style="color:#FFF;font-size:1.2em;text-align:center;display:flex;flex-basis:100%;justify-content: center;;">Financeiro</a>
                             </li>
@@ -617,7 +574,7 @@
                                     <option value="01">Janeiro</option>
                                     <option value="02">Fevereiro</option>
                                     <option value="03">Março</option>
-                                    <option value="04" selected>Abril</option>
+                                    <option value="04">Abril</option>
                                     <option value="05">Maio</option>
                                     <option value="06">Junho</option>
                                     <option value="07">Julho</option>
@@ -794,13 +751,41 @@
 
             $('#campoPesquisa').on('keyup', function() {
                 var valorPesquisa = $(this).val().toLowerCase();
-                console.log(valorPesquisa);
+
 
                 $('.listardados').each(function() {
                     $(this).DataTable().search(valorPesquisa).draw();
                 });
             });
 
+            $("#select_usuario").on('change',function(){
+                let user_id = $(this).find("option:selected").data("id");
+                let mes = $("#mudar_mes_table_coletivo").val();
+                let admin = $("#select_coletivo_administradoras").val();
+                mes = mes == "todos" ? "" : mes;
+                admin = admin == "todos" ? "" : $("#select_coletivo_administradoras").find("option:selected").data("id");
+
+                $.ajax({
+                   url:"{{route('financeiro.corretor.filtragem.coletivo')}}",
+                   method:"POST",
+                   data:"user_id="+user_id+"&mes="+mes+"&admin="+admin,
+                   success:function(res) {
+
+                       $(".coletivo_quantidade_em_analise").html(res.quantidade_em_analise);
+                       $(".coletivo_quantidade_emissao_boleto").html(res.quantidade_emissao_boleto);
+                       $(".coletivo_quantidade_pagamento_adesao").html(res.quantidade_pagamento_adesao);
+                       $(".coletivo_quantidade_pagamento_vigencia").html(res.quantidade_pagamento_vigencia);
+                       $(".coletivo_quantidade_segunda_parcela").html(res.quantidade_segunda_parcela);
+                       $(".coletivo_quantidade_terceira_parcela").html(res.quantidade_terceira_parcela);
+                       $(".coletivo_quantidade_quarta_parcela").html(res.quantidade_quarta_parcela);
+                       $(".coletivo_quantidade_quinta_parcela").html(res.quantidade_quinta_parcela);
+                       $(".coletivo_quantidade_sexta_parcela").html(res.quantidade_sexta_parcela);
+                   }
+                });
+
+
+
+            });
 
             let url = window.location.href.indexOf("?");
             if(url != -1) {
@@ -815,21 +800,13 @@
                     $('#aba_coletivo').removeClass('ocultar');
                     var c = window.location.href.replace(b,"");
                     window.history.pushState({path:c},'',c);
-
-
                     $("#janela_atual").val("aba_coletivo");
-
-
                     //$("listar_abas").trigger('click');
                     //$(".list_abas li").trigger('click');
-
-                    //
-
                     //$('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
                     //table.ajax.url("{{ route('financeiro.coletivo.em_geral') }}").load();
                     //$("#list_coletivo_begin").trigger('click');
                     //$('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Em Análise</h4>");
-
                     // table.ajax.url("{{ route('financeiro.coletivo.em_geral') }}").load();
                     //table.ajax.url("{{ route('financeiro.coletivo.em_analise') }}").load();
                 }
@@ -848,7 +825,7 @@
             }
 
             $("#listar_geral").on('click',function(){
-                $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
+                $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Contratos</h4>");
                 table_individual.ajax.url("{{ route('financeiro.individual.geralIndividualPendentes') }}").load();
                 $(".container_edit").addClass('ocultar')
                 //adicionarReadonly();
@@ -869,19 +846,15 @@
             $("#mudar_mes_table").on('change',function(){
                 $("#select_usuario_individual").val('');
                 var mes = $(this).val() != "" ? $(this).val() : "00";
-
                 var ano = $("#mudar_ano_table").val() != null ? $("#mudar_ano_table").val() : null;
                 table_individual.ajax.url(`/admin/financeiro/individual/mudar_mes/${mes}/${ano}`).load();
-
                 let valorSelecionado = "";
                 $('#tabela_individual').DataTable().column(2).search(valorSelecionado).draw();
-
                 $.ajax({
                     url:"{{route('financeiro.montar.mes')}}",
                     method:"POST",
                     data:"mes="+mes,
                     success:function(res) {
-                        console.log(res);
                         $(".individual_quantidade_1_parcela").html(res.qtd_individual_parcela_01);
                         $(".individual_quantidade_2_parcela").html(res.qtd_individual_parcela_02);
                         $(".individual_quantidade_3_parcela").html(res.qtd_individual_parcela_03);
@@ -889,9 +862,6 @@
                         $(".individual_quantidade_5_parcela").html(res.qtd_individual_parcela_05);
                         $(".individual_quantidade_6_parcela").html(res.qtd_individual_parcela_06);
                         $(".individual_quantidade_atrasado").html(res.qtd_individual_atrsado);
-
-
-
                         $(".individual_quantidade_cancelado").html(res.qtd_individual_cancelado);
                         let select = $("#select_usuario_individual");
                         $("#select_usuario_individual").html('<option value="todos" class="text-center" data-id="0">--Escolher Corretor--</option>')
@@ -902,11 +872,7 @@
                         $("#atrasado_corretor").removeClass('ativo');
                         $("#listar_individual li").removeClass('ativo');
                     }
-
-                })
-
-
-
+                });
             });
 
             function totalMes() {
@@ -999,6 +965,7 @@
                         $('#uploadModal').modal('hide');
                     },
                     success:function(res) {
+
                         if(res == "sucesso") {
                             load.fadeOut(200);
                             $('#uploadModal').modal('show');
@@ -1067,20 +1034,10 @@
 
             /*****************************************************UPLOAD COLETIVO****************************************************************************** */
             $("#arquivo_upload_coletivo").on('change',function(e){
-
-
-
-
                 var files = $('#arquivo_upload_coletivo')[0].files;
-
                 var load = $(".ajax_load");
-
-
-
-
                 var fd = new FormData();
                 fd.append('file',files[0]);
-
                 $.ajax({
                     url:"{{route('financeiro.sincronizar.coletivo')}}",
                     method:"POST",
@@ -1108,9 +1065,6 @@
                 });
             })
             /*****************************************************FIM UPLOAD COLETIVO****************************************************************************** */
-
-
-
 
             var default_formulario = $('.coluna-right.aba_individual').html();
 
@@ -1162,39 +1116,9 @@
                 }
             });
 
-
-
             $("body").on('click','.cancelar_individual',function(){
                 $('#cancelarModal').modal('show')
             });
-
-
-
-
-            // $(".mostrar_comissao").on('mouseenter',function(){
-            //     if($("#janela_atual").val() == "aba_individual") {
-            //         var janela  = "aba_individual";
-            //         var id_contrato = $('.next_individual').attr('data-contrato');
-            //     } else if($("#janela_atual").val() == "aba_coletivo") {
-            //         var janela  = "aba_coletivo";
-            //         var id_contrato = $('.next').attr('data-contrato');
-            //     } else {
-            //         var janela  = "aba_empresarial";
-            //         var id_contrato = $('.next_empresarial').attr('data-contrato');
-            //     }
-            //     if(janela && id_contrato) {
-            //         $.ajax({
-            //             url:"{{route('financeiro.ver.contrato')}}",
-            //             method:"POST",
-            //             data:"contrato_id="+id_contrato+"&janela="+janela,
-            //             success:function(res) {
-            //                 $("#container_mostrar_comissao").html(res).removeClass('ocultar');
-            //             }
-            //         });
-            //     }
-            // }).on('mouseleave',function(){
-            //     $("#container_mostrar_comissao").html('').addClass('ocultar');
-            // });
 
             String.prototype.ucWords = function () {
                 let str = this.toLowerCase()
@@ -1215,46 +1139,30 @@
                 $('.next').attr('data-contrato','');
                 $('tr').removeClass('textoforte');
                 if($(this).attr('data-id') == "aba_individual") {
-                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
                     table_individual.ajax.url("{{ route('financeiro.individual.geralIndividualPendentes') }}").load();
 
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
-                    table.ajax.url("{{ route('gerente.listagem.zerar.tabelas') }}").load();
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
+                    table.ajax.url("{{ route('financeiro.zerar.financeiro') }}").load();
 
-                    $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
-                    tableempresarial.ajax.url('{{route("gerente.listagem.zerar.tabelas")}}').load();
+                    $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
+                    tableempresarial.ajax.url('{{route("financeiro.zerar.financeiro")}}').load();
 
                 } else if($(this).attr('data-id') == "aba_coletivo") {
 
-                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
-                    table_individual.ajax.url("{{ route('gerente.listagem.zerar.tabelas') }}").load();
-
-                    $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
-                    tableempresarial.ajax.url('{{route("gerente.listagem.zerar.tabelas")}}').load();
-
-
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
+                    table_individual.ajax.url("{{ route('financeiro.zerar.financeiro') }}").load();
+                    $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
+                    tableempresarial.ajax.url('{{route("financeiro.zerar.financeiro")}}').load();
+                    table.ajax.url("{{ route('financeiro.coletivo.em_geral') }}").load();
                 } else {
-
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
-                    table.ajax.url("{{ route('gerente.listagem.zerar.tabelas') }}").load();
-
-                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
-                    table_individual.ajax.url("{{ route('gerente.listagem.zerar.tabelas') }}").load();
-
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
+                    table.ajax.url("{{ route('financeiro.zerar.financeiro') }}").load();
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Contratos</h4>");
+                    table_individual.ajax.url("{{ route('financeiro.zerar.financeiro') }}").load();
                 }
-
-
-
-
-
-
                 $("#cliente_id_alvo").val('');
                 $("#cliente_id_alvo_individual").val('');
-                //limparFormularioIndividual();
-                //limparFormulario();
-                //limparEmpresarial();
-                //adicionarReadonly();
-                //adicionarReadonlyIndividual();
                 $("#all_pendentes_individual").removeClass('textoforte-list');
                 $("ul#listar li.coletivo").removeClass('textoforte-list');
                 $("ul#grupo_finalizados li.coletivo").removeClass('textoforte-list');
@@ -1262,12 +1170,7 @@
                 $("ul#grupo_finalizados_individual li.individual").removeClass('textoforte-list');
                 $("ul#listar_empresarial li.empresarial").removeClass('textoforte-list');
                 $("ul#grupo_finalizados_empresarial li.empresarial").removeClass('textoforte-list');
-
-                //$("#aguardando_em_analise_empresarial").addClass('textoforte-list');
-                //limparTudo();
             });
-
-
 
             $('.editar_btn_individual').on('click',function(){
                 let params = $("#cliente").prop('readonly');
@@ -1277,11 +1180,6 @@
                     removeReadonlyIndividual();
                 }
             });
-
-
-
-
-
 
             $("body").on('change','.editar_campo_individual',function(){
                 let alvo = $(this).attr('id');
@@ -1353,7 +1251,8 @@
                     "url": "{{asset('traducao/pt-BR.json')}}"
                 },
                 ajax: {
-                    "url":"{{ route('financeiro.sem.carteirinha') }}",
+                    //"url":"{{ route('financeiro.sem.carteirinha') }}",
+                    "url":"{{route('financeiro.zerar.financeiro')}}",
                     "dataSrc": ""
                 },
                 "lengthMenu": [50,100,150,200,300,500],
@@ -1434,7 +1333,6 @@
 
             var taindividual = $(".listarindividual").DataTable({
                 dom: '<"d-flex justify-content-between"<"#title_individual">ftr><t><"d-flex justify-content-between"lp>',
-                ///order: [[0, 'desc']],
                 "language": {
                     "url": "{{asset('traducao/pt-BR.json')}}"
                 },
@@ -1450,7 +1348,6 @@
                 "info": true,
                 "autoWidth": false,
                 "responsive": true,
-
                 columns: [
                     {data:"data",name:"data"},
                     {data:"orcamento",name:"orcamento"},
@@ -1512,33 +1409,11 @@
                     {//Detalhe
                         "targets": 9,
                         "width":"10%",
-                        // "createdCell": function (td, cellData, rowData, row, col) {
-                        //     if(cellData == "Pagamento 1º Parcela") {
-                        //         $(td).html("Pag. 1º Parcela");
-                        //     }
-                        //     if(cellData == "Pagamento 2º Parcela") {
-                        //         $(td).html("Pag. 2º Parcela");
-                        //     }
-                        //     if(cellData == "Pagamento 3º Parcela") {
-                        //         $(td).html("Pag. 3º Parcela");
-                        //     }
-                        //     if(cellData == "Pagamento 4º Parcela") {
-                        //         $(td).html("Pag. 4º Parcela");
-                        //     }
-                        //     if(cellData == "Pagamento 5º Parcela") {
-                        //         $(td).html("Pag. 5º Parcela");
-                        //     }
-                        //     if(cellData == "Pagamento 6º Parcela") {
-                        //         $(td).html("Pag. 6º Parcela");
-                        //     }
-                        // },
                     },
-
                     {
                         "width":"2%",
                         "targets": 10,
                         "createdCell": function (td, cellData, rowData, row, col) {
-                            // console.log(cellData);
                             if(cellData == "Cancelado") {
                                 var id = cellData;
                                 $(td).html(`<div class='text-center text-white'>
@@ -1547,8 +1422,6 @@
                                         </a>
                                     </div>
                                 `);
-
-
                             } else {
                                 var id = rowData.id;
                                 $(td).html(`<div class='text-center text-white'>
@@ -1558,52 +1431,19 @@
                                     </div>
                                 `);
                             }
-
                         }
                     }
                 ],
                 "initComplete": function( settings, json ) {
-                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Listagem</h4>");
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
                     const colunaNomes = this.api().column(2).data();
                     const nomesUnicos = new Set();
-                    // Adiciona os nomes únicos ao conjunto
-                    for (let i = 0; i < colunaNomes.length; i++) {
-                        nomesUnicos.add(colunaNomes[i]);
-                    }
-                    const selectUsuarioIndividual = document.getElementById('select_usuario_individual');
-
-                    nomesUnicos.forEach((nome) => {
-                        const option = document.createElement('option');
-                        option.text = nome;
-                        option.value = nome;
-                        selectUsuarioIndividual.appendChild(option);
-                    });
-
-
-                    // this.api()
-                    //   .columns([2])
-                    //   .every(function () {
-                    //        var column = this;
-                    //        var selectUsuarioIndividual = $("#select_usuario_individual");
-                    //        selectUsuarioIndividual.on('change',function(){
-                    //            var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                    //            if(val != "todos") {
-                    //                column.search(val ? '^' + val + '$' : '', true, false).draw();
-                    //            } else {
-                    //                var val = "";
-                    //                column.search(val ? '^' + val + '$' : '', true, false).draw();
-                    //            }
-                    //        });
-                    //    })
-
                     this.api()
                         .columns([0])
                         .every(function () {
                             var column = this;
                             var selectAno = $('#escolher_ano')
                             selectAno.on('change',function(){
-
-
                                 var vals = $.fn.dataTable.util.escapeRegex($(this).val());
                                 if(vals != "todos") {
                                     //console.log(vals);
@@ -1621,73 +1461,18 @@
                                     //var data = d;
                                     var dd = new Date(d);
                                     var ano = dd.getFullYear();
-
                                     selectAno.append('<option value="' + ano + '">' + ano + '</option>');
                                 });
-
                         })
                 },
                 "drawCallback": function( settings ) {
-
                     var api = this.api();
                     if(settings.ajax.url.split('/')[6] == "atrsado") {
                         api.column(8).visible(true);
-                        // var column = api.order();
-                        // console.log(column);
                     } else {
                         api.column(8).visible(false);
                     }
 
-                    // if(settings.iDraw >= 3 && settings.sTableId == "tabela_individual") {
-                    //     var api = this.api();
-                    //     var intVal = function (i) {
-                    //         return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
-                    //     };
-
-                    //     total = api
-                    //         .column(6)
-                    //         .data()
-                    //         .reduce(function (a, b) {
-                    //             return intVal(a) + intVal(b);
-                    //         }, 0);
-
-                    //     pageTotal = api
-                    //         .column(6, { page: 'current' })
-                    //         .data()
-                    //         .reduce(function (a, b) {
-                    //             return intVal(a) + intVal(b);
-                    //         }, 0);
-                    //     let total_cal = pageTotal.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
-                    //     let total_br = total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
-
-                    //     total_vidas = api.column(5,{ page: 'current' }).data().reduce(function (a, b) {
-                    //         return intVal(a) + intVal(b);
-                    //     }, 0);
-
-                    //     total_linhas = api.column(5,{ page: 'current' }).data().count();
-
-                    //     total_linhas_total_user = api.column(5).data().count();
-
-                    //     if($("#select_usuario_individual").val() != "todos") {
-                    //         $(".total_por_page").html(total_cal);
-                    //     } else {
-                    //         $(".total_por_page").html(total_br);
-                    //     }
-
-                    //     if($("#select_usuario_individual").val() != "todos") {
-                    //         $(".total_por_vida").html(total_vidas);
-                    //     } else {
-                    //         //$(".total_por_page").html(total_br);
-                    //     }
-
-                    //     if($("#select_usuario_individual").val() != "todos") {
-                    //         $(".total_por_orcamento").html(total_linhas);
-                    //     } else {
-                    //         //$(".total_por_page").html(total_br);
-                    //     }
-
-
-                    // }
                 },
 
 
@@ -1722,9 +1507,6 @@
                         .data()
                         .count();
 
-
-
-
                     let total_br = total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
                     // Total over this page
                     $(".total_por_page").html(total_br)
@@ -1736,63 +1518,18 @@
                 }
             });
 
-            // var meuSelect = document.getElementById('select_usuario_individual');
-            // var ultimoSelecionado = '';
-            // function preencherSelectComColuna(colunaDados, ultimoSelecionado) {
-            //     if(colunaDados.length != 0) {
-            //
-            //         console.log(ultimoSelecionado);
-            //
-            //
-            //         var conjuntoNomesClientes = new Set(colunaDados);
-            //         meuSelect.innerHTML = '';
-            //         conjuntoNomesClientes.forEach(function (nomeCliente) {
-            //             var option = document.createElement('option');
-            //             option.text = nomeCliente;
-            //             option.value = nomeCliente;
-            //             meuSelect.add(option);
-            //         });
-            //     }
-            // }
-
-            // meuSelect.addEventListener('change', function () {
-            //     console.log(meuSelect)
-            //     ultimoSelecionado = meuSelect.text;
-            // });
-
-            // $("#select_usuario_individual").on('change',function(){
-            //     let valor = $(this).val();
-            //     if(valor != "") {
-            //         console.log(valor);
-            //     }
-            //
-            // })
-
-
-
-            // taindividual.on('draw', function () {
-            //     var colunaDados = taindividual.columns(2).data()[0];
-            //     if(colunaDados.length != 0) {
-            //         //console.log("Entrei ",colunaDados[0].length,colunaDados);
-            //         preencherSelectComColuna(colunaDados, ultimoSelecionado);
-            //     } else {
-            //
-            //     }
-            // });
-
-
-
             $(".listardados").DataTable({
-
-                dom: '<"d-flex justify-content-between"<"#title_coletivo_por_adesao_table"><"estilizar_search"f>><t><"d-flex justify-content-between align-items-center"<"por_pagina"l><"estilizar_pagination"p>>',
+                //dom: '<"d-flex justify-content-between"<"#title_coletivo_por_adesao_table"><"estilizar_search"f>><t><"d-flex justify-content-between align-items-center"<"por_pagina"><"estilizar_pagination"p>>',
+                dom: '<"d-flex justify-content-between"<"#title_coletivo_por_adesao_table">ftr><t><"d-flex justify-content-between"lp>',
                 "language": {
                     "url": "{{asset('traducao/pt-BR.json')}}"
                 },
+                processing: true,
                 ajax: {
                     "url":"{{ route('financeiro.coletivo.em_branco') }}",
                     "dataSrc": ""
                 },
-                "lengthMenu": [500,1000,2000],
+                "lengthMenu": [10,20,30],
                 "ordering": false,
                 "paging": true,
                 "searching": true,
@@ -1800,152 +1537,36 @@
                 "autoWidth": false,
                 "responsive": true,
                 columns: [
-                    {data:"created_at",name:"data",width:"1%"},
-                    {data:"codigo_externo",name:"codigo_externo",width:"1%"},
-                    {data:"clientes.user.name",name:"corretor",width:"15%",
-                        "createdCell":function(td,cellData,rowData,row,col) {
-                            $(td).html(cellData);
-
-                        }
-                    },
-                    {data:"clientes.nome",name:"cliente",width:"15%",
-                        "createdCell": function (td, cellData, rowData, row, col) {
-                            $(td).html(cellData);
-                        }
-                    },
-                    {data:"administradora.nome",name:"administradora",width:"5%"},
-                    {data:"clientes.cpf",name:"cpf",width:"10%"},
-                    {data:"clientes.quantidade_vidas",name:"vidas",width:"1%"},
-                    {data:"valor_plano",name:"valor_plano",render: $.fn.dataTable.render.number('.', ',', 2, 'R$ '),width:"10%"},
-                    {data:"comissao.comissao_atual_financeiro",name:"Vencimento",width:"10%"},
-                    {data:"financeiro.nome",name:"administradora",width:"10%"},
-                    {data:"financeiro.nome",name:"detalhes",width:"1%"}
+                    {data:"data",name:"data"},
+                    {data:"orcamento",name:"codigo_externo"},
+                    {data:"corretor",name:"corretor"},
+                    {data:"cliente",name:"cliente"},
+                    {data:"administradora",name:"administradora"},
+                    {data:"cpf",name:"cpf"},
+                    {data:"quantidade_vidas",name:"vidas"},
+                    {data:"valor_plano",name:"valor_plano",render: $.fn.dataTable.render.number('.', ',', 2, 'R$ ')},
+                    {data:"vencimento",name:"Vencimento"},
+                    {data:"status",name:"status"},
+                    {data:"id",name:"detalhes"}
                 ],
+
                 "columnDefs": [
-                    {
-                        /**Data*/
-                        "targets": 0,
-
-                        "createdCell": function (td, cellData, rowData, row, col) {
-                            let datas = cellData.split("T")[0]
-                            let alvo = datas.split("-").reverse().join("/")
-                            $(td).html(alvo)
-                        }
-                    },
-                    /**Orçamento*/
-                    {
-                        "targets": 1,
-
-
-                    },
-                    /** Corretor */
-                    {
-                        "targets": 2,
-
-
-                    },
-                    /*Cliente*/
-                    {
-                        "targets": 3
-
-                    },
-                    /*Administradora*/
-                    {
-                        "targets": 4
-
-                    },
-                    /*CPF */
-                    {
-                        "targets": 5
-                    },
-                    /*Vidas */
-                    {
-                        "targets": 6
-
-                    },
-                    /*Valor */
-                    {
-                        "targets": 7
-                    },
-                    /*Vencimento*/
-                    {
-                        "targets": 8,
-
-                        "createdCell": function (td, cellData, rowData, row, col) {
-
-                            if(rowData.comissao.comissao_atual_financeiro == null) {
-
-                                if(rowData.comissao.comissao_atual_last && rowData.comissao.comissao_atual_last.parcela == 7) {
-                                    let alvo_final =  rowData.comissao.comissao_atual_last.data.split("-").reverse().join("/");
-                                    $(td).html(alvo_final);
-                                }
-
-
-                            } else {
-                                let alvo = cellData.data.split("-").reverse().join("/");
-                                $(td).html(alvo);
-                            }
-
-                        },
-                    },
-                    /*Status*/
-                    {
-                        "targets": 9,
-
-                        "createdCell": function (td, cellData, rowData, row, col) {
-                            console.log(cellData);
-                            // if(rowData.comissao.comissao_atual_last == null) {
-                            //     console.log(rowData);
-                            // }
-
-                            // if(rowData.financeiro_id == 1 && rowData.financeiro.nome == "Em Análise" && rowData.comissao.comissao_atual_last == null) {
-                            //     $(td).html("Em Análise");
-                            // } else if(rowData.financeiro_id == 12 && rowData.financeiro.nome == "Cancelado" && rowData.comissao.comissao_atual_last == null) {
-                            //     $(td).html("Cancelado");
-                            // } else if(rowData.financeiro_id == 2 && rowData.financeiro.nome == "Emissão Boleto" && rowData.comissao.comissao_atual_last == null) {
-                            //     $(td).html("Emissão Boleto");
-                            // } else if(rowData.financeiro_id == 3 && rowData.financeiro.nome == "Pagamento Adesão" && rowData.comissao.comissao_atual_last == null) {
-                            //     $(td).html("Pag. Adesão");
-                            // } else if(rowData.comissao.comissao_atual_financeiro != null  && rowData.comissao.comissao_atual_last.parcela == 1) {
-                            //     $(td).html("Pag. Vigência");
-                            // } else if(rowData.comissao.comissao_atual_financeiro != null && rowData.comissao.comissao_atual_last.parcela == 2) {
-                            //     $(td).html("Pag. 2º Parcela");
-                            // } else if(rowData.comissao.comissao_atual_financeiro != null && rowData.comissao.comissao_atual_last.parcela == 3) {
-                            //     $(td).html("Pag. 3º Parcela");
-                            // } else if(rowData.comissao.comissao_atual_financeiro != null && rowData.comissao.comissao_atual_last.parcela == 4) {
-                            //     $(td).html("Pag. 4º Parcela");
-                            // } else if(rowData.comissao.comissao_atual_financeiro != null && rowData.comissao.comissao_atual_last.parcela == 5) {
-                            //     $(td).html("Pag. 5º Parcela");
-                            // } else if(rowData.comissao.comissao_atual_financeiro != null && rowData.comissao.comissao_atual_last.parcela == 6) {
-                            //     $(td).html("Pag. 6º Parcela");
-                            // } else if(rowData.comissao.comissao_atual_financeiro == null && rowData.comissao.comissao_atual_last.parcela == 7) {
-                            //     $(td).html("Pago");
-                            // } else {
-                            //     $(td).html("Error");
-                            // }
-                        },
-                    },
-                    /*Detalhes*/
                     {
                         "targets": 10,
                         "width":"2%",
                         "createdCell": function (td, cellData, rowData, row, col) {
-
-                            var id = rowData.id;
+                            var id = cellData;
                             $(td).html(`<div class='text-center text-white'>
                                         <a href="/admin/financeiro/detalhes/coletivo/${id}" class="text-white">
                                             <i class='fas fa-eye div_info'></i>
                                         </a>
                                     </div>
                                 `);
-
-
                         },
                     },
-
                 ],
                 "initComplete": function( settings, json ) {
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Contratos</h4>");
                     this.api()
                         .columns([2])
                         .every(function () {
@@ -1976,34 +1597,9 @@
                                 }
                             });
                         })
-                    //console.log(settings);
-
                 },
                 "drawCallback":function(settings) {
 
-
-                    if(settings.iDraw >= 3 && settings.sTableId == "tabela_coletivo") {
-                        var intVal = function (i) {
-                            return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
-                        };
-                        var api = this.api();
-                        total_vidas = api.column(6,{ page: 'current' }).data().reduce(function (a, b) {
-                            return intVal(a) + intVal(b);
-                        }, 0);
-
-                        total_linhas = api.column(0,{ page: 'current' }).data().count();
-
-                        total = api.column(7,{ page: 'current' }).data().reduce(function (a, b) {
-                            return intVal(a) + intVal(b);
-                        }, 0);
-                        let total_br = total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
-
-
-                        $(".total_por_vida_coletivo").html(total_vidas);
-                        $(".total_por_orcamento_coletivo").html(total_linhas);
-                        $(".total_por_page_coletivo").html(total_br);
-
-                    }
                 },
 
                 "footerCallback": function (row, data, start, end, display) {
@@ -2016,21 +1612,21 @@
 
                     // Total over all pages
                     total = api
-                        .column(7)
+                        .column(7,{search: 'applied'})
                         .data()
                         .reduce(function (a, b) {
                             return intVal(a) + intVal(b);
                         }, 0);
 
                     total_vidas = api
-                        .column(6)
+                        .column(6,{search: 'applied'})
                         .data()
                         .reduce(function (a, b) {
                             return intVal(a) + intVal(b);
                         }, 0);
 
                     total_linhas = api
-                        .column(5)
+                        .column(5,{search: 'applied'})
                         .data()
                         .count();
 
@@ -2044,60 +1640,6 @@
                     // Update footer
                     //$(api.column(4).footer()).html('$' + pageTotal + ' ( $' + total + ' total)');
                 }
-
-
-                //if(settings.json != null && settings.json != "") {
-                //$("#select_usuario").html('<option value="todos" class="text-center">---Escolher Corretor---</option>');
-
-                //}
-                // $("#select_usuario").html('')
-                // //if(settings.iDraw == 2) {
-
-                //     this.api()
-                //    .columns([2])
-                //    .every(function () {
-                //         var column = this;
-                //         var selectUsuario = $("#select_usuario");
-                //         selectUsuario.on('change',function(){
-                //             var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                //             if(val != "todos") {
-                //                 column.search(val ? '^' + val + '$' : '', true, false).draw();
-                //             } else {
-                //                 var val = "";
-                //                 column.search(val ? '^' + val + '$' : '', true, false).draw();
-                //             }
-                //         });
-
-                //         column.data().unique().sort().each(function (d, j) {
-                //             selectUsuario.append('<option value="' + d + '">' + d + '</option>');
-                //         });
-                //    })
-
-
-
-                //}
-
-                //$("#select_usuario").html('');
-
-                //     this.api()
-                //        .columns([3])
-                //        .every(function () {
-                //             var column = this;
-                //             var selectAdministradora = $("#select_coletivo");
-                //             selectAdministradora.on('change',function(){
-                //                 var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                //                 if(val != "todos") {
-                //                     column.search(val ? '^' + val + '$' : '', true, false).draw();
-                //                 } else {
-                //                     var val = "";
-                //                     column.search(val ? '^' + val + '$' : '', true, false).draw();
-                //                 }
-                //             });
-                //             column.data().unique().sort().each(function (d, j) {
-                //                 selectAdministradora.append('<option value="' + d + '">' + d + '</option>');
-                //             });
-                //        })
-
             });
 
             var table = $('#tabela_coletivo').DataTable();
@@ -2117,9 +1659,6 @@
             $("#select_usuario_individual").on('change',function(){
                 let mes = $("#mudar_mes_table").val();
                 let id = $('option:selected', this).attr('data-id');
-
-
-
                 let valorSelecionado = $(this).val();
                 $('#tabela_individual').DataTable().column(2).search(valorSelecionado).draw();
                 $.ajax({
@@ -2127,8 +1666,8 @@
                     method:"POST",
                     data:"id="+id+"&mes="+mes,
                     success:function(res) {
-                        console.log(res);
-                        $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
+                        ///console.log(res);
+                        $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Contratos</h4>");
                         //table_individual.ajax.url("{{ route('financeiro.individual.geralIndividualPendentes') }}").load();
                         $("ul#listar_individual li.individual").removeClass('textoforte-list');
                         $("#atrasado_corretor").removeClass('textoforte-list');
@@ -2443,56 +1982,34 @@
             $('#tabela_empresarial').on('click', 'tbody tr', function () {
                 tableempresarial.$('tr').removeClass('textoforte');
                 $(this).closest('tr').addClass('textoforte');
-
             });
-
-
-
-            // $("body").on('mouseover','.div_info',function(){
-            //    let contrato = $(this).attr('data-id');
-            //    let janela_ativa = $('#janela_ativa').val();
-            //    $.ajax({
-            //         url:"{{route('contratos.info')}}",
-            //         data:"contrato="+contrato,
-            //         method:"POST",
-            //         success:function(res) {
-            //             $('.coluna-right.'+janela_ativa).html(res);
-            //             //$('.container_div_info').html(res);
-            //         }
-            //     });
-            //     $('.container_div_info').toggle();
-            //     return false;
-            // });
-
-            // $("body").on('mouseout','.div_info',function(){
-            //     let janela_ativa = $('#janela_ativa').val();
-            //     $(".coluna-right."+janela_ativa).html(default_formulario);
-            // });
-
             $("#list_individual_begin").on('click',function(){
-
                 let mes = $("#mudar_mes_table").val();
                 $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
                 table_individual.ajax.url(`{{ url('/admin/financeiro/individual/em_geral/${mes}') }}`).load();
-
-                //table_individual.ajax.url(`{{ url('/admin/financeiro/individual/pagamento_primeira_parcela/${dataId}/${mes}') }}`).load();
+                $("#aguardando_pagamento_1_parcela_individual").removeClass('textoforte-list');
+                $("#aguardando_pagamento_2_parcela_individual").removeClass('textoforte-list');
+                $("#aguardando_pagamento_3_parcela_individual").removeClass('textoforte-list');
+                $("#aguardando_pagamento_4_parcela_individual").removeClass('textoforte-list');
+                $("#aguardando_pagamento_5_parcela_individual").removeClass('textoforte-list');
+                $("#aguardando_pagamento_6_parcela_individual").removeClass('textoforte-list');
+                $("#cancelado_individual").removeClass('textoforte-list');
+                $("#atrasado_corretor").removeClass('textoforte-list');
             });
 
             $("#list_coletivo_begin").on('click',function(){
-                $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
+                $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Contratos</h4>");
                 table.ajax.url("{{ route('financeiro.coletivo.em_geral') }}").load();
                 $("ul#listar li.coletivo").removeClass('textoforte-list');
                 $("ul#grupo_finalizados li.coletivo").removeClass('textoforte-list');
-            })
+            });
 
             $("#list_empresarial_begin").on('click',function(){
                 $("ul#listar_empresarial li.empresarial").removeClass('textoforte-list');
                 $("#grupo_finalizados_empresarial li.empresarial").removeClass('textoforte-list');
-                $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
+                $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Contratos</h4>");
                 tableempresarial.ajax.url('{{route("contratos.listarEmpresarial.listarContratoEmpresaPendentes")}}').load();
             });
-
-
 
             $("body").on('click','.next_individual',function(){
                 if($(this).attr('data-cliente') && $(this).attr('data-contrato')) {
@@ -2537,92 +2054,52 @@
             });
 
 
-
-
-
-
-
-
-
-
             $("ul#listar li.coletivo").on('click',function(){
                 let id_lista = $(this).attr('id');
-
                 if(id_lista == "em_analise_coletivo") {
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Em Análise</h4>");
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Em Análise</h4>");
                     table.ajax.url("{{ route('financeiro.coletivo.em_analise') }}").load();
-                    $('.buttons').empty().html(
-                        '<button class="btn btn-danger w-50 mr-2 excluir_coletivo">Excluir</button>'+
-                        '<button class="btn btn-success w-50 next">Conferido</button>'
-                    );
                     $(".container_edit").removeClass('ocultar');
                     $("ul#listar li.coletivo").removeClass('textoforte-list');
                     $("ul#grupo_finalizados li.coletivo").removeClass('textoforte-list');
                     $("#all_pendentes_coletivo").removeClass('textoforte-list');
                     $("#finalizado_corretor_coletivo").removeClass('textoforte-list');
                     $(this).addClass('textoforte-list');
-
-
                 } else if(id_lista == "emissao_boleto_coletivo") {
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Emissão Boleto</h4>");
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Emissão Boleto</h4>");
                     table.ajax.url("{{ route('financeiro.coletivo.emissao_boleto') }}").load();
-                    $('.buttons').empty().html(
-                        '<button class="btn btn-danger w-50 mr-2 excluir_coletivo">Excluir</button>'+
-                        '<button class="btn btn-success w-50 next">Emitiu Boleto</button>'
-                    );
                     $(".container_edit").addClass('ocultar');
                     $("ul#listar li.coletivo").removeClass('textoforte-list');
                     $("ul#grupo_finalizados li.coletivo").removeClass('textoforte-list');
                     $("#finalizado_corretor_coletivo").removeClass('textoforte-list');
                     $(this).addClass('textoforte-list');
-
                 } else if(id_lista == "pagamento_adesao_coletivo") {
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento Adesão</h4>");
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento Adesão</h4>");
                     table.ajax.url("{{ route('financeiro.coletivo.pagamento_adesao') }}").load();
-                    $('.buttons').empty().html(
-                        '<button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>'+
-                        '<button class="btn btn-success w-50 pagamento_adesao next">Pagou Adesão</button>'
-                    );
                     $(".container_edit").addClass('ocultar');
                     $("ul#listar li.coletivo").removeClass('textoforte-list');
                     $("ul#grupo_finalizados li.coletivo").removeClass('textoforte-list');
                     $("#finalizado_corretor_coletivo").removeClass('textoforte-list');
                     $(this).addClass('textoforte-list');
-
-
                 } else if(id_lista == "pagamento_vigencia_coletivo") {
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento Vigência</h4>");
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento Vigência</h4>");
                     table.ajax.url("{{ route('financeiro.coletivo.pagamento_vigencia') }}").load();
-                    $('.buttons').empty().html(
-                        '<button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>'+
-                        '<button class="btn btn-success w-50 pagamento_vegencia next">Pagou Vigência</button>'
-                    );
                     $(".container_edit").addClass('ocultar');
                     $("ul#listar li.coletivo").removeClass('textoforte-list');
                     $("ul#grupo_finalizados li.coletivo").removeClass('textoforte-list');
                     $("#finalizado_corretor_coletivo").removeClass('textoforte-list');
                     $(this).addClass('textoforte-list');
-
                 } else if(id_lista == "pagamento_segunda_parcela") {
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento 2º Parcela</h4>");
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento 2º Parcela</h4>");
                     table.ajax.url("{{ route('financeiro.coletivo.pagamento_segunda_parcela') }}").load();
-                    $('.buttons').empty().html(
-                        '<button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>'+
-                        '<button class="btn btn-success w-50 pagamento_segunda_parcela next">2º Parcela Paga</button>'
-                    );
                     $(".container_edit").addClass('ocultar');
                     $("#finalizado_corretor_coletivo").removeClass('textoforte-list');
                     $("ul#listar li.coletivo").removeClass('textoforte-list');
                     $("ul#grupo_finalizados li.coletivo").removeClass('textoforte-list');
                     $(this).addClass('textoforte-list');
-
                 } else if(id_lista == "pagamento_terceira_parcela") {
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento 3º Parcela</h4>");
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento 3º Parcela</h4>");
                     table.ajax.url("{{ route('financeiro.coletivo.pagamento_terceira_parcela') }}").load();
-                    $('.buttons').empty().html(
-                        '<button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>'+
-                        '<button class="btn btn-success w-50 pagamento_terceira_parcela next">3º Parcela Paga</button>'
-                    );
                     $(".container_edit").addClass('ocultar');
                     $("#finalizado_corretor_coletivo").removeClass('textoforte-list');
                     $("ul#listar li.coletivo").removeClass('textoforte-list');
@@ -2630,12 +2107,8 @@
                     $(this).addClass('textoforte-list');
 
                 } else if(id_lista == "pagamento_quarta_parcela") {
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento 4º Parcela</h4>");
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento 4º Parcela</h4>");
                     table.ajax.url("{{ route('financeiro.coletivo.pagamento_quarta_parcela') }}").load();
-                    $('.buttons').empty().html(
-                        '<button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>'+
-                        '<button class="btn btn-success w-50 pagamento_quarta_parcela next">4º Parcela Paga</button>'
-                    );
                     $(".container_edit").addClass('ocultar');
                     $("ul#listar li.coletivo").removeClass('textoforte-list');
                     $("ul#grupo_finalizados li.coletivo").removeClass('textoforte-list');
@@ -2643,12 +2116,12 @@
                     $(this).addClass('textoforte-list');
 
                 } else if(id_lista == "pagamento_quinta_parcela") {
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento 5º Parcela</h4>");
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento 5º Parcela</h4>");
                     table.ajax.url("{{ route('financeiro.coletivo.pagamento_quinta_parcela') }}").load();
-                    $('.buttons').empty().html(
-                        '<button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>'+
-                        '<button class="btn btn-success w-50 pagamento_quinta_parcela next">5º Parcela Paga</button>'
-                    );
+                    // $('.buttons').empty().html(
+                    //     '<button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>'+
+                    //     '<button class="btn btn-success w-50 pagamento_quinta_parcela next">5º Parcela Paga</button>'
+                    // );
                     $(".container_edit").addClass('ocultar');
                     $("ul#listar li.coletivo").removeClass('textoforte-list');
                     $("ul#grupo_finalizados li.coletivo").removeClass('textoforte-list');
@@ -2656,12 +2129,12 @@
                     $(this).addClass('textoforte-list');
 
                 } else if(id_lista == "pagamento_sexta_parcela") {
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento 6º Parcela</h4>");
+                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento 6º Parcela</h4>");
                     table.ajax.url("{{ route('financeiro.coletivo.pagamento_sexta_parcela') }}").load();
-                    $('.buttons').empty().html(
-                        '<button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>'+
-                        '<button class="btn btn-success w-50 pagamento_sexta_parcela next">6º Parcela Paga</button>'
-                    );
+                    // $('.buttons').empty().html(
+                    //     '<button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>'+
+                    //     '<button class="btn btn-success w-50 pagamento_sexta_parcela next">6º Parcela Paga</button>'
+                    // );
                     $(".container_edit").addClass('ocultar');
                     $("ul#listar li.coletivo").removeClass('textoforte-list');
                     $("ul#grupo_finalizados li.coletivo").removeClass('textoforte-list');
@@ -2674,7 +2147,7 @@
             });
 
             $("#all_pendentes_individual").on('click',function(){
-                $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
+                $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Contratos</h4>");
                 table_individual.ajax.url("{{ route('financeiro.individual.geralIndividualPendentes') }}").load();
                 $("ul#listar_individual li.individual").removeClass('textoforte-list');
                 $("#atrasado_corretor").removeClass('textoforte-list');
@@ -2690,12 +2163,8 @@
                 let id_lista = $(this).attr('id');
                 if(id_lista == "aguardando_em_analise_individual") {
                     table_individual.clear().draw();
-                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Em Análise</h4>");
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Em Análise</h4>");
                     table_individual.ajax.url("{{ route('financeiro.individual.em_analise') }}").load();
-                    // $('.button_individual').empty().html(
-                    //     '<button class="btn btn-danger w-50 mr-2 excluir_individual">Excluir</button>'+
-                    //     '<button class="btn btn-success w-50 next_individual">Conferido</button>'
-                    // );
                     $("#atrasado_corretor").removeClass('textoforte-list');
                     $(".container_edit").removeClass('ocultar')
                     $("ul#listar_individual li.individual").removeClass('textoforte-list');
@@ -2707,14 +2176,10 @@
                     let mes = $("#mudar_mes_table").val();
                     let dataId = $("#select_usuario_individual").find('option:selected').data('id');
                     table_individual.clear().draw();
-                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento 1º Parcela</h4>");
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento 1º Parcela</h4>");
                     table_individual.ajax.url(`{{ url('/admin/financeiro/individual/pagamento_primeira_parcela/${dataId}/${mes}') }}`).load();
                     //table_individual.ajax.url("{{ route('financeiro.individual.pagamento_primeira_parcela') }}").load();
                     $("#atrasado_corretor").removeClass('textoforte-list');
-                    // $('.button_individual').empty().html(
-                    //     '<button class="btn btn-danger w-50 mr-2 cancelar_individual">Cancelar</button>'+
-                    //     '<button class="btn btn-success w-50 emissao_boleto next_individual">1º Parcela Paga</button>'
-                    // );
                     $(".container_edit").addClass('ocultar')
                     //adicionarReadonly();
                     $("#atrasado_corretor").removeClass('textoforte-list');
@@ -2728,12 +2193,8 @@
                     let dataId = $("#select_usuario_individual").find('option:selected').data('id');
 
                     table_individual.clear().draw();
-                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento 2º Parcela</h4>");
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento 2º Parcela</h4>");
                     table_individual.ajax.url(`{{ url('/admin/financeiro/individual/pagamento_segunda_parcela/${dataId}/${mes}') }}`).load();
-                    $('.button_individual').empty().html(
-                        '<button class="btn btn-danger w-50 mr-2 cancelar_individual">Cancelar</button>'+
-                        '<button class="btn btn-success w-50 pagamento_adesao next_individual">2º Parcela Paga</button>'
-                    );
                     $("#atrasado_corretor").removeClass('textoforte-list');
                     $(".container_edit").addClass('ocultar')
                     //adicionarReadonly();
@@ -2750,16 +2211,9 @@
                     let mes = $("#mudar_mes_table").val();
                     let dataId = $("#select_usuario_individual").find('option:selected').data('id');
 
-                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento 3º Parcela</h4>");
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento 3º Parcela</h4>");
 
                     table_individual.ajax.url(`{{ url('/admin/financeiro/individual/pagamento_terceira_parcela/${dataId}/${mes}') }}`).load();
-
-
-                    //table_individual.ajax.url("{{ route('financeiro.individual.pagamento_terceira_parcela') }}").load();
-                    // $('.button_individual').empty().html(
-                    //     '<button class="btn btn-danger w-50 mr-2 cancelar_individual">Cancelar</button>'+
-                    //     '<button class="btn btn-success w-50 pagamento_vegencia next_individual">3º Parcela Paga</button>'
-                    // );
                     $("#atrasado_corretor").removeClass('textoforte-list');
                     $(".container_edit").addClass('ocultar');
                     $("#cancelado_individual").removeClass('textoforte-list');
@@ -2772,50 +2226,32 @@
 
                 } else if(id_lista == "aguardando_pagamento_4_parcela_individual") {
                     table_individual.clear().draw();
-                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento 4º Parcela</h4>");
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento 4º Parcela</h4>");
                     let mes = $("#mudar_mes_table").val();
                     let dataId = $("#select_usuario_individual").find('option:selected').data('id');
                     table_individual.ajax.url(`{{ url('/admin/financeiro/individual/pagamento_quarta_parcela/${dataId}/${mes}') }}`).load();
-
-
-
-                    // $('.button_individual').empty().html(
-                    //     '<button class="btn btn-danger w-50 mr-2 cancelar_individual">Cancelar</button>'+
-                    //     '<button class="btn btn-success w-50 pagamento_segunda_parcela next_individual">4º Parcela Paga</button>'
-                    // );
                     $("#atrasado_corretor").removeClass('textoforte-list');
                     $(".container_edit").addClass('ocultar')
-                    //adicionarReadonly();
                     $("ul#listar_individual li.individual").removeClass('textoforte-list');
                     $("#all_pendentes_individual").removeClass('textoforte-list');
                     $("ul#grupo_finalizados_individual li.individual").removeClass('textoforte-list');
                     $("#finalizado_corretor").removeClass('textoforte-list');
                     $(this).addClass('textoforte-list');
                     $("#cancelado_individual").removeClass('textoforte-list');
-
                 } else if(id_lista == "aguardando_pagamento_5_parcela_individual") {
                     table_individual.clear().draw();
-                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento 5º Parcela</h4>");
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento 5º Parcela</h4>");
                     let mes = $("#mudar_mes_table").val();
                     let dataId = $("#select_usuario_individual").find('option:selected').data('id');
-
                     table_individual.ajax.url(`{{url('/admin/financeiro/individual/pagamento_quinta_parcela/${dataId}/${mes}')}}`).load();
-                    //table_individual.ajax.url("{{ route('financeiro.individual.pagamento_quinta_parcela') }}").load();
-                    // $('.button_individual').empty().html(
-                    //     '<button class="btn btn-danger w-50 mr-2 cancelar_individual">Cancelar</button>'+
-                    //     '<button class="btn btn-success w-50 pagamento_terceira_parcela next_individual">5º Parcela Paga</button>'
-                    // );
                     $(".container_edit").addClass('ocultar')
-                    //adicionarReadonly();
                     $("ul#listar_individual li.individual").removeClass('textoforte-list');
                     $("#all_pendentes_individual").removeClass('textoforte-list');
                     $("ul#grupo_finalizados_individual li.individual").removeClass('textoforte-list');
                     $("#finalizado_corretor").removeClass('textoforte-list');
                     $("#cancelado_individual").removeClass('textoforte-list');
                     $("#atrasado_corretor").removeClass('textoforte-list');
-
                     $(this).addClass('textoforte-list');
-
                 } else {
 
                 }
@@ -2823,17 +2259,11 @@
 
             $("#aguardando_pagamento_6_parcela_individual").on('click',function(){
                 table_individual.clear().draw();
-                $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Pagamento 6º Parcela</h4>");
+                $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Pagamento 6º Parcela</h4>");
                 let mes = $("#mudar_mes_table").val();
                 let dataId = $("#select_usuario_individual").find('option:selected').data('id');
                 table_individual.ajax.url(`{{ url('/admin/financeiro/individual/pagamento_sexta_parcela/${dataId}/${mes}') }}`).load();
-                //table_individual.ajax.url("{{ route('financeiro.individual.pagamento_sexta_parcela') }}").load();
-                // $('.button_individual').empty().html(
-                //     '<button class="btn btn-danger w-50 mr-2 cancelar_individual">Cancelar</button>'+
-                //     '<button class="btn btn-success w-50 pagamento_quarta_parcela next_individual">6º Parcela Paga</button>'
-                // );
                 $(".container_edit").addClass('ocultar')
-                //adicionarReadonly();
                 $("ul#listar_individual li.individual").removeClass('textoforte-list');
                 $("#all_pendentes_individual").removeClass('textoforte-list');
                 $("ul#grupo_finalizados_individual li.individual").removeClass('textoforte-list');
@@ -2872,6 +2302,20 @@
                 }
             });
 
+            $("#atrasado_corretor_coletivo").on('click',function(){
+                $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Atrasado</h4>");
+                table.ajax.url("{{ route('financeiro.coletivo.atrasado') }}").load();
+                $('.buttons').empty().html();
+                $(".container_edit").addClass('ocultar');
+                $("#finalizado_corretor_coletivo").removeClass('textoforte-list');
+                $("ul#listar li.coletivo").removeClass('textoforte-list');
+                $("ul#grupo_finalizados li.coletivo").removeClass('textoforte-list');
+                $(this).addClass('textoforte-list');
+            });
+
+
+
+
             $("#atrasado_corretor").on('click',function(){
                 let mes = $("#mudar_mes_table").val();
                 let dataId = $("#select_usuario_individual").find('option:selected').data('id');
@@ -2905,12 +2349,10 @@
             });
 
             $("#cancelado_individual").on('click',function(){
-
                 let mes = $("#mudar_mes_table").val();
                 let dataId = $("#select_usuario_individual").find('option:selected').data('id');
                 $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Cancelado</h4>");
                 table_individual.ajax.url(`{{ url('/admin/financeiro/individual/pagamento_individual_cancelado/${dataId}/${mes}') }}`).load();
-
                 $('.button_individual').empty().html('');
                 $(".container_edit").addClass('ocultar');
                 $("#atrasado_corretor").removeClass('textoforte-list');
@@ -2922,12 +2364,6 @@
                 $(this).addClass('textoforte-list');
 
             });
-
-
-
-
-
-
 
             $("ul#grupo_finalizados_empresarial li.empresarial").on('click',function(){
                 let id_lista = $(this).attr('id');
@@ -3137,8 +2573,8 @@
         .estilizar_pagination #tabela_mes_atual_next {color:#FFF !important;}
         .estilizar_pagination #tabela_mes_diferente_previous {color:#FFF !important;}
         .estilizar_pagination #tabela_mes_diferente_next {color:#FFF !important;}
-        #tabela_individual_filter input[type='search'] {background-color: #FFF !important;}
-        #tabela_coletivo_filter input[type='search'] {background-color: #FFF !important;}
+        #tabela_individual_filter input[type='search'] {background-color: #FFF !important;margin-right:5px;margin-top:3px;}
+        #tabela_coletivo_filter input[type='search'] {background-color: #FFF !important;margin-right:5px;margin-top:3px;}
         #tabela_empresarial_filter input[type='search'] {background-color: #FFF !important;}
 
         #tabela_empresarial td {
@@ -3160,8 +2596,8 @@
         }
 
 
-        th { font-size: 0.9em !important; }
-        td { font-size: 0.75em !important; }
+        th { font-size: 0.8em !important; }
+        td { font-size: 0.7em !important; }
     </style>
 @stop
 

@@ -256,6 +256,55 @@
 
         </section>
 
+        <div class="modal fade" id="cancelarModal" tabindex="-1" aria-labelledby="cancelarModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="cancelarModalLabel">Cancelados</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="" method="POST" name="formulario_cancelados" id="formulario_cancelados">
+                            <input type="hidden" name="comissao_id_cancelado" id="comissao_id_cancelado" value="{{$dados->comissao->id}}">
+                            <div class="form-group">
+                                <label for="">Data Baixa:</label>
+                                <input type="date" name="date" id="date" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="motivo">Motivo Cancelamento:</label>
+                                <select name="motivo" id="motivo" class="form-control">
+                                    <option value="">--Escolher o Motivo--</option>
+
+                                    @foreach($motivo_cancelados as $mm)
+                                        <option value="{{$mm->id}}">{{$mm->nome}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="obs">Observação:</label>
+                                <textarea name="obs" id="obs" cols="30" rows="4" class="form-control"></textarea>
+                            </div>
+
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
         <section style="flex-basis:48%;background-color:#123449;color:#FFF;border-radius:5px;">
             <div class="d-flex align-items-center justify-content-between">
                 <h5 class="text-center mt-1 ml-1">Pagamentos</h5>
@@ -425,6 +474,29 @@
                 }
             });
 
+            $("body").on('click','.cancelar',function(){
+                $('#cancelarModal').modal('show')
+            });
+
+            $('form[name="formulario_cancelados"]').on('submit',function(){
+                $.ajax({
+                    url:"{{route('financeiro.contrato.empresarial.cancelados')}}",
+                    method:"POST",
+                    data:$(this).serialize(),
+                    success:function(res) {
+
+                        if(res == "error") {
+
+                        } else {
+                            window.location.href = "/admin/financeiro?ac=empresarial";
+                        }
+                    }
+                });
+                return false;
+            });
+
+
+
             $(".back").on('click',function(){
                 window.history.go(-1);
                 return false;
@@ -527,9 +599,13 @@
 
             $('#desconto_corretora_valores').mask("#.##0,00", {reverse: true});
             $("#desconto_corretora_valores").change(function(){
-                let valor = $(this).val().replace(".","").replace(",",".");
-                let total = $(".diferenca_entre_valores").text().replace("R$","").replace(".","").replace(",",".").trim();
+                let valor = parseFloat($(this).val().replace(".","").replace(",","."));
+                if(valor == 0.00) valor = 0;
+
+                let total = parseFloat($(".diferenca_entre_valores").text().replace("R$","").replace(",",".").trim());
+
                 let corretor = total - valor;
+
                 let resto_corretor = parseFloat(corretor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 $("#desconto_corretor_valores").val(resto_corretor);
                 $("#desconto_corretor").val(resto_corretor);

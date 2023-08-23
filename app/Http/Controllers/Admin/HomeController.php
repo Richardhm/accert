@@ -7,6 +7,7 @@ use App\Models\Cliente;
 use App\Models\Contrato;
 use App\Models\Administradoras;
 use App\Models\TabelaOrigens;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +15,10 @@ class HomeController extends Controller
 {
     public function index()
     {
-        return view('admin.pages.home.administrador');
+        $users = User::where("id","!=",1)->get();
+        return view('admin.pages.home.administrador',[
+            "users" => $users
+        ]);
     }
 
     public function tabelaPrecoResposta(Request $request)

@@ -207,7 +207,7 @@ time, mark, audio, video {
 	             			<tr>
 		                        <td style="text-align:center;padding:5px;">{{$ambulatorial[$x]->admin_nome}}</td>
 		                        <td colspan="2" style="text-align:center;background-color:rgb(5,53,95);">Com Coparticipação</td>
-		                        <td colspan="2" style="text-align:center;background-color:rgb(255,89,33);">Sem Coparticipação</td>
+		                        <td colspan="2" style="text-align:center;background-color:rgb(255,89,33);">{{$administradoras == 4 ? "Coparticipação Parcial" : "Sem Coparticipação"}}</td>
 		                     </tr>
 	             		</thead>
 
