@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ComissoesCorretoresDefault extends Model
+class ComissoesCorretoresParceiros extends Model
 {
     use HasFactory;
-    protected $table = "comissoes_corretores_default";
+    protected $table = "comissoes_corretores_parceiros";
+    public $timestamps = false;
 
     public function planos()
     {
@@ -24,6 +25,10 @@ class ComissoesCorretoresDefault extends Model
     {
         return $this->belongsTo(TabelaOrigens::class,'tabela_origens_id','id');
     }
+
+
+
+
 
 
 

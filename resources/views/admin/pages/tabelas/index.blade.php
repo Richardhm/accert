@@ -8,13 +8,18 @@
         <div class="col d-flex justify-content-end">
             <a class="btn btn-warning" href="{{route('tabela.search')}}"><i class="fas fa-search"></i></a>
         </div>
-    </div>    
+    </div>
 @stop
 
 @section('content')
 
- <div class="card">
-    <div class="card-body"> 
+    @if(session('error'))
+        <div class="alert alert-danger text-center">
+            {{ session('error') }}
+        </div>
+    @endif
+    <div class="card">
+    <div class="card-body">
 
     	<form action="{{route('store.tabela')}}" method="POST">
     		@csrf
@@ -84,18 +89,18 @@
                         @endif
                 </div>
 
-    		</div>	
+    		</div>
 
 
 			<div class="form-row">
-                        
+
                     <div class="col" style="border-right:2px solid black;">
                         <div class="form-group">
                             @foreach($faixas as $k => $f)
                                 <div>
                                     @if($loop->first)
                                         <h6 style="font-weight:bold;text-decoration:underline;">Apartamento</h6>
-                                        
+
                                     @endif
                                     <div class="row mb-2">
                                         <div class="col">
@@ -104,10 +109,10 @@
                                             <input type="text" class="valor" placeholder="valor" name="valor_apartamento[]" id="valor" value="{{isset(old('valor_apartamento')[$k]) && !empty(old('valor_apartamento')[$k]) ? old('valor_apartamento')[$k] : ''}}" />
                                             @if($errors->any('valor_apartamento'.$k) && !empty($errors->get('valor_apartamento.'.$k)[0]))
                                                 <p class="alert alert-danger">O valor da faixa etaria {{ $f->nome }} e campo obrigatorio</p>
-                                            @endif        
-                                        </div>    
-                                    </div>  
-                                    
+                                            @endif
+                                        </div>
+                                    </div>
+
                                 </div>
                             @endforeach
                         </div>
@@ -128,9 +133,9 @@
                                             <input type="text" class="valor" placeholder="valor" name="valor_enfermaria[]" id="valor_enfermaria" value="{{isset(old('valor_enfermaria')[$k]) && !empty(old('valor_enfermaria')[$k]) ? old('valor_enfermaria')[$k] : ''}}" />
                                             @if($errors->any('valor_enfermaria'.$k) && !empty($errors->get('valor_enfermaria.'.$k)[0]))
                                                 <p class="alert alert-danger">O valor da faixa etaria {{ $f->nome }} e campo obrigatorio</p>
-                                            @endif        
-                                        </div>    
-                                    </div>  
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
                             @endforeach
                         </div>
@@ -150,9 +155,9 @@
                                                 <input type="text" class="valor" placeholder="valor" name="valor_ambulatorial[]" id="valor_ambulatorial" value="{{isset(old('valor_ambulatorial')[$k]) && !empty(old('valor_ambulatorial')[$k]) ? old('valor_ambulatorial')[$k] : ''}}" />
                                                 @if($errors->any('valor_ambulatorial'.$k) && !empty($errors->get('valor_ambulatorial.'.$k)[0]))
                                                     <p class="alert alert-danger">O valor da faixa etaria {{ $f->nome }} e campo obrigatorio</p>
-                                                @endif        
-                                            </div>    
-                                        </div>  
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>
@@ -162,16 +167,16 @@
 
 
 
-            </div>            		
+            </div>
 
 
             <button class="btn btn-primary btn-block mt-3">Cadastrar</button>
 
-    	</form>	
+    	</form>
 
 
     </div>
-</div>        	
+</div>
 
 
 
@@ -188,5 +193,5 @@
 			$('.valor').mask("#.##0,00", {reverse: true});
 		});
 	</script>
-	
-@stop 
+
+@stop

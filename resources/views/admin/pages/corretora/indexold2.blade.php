@@ -349,275 +349,423 @@
         </div>
 
         </div>
-    
+    <input type="hidden" id="tipo">
+    <input type="hidden" id="cidade_comissao_corretor">
+    <input type="hidden" id="plano">
+    <input type="hidden" id="administradora">
+    <input type="hidden" id="tipo_plano">
+    <input type="hidden" id="user_id">
+
+    <input type="hidden" id="corretora_tabela_origens_id">
+    <input type="hidden" id="corretora_tipo_plano">
+    <input type="hidden" id="corretora_tipo_plano_individual">
+    <input type="hidden" id="corretora_administradora_coletivo">
 
     <div class="tab-content" id="tab2">
-        <input type="hidden" id="cidade_id_corretora">
-        <div id="cidade_clicada" class="d-flex w-100 text-center p-1 justify-content-center" style="flex-basis:100%;"></div>
-        <div id="tab2_area_dados">
-            <div id="content-corretora-left">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#configurarModal">
-                    Cadastrar
-                </button>
-                <div id="cities_list_corretora">
-                    <ul>
-                        @foreach($cidade_corretora as $cc)
-                            <li data-id="{{$cc->id}}">
-                               <span style="display:flex;flex-basis:100%;justify-content:center;">{{$cc->nome}}</span>
-                            </li>
-                        @endforeach
-                    </ul>    
-                </div>    
+        
+        <div id="path_clicado_corretora" class="text-center mb-1"></div>
+        
+
+        <div id="tab2-content" class="column-wrapper">
+        
+
+            <div class="tab2-content-left">
+
+                
+
+
+
+
+                <!-- Área de Atuação -->
+                <div class="area-atuacao">Área de Atuação</div>
+
+                <!-- Cidades -->
+                <div class="cities">
+                    @foreach($cidades as $c)
+                        <div class="city" data-id="{{$c->id}}">{{$c->nome}}</div>
+                    @endforeach
+                </div>
+
+                <!-- Opções de Comissão -->
+                <div class="comission-options">
+                    <div class="option" data-texto="Hapvida">Hapvida</div>
+                    <div class="option" data-texto="Coletivo">Coletivo por Adesão</div>
+                </div>
+
+                <div class="option-group" id="hapvida-options">
+                    @foreach($planos as $pp)
+                        <div class="sub-option" data-detail="{{$pp->nome}}" data-id="{{$pp->id}}">{{$pp->nome}}</div>
+                    @endforeach 
+                </div>
+
+                <div class="option-group" id="coletivo-options">
+                    @foreach($administradoras as $ad)
+                        <div class="sub-option" data-detail="{{$ad->nome}}" data-id="{{$ad->id}}">{{$ad->nome}}</div>
+                    @endforeach
+                </div>
+
             </div>
-            
-            <div id="tabelas" class="row">
-                <p class="mx-auto my-auto">Editar/Cadastrar comissão da corretora aqui!</p>
+            <div class="tab2-content-right">
+
+
+                <div id="hapvida-table" class="comission-table">
+                    <h3 class="title-hap text-center">Hapvida</h3>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Parcelas</th>
+                            <th>Comissão</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1ª Parcela</td>
+                            <td><input type="text" class="corretora_comissao_1_parcela_individual"></td>
+                        </tr>
+                        <tr>
+                            <td>2ª Parcela</td>
+                            <td><input type="text" class="corretora_comissao_2_parcela_individual"></td>
+                        </tr>
+                        <tr>
+                            <td>3ª Parcela</td>
+                            <td><input type="text" class="corretora_comissao_3_parcela_individual"></td>
+                        </tr>
+                        <tr>
+                            <td>4ª Parcela</td>
+                            <td><input type="text" class="corretora_comissao_4_parcela_individual"></td>
+                        </tr>
+                        <tr>
+                            <td>5ª Parcela</td>
+                            <td><input type="text" class="corretora_comissao_5_parcela_individual"></td>
+                        </tr>
+                        <tr>
+                            <td>6ª Parcela</td>
+                            <td><input type="text" class="corretora_comissao_6_parcela_individual"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button class="btn btn-primary btn-block salvar_corretora_individual">Salvar</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                       
+                    </table>
+                </div>
+
+                <!-- Coletivo por Adesão - Qualicorp -->
+                <div id="coletivo-table" class="comission-table">
+                    <h3 class="title-coletivo text-center">Qualicorp</h3>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Parcelas</th>
+                            <th>Comissão</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1ª Parcela</td>
+                            <td><input type="number" class="comissao_corretora_1_parcela"></td>
+                        </tr>
+                        <tr>
+                            <td>2ª Parcela</td>
+                            <td><input type="number" class="comissao_corretora_2_parcela"></td>
+                        </tr>
+                        <tr>
+                            <td>3ª Parcela</td>
+                            <td><input type="number" class="comissao_corretora_3_parcela"></td>
+                        </tr>
+                        <tr>
+                            <td>4ª Parcela</td>
+                            <td><input type="number" class="comissao_corretora_4_parcela"></td>
+                        </tr>
+                        <tr>
+                            <td>5ª Parcela</td>
+                            <td><input type="number" class="comissao_corretora_5_parcela"></td>
+                        </tr>
+                        <tr>
+                            <td>6ª Parcela</td>
+                            <td><input type="number" class="comissao_corretora_6_parcela"></td>
+                        </tr>
+                        <tr>
+                            <td>7ª Parcela</td>
+                            <td><input type="number" class="comissao_corretora_7_parcela"></td>
+                        </tr>
+                        <tr>
+
+                            <td colspan="2">
+                                <button class="btn btn-primary btn-block salvar_corretora_coletivo">Salvar</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
             </div>
+
         </div>
+
     </div>
 
     <div class="tab-content" id="tab3">
-        <input type="hidden" id="cidade_id_corretor">
-        <input type="hidden" id="tipo_corretor">
-        <div id="tab3_area_dados">
-            <div id="content-corretor-left">               
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#comissionModal">Cadastrar</button>
-                <div id="tipos_list_corretor">
-                    <ul>
-                        <li data-id="1">
-                            <span style="display:flex;flex-basis:100%;justify-content:center;">CLT</span>
-                        </li>
-                        <li data-id="2">
-                            <span style="display:flex;flex-basis:100%;justify-content:center;">Parceiro</span>
-                        </li>
-                    </ul>    
-                </div> 
 
-            </div>
-            <div id="tabelas_corretor" class="row">
-                <p class="mx-auto my-auto">Editar/Cadastrar comissão da corretor aqui!</p>
-            </div>
-        </div>  
+        <div id="path_clicado" class="text-center border-bottom border-white mb-2"></div>
 
-        
-    </div>  
-    
-    <div class="modal fade" id="configurarModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+
+
+        <div id="tab3-content" class="column-wrapper">
+
+            <section id="content_left_comission">
+                <div class="comission-type">
+                    <button class="btn btn-success">
+                        <span>CLT</span>
+                    </button>
+                    <button class="btn btn-info my-1">
+                        <span>Parceiro</span>
+                    </button>
+                    <button class="btn btn-primary">
+                        <span>Personalizado</span>
+                    </button>
+                </div>
+
+                <div id="comission-cities">
+                    @foreach($cidades as $c)
+                        <div class="city" data-id="{{$c->id}}">{{$c->nome}}</div>
+                    @endforeach
+                </div>
+
+                <div id="hapvida-options-comissions">
+                    <div class="option" data-plan-detail="hapvida">Hapvida</div>
+                    <div class="option" data-plan-detail="coletivo">Coletivo por Adesão</div>
+                </div>
+
+                <div id="hapvida-options-comissions-planos" class="options-comissions-table">
+                    @foreach($planos as $pp)
+                        <div class="option" data-detail-type="hapvida-options-comissions-planos" data-detail-plan="{{$pp->nome}}" data-id="{{$pp->id}}">{{$pp->nome}}</div>
+                    @endforeach
+                </div>
+
+
+
+                <div id="coletivo-por-adesao-options-comissions" class="options-comissions-table">
+                    @foreach($administradoras as $ad)
+                        <div class="option" data-detail-type="coletivo-por-adesao-options-comissions" data-detail-plan="{{$ad->nome}}" data-id="{{$ad->id}}">{{$ad->nome}}</div>
+                    @endforeach
+                </div>
+
+                <div id="user-list-parceiro" class="options-users-table">
+                    @foreach($users as $uu)
+                        <div class="option" data-detail-type="user-list-plan" data-detail-plan="{{$uu->name}}" data-id="{{$uu->id}}">{{$uu->name}}</div>
+                    @endforeach
+                </div>
+
+
+            </section>
+
+            <section id="content_right_comission">
+
+                <div id="hapvida-table-comission" class="comission-table-tab3 w-100 mx-auto rounded" style="background-color:#123449;">
+                    <h3 class="title-hap text-center">Hapvida</h3>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Parcelas</th>
+                            <th>Comissão</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1ª Parcela</td>
+                            <td><input type="number" class="comissao_1_individual"></td>
+                        </tr>
+                        <tr>
+                            <td>2ª Parcela</td>
+                            <td><input type="number" class="comissao_2_individual"></td>
+                        </tr>
+                        <tr>
+                            <td>3ª Parcela</td>
+                            <td><input type="number" class="comissao_3_individual"></td>
+                        </tr>
+                        <tr>
+                            <td>4ª Parcela</td>
+                            <td><input type="number" class="comissao_4_individual"></td>
+                        </tr>
+                        <tr>
+                            <td>5ª Parcela</td>
+                            <td><input type="number" class="comissao_5_individual"></td>
+                        </tr>
+                        <tr>
+                            <td>6ª Parcela</td>
+                            <td><input type="number" class="comissao_6_individual"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button class="btn btn-primary btn-block salvar_hapvida">Salvar</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Coletivo por Adesão - Qualicorp -->
+                <div id="coletivo-table-comission" class="comission-table-tab3 w-100 mx-auto rounded" style="background-color:#123449;">
+                    <h3 class="title-coletivo text-center">Qualicorp</h3>
+                    <table class="table table-sm table-bordered mx-auto">
+                        <thead>
+                        <tr>
+                            <th>Parcelas</th>
+                            <th>Comissão</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1ª Parcela</td>
+                            <td><input type="text" class="comissao_1_parcela_coletivo"></td>
+                        </tr>
+                        <tr>
+                            <td>2ª Parcela</td>
+                            <td><input type="text" class="comissao_2_parcela_coletivo"></td>
+                        </tr>
+                        <tr>
+                            <td>3ª Parcela</td>
+                            <td><input type="text" class="comissao_3_parcela_coletivo"></td>
+                        </tr>
+                        <tr>
+                            <td>4ª Parcela</td>
+                            <td><input type="text" class="comissao_4_parcela_coletivo"></td>
+                        </tr>
+                        <tr>
+                            <td>5ª Parcela</td>
+                            <td><input type="text" class="comissao_5_parcela_coletivo"></td>
+                        </tr>
+                        <tr>
+                            <td>6ª Parcela</td>
+                            <td><input type="text" class="comissao_6_parcela_coletivo"></td>
+                        </tr>
+                        <tr>
+                            <td>7ª Parcela</td>
+                            <td><input type="text" class="comissao_7_parcela_coletivo"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button class="btn btn-info btn-block salvar_coletivo">Salvar</button>
+                            </td>
+
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+
+        </div>
+
+    </div>
+
+    <!-- Modal para o formulário -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalLabel">Configuração</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Area de Atuação</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <!-- Formulário de configuração -->
-                    <form>
-                        <div class="form-group">
-                            <label for="areaDeAtuacao">Área de Atuação (Cidades):</label>
-                            <select class="form-control" id="areaDeAtuacao" multiple>
-                                <!-- Opções de cidades da tabela_origens -->
-                                @foreach($cidades as $c)
-                                    <option class="city" value="{{$c->id}}">{{$c->nome}}</div>
-                                @endforeach
-                                
+                    <form action="">
+                        <div>
+	                        <span for="uf_tabela_origens" style="font-size:0.875em;">UF:</span>
+	                        <select id="uf_tabela_origens" name="uf_tabela_origens" class="form-control form-control-sm select2-single" required>
+                                <option value=""></option>
                             </select>
+	                    </div>
+                        <div>
+                            <span for="cidade_tabela_origens" style="font-size:0.875em;">Cidade:</span>
+	                        <select id="cidade_tabela_origens" name="cidade_tabela_origens" class="form-control form-control-sm select2-single" required></select>
+                            <div class="error_nome_cidade"></div>
                         </div>
-                        <div class="form-group">
-                            <label>Planos:</label>
-                            <!-- Lista de planos -->
-                            <ul class="list-group">
+                        
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary salvar_cidade">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                                @foreach($planos_all as $p)
-                                    <li class="list-group-item">
-                                        <input type="checkbox" data-id="{{$p->id}}" name="planos" value="{{$p->nome}}">
-                                        <label for="plano1">{{$p->nome}}</label>
-                                    </li>
-                                @endforeach
-                                
-                            </ul>
+    <div class="modal fade" id="exampleModalPlanos" tabindex="-1" aria-labelledby="exampleModalLabelPlanos" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabelPlanos">Planos</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="">
+                        <div>
+                            <label for="nome">Nome</label>
+                            <input type="text" id="nome_plano" class="form-control" required>
+                            <div class="error_nome_plano"></div>
+                        </div>
+                        <div>
+                            <label for="empresarial_status">Empresarial
+                            <input type="checkbox" id="empresarial_status">
+                            </label>
+                            <div class="error_empresarial_status"></div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                    <button type="button" class="btn btn-primary" id="salvarConfiguracao">Salvar Configuração</button>
+                    <button type="button" class="btn btn-primary salvar_planos">Salvar</button>
                 </div>
             </div>
         </div>
     </div>
 
-        <!----FIM--->
+   
     
+    <div class="modal fade" id="exampleModalAdministradora" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabelAdministradora" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabelAdministradora">Cadastrar Administradora</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+            <form>
+                @csrf
+                <div class="form-group">
+                    <label for="name">Nome*</label>
+                    <input type="text" class="form-control" id="name_administradora" value="">
+                </div>
 
-
-        <!-- Modal para cadastro -->
-<div class="modal fade" id="comissionModal" tabindex="-1" role="dialog" aria-labelledby="comissionModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="comissionModalLabel">Cadastro de Comissões</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- Conteúdo do formulário -->
-                <form>
-                    <div class="form-group">
-                        <label for="comissionType">Tipo de Comissão:</label>
-                        <select class="form-control" id="comissionTypeCorretor">
-                            <option value="">--Escolher tipo --</option>
-                            <option value="1">CLT</option>
-                            <option value="2">Parceiro</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="cities">Cidades:</label>
-                        <select class="form-control" id="citiesCorretor">
-                            <option value="">--Escolher a cidade--</option>
-                            @foreach($cidades as $c)
-                                <option class="city" value="{{$c->id}}">{{$c->nome}}</div>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="plans">Planos:</label>
-                        <div id="plans">
-                            <ul class="list-group">
-                                
-                                @foreach($planos_all as $p)
-                                    <li class="list-group-item">
-                                        <input type="checkbox" data-id="{{$p->id}}" name="planos_corretor" value="{{$p->nome}}">
-                                        <label for="plano1">{{$p->nome}}</label>
-                                    </li>
-                                @endforeach
-
-                            </ul>
-                        </div>
-                    </div>
-                    
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-primary" id="salvar_comissoes_corretor">Salvar Comissão</button>
-            </div>
-        </div>
+                <div class="form-group">
+                    <label for="image">Foto:</label>
+                    <input type="file" class="form-control" id="image_administradora">
+                </div>
+                
+                <button class="btn btn-primary btn-block cadastrar_administradora_formulario">Cadastrarrr</button>
+           </form>
+      </div>
     </div>
+  </div>
 </div>
-
-
+    
 
 
 
 
 @stop
-
-
-@section('css')
-<style>
-
-    #content-corretora-left {display:flex;flex-basis:10%;flex-direction:column;}
-    #content-corretor-left {display:flex;flex-basis:10%;flex-direction:column;}
-    #cities_list_corretora {border-radius:5px;margin-top:5px;}
-    #cities_list_corretora ul {list-style:none;padding:0;margin:0;display:flex;flex-direction:column;border-radius:5px;}   
-    #cities_list_corretora li {color:#FFF;padding:8px 0px;border-radius:5px;border:2px solid white;background-color:#123449;margin-bottom:4px;}
-    #cities_list_corretora li:hover {cursor:pointer;}   
-    #tipos_list_corretor {border-radius:5px;margin-top:5px;}
-    #tipos_list_corretor ul {list-style:none;padding:0;margin:0;display:flex;flex-direction:column;border-radius:5px;}
-    #tipos_list_corretor li {color:#FFF;padding:8px 0px;border-radius:5px;border:2px solid white;background-color:#123449;margin-bottom:4px;}
-    #tipos_list_corretor li:hover {cursor:pointer;}
-    #tabelas {background-color:#ECECEC;border-radius:5px;display:flex;flex-basis:83%;height: 100%;margin-left:1%;border:5px solid #FFF;align-content: stretch;align-items: stretch;}
-    #tabelas_corretor {background-color:#ECECEC;border-radius:5px;display:flex;flex-basis:83%;height: 100%;margin-left:1%;border:5px solid #FFF;align-content: flex-start;align-items: flex-start;}
-    #tab2 #tab2_area_dados {display:flex;}
-    #tab3 #tab3_area_dados {display:flex;}
-
-    .campo-em-branco {border: 2px solid red;}   
-    #user-list-parceiro {background-color:#123449;display: none;color:white;padding:5px;height:300px;font-size:0.9em;margin-left:5px;max-height: 300px;overflow-y: auto;border-radius:5px;scrollbar-width: thin;scrollbar-color: blue white;}
-    #user-list-parceiro::-webkit-scrollbar {width: 8px;background-color: #ffffff;}
-    #user-list-parceiro::-webkit-scrollbar-thumb {background-color: #0a2034;}
-    .borda-destaque {border:3px solid white;}
-    .dados-corretor {display:flex;}
-    #coletivo-table-comission,
-    #hapvida-table-comission{display:none;}
-    .tab2-content-left {display:flex;flex-basis: 45%;align-content:flex-start !important;align-items:flex-start !important;}
-    .tab2-content-right {display:flex;flex-basis: 55%;}
-    #area_atuacao::-webkit-scrollbar {width: 5px;height: 3px !important;background-color: white;}   
-    #area_atuacao::-webkit-scrollbar-thumb {background-color: #0dcaf0;}
-    #area_atuacao_administradora::-webkit-scrollbar {width: 5px;height: 3px !important;background-color: white;}
-    #area_atuacao_administradora::-webkit-scrollbar-thumb {background-color: #0dcaf0;}
-    #area_atuacao_planos::-webkit-scrollbar {width: 5px;height: 3px !important;background-color: white;}
-    #area_atuacao_planos::-webkit-scrollbar-thumb {background-color: #0dcaf0;}
-    #tab2-content .cities::-webkit-scrollbar {width: 5px;height: 3px !important;background-color: white;}
-    #tab2-content .cities::-webkit-scrollbar-thumb {background-color: #0dcaf0;}
-    #tab2-content .area-atuacao {display:flex;align-content: flex-start !important;align-items: flex-start !important;justify-content:center;height:30px;width: 140px;color:#FFF;background-color: #123449;text-align:center;cursor: pointer;}
-    .toast {width: 500px !important;}
-    #tab2-content .area-atuacao:hover {background-color: #FFF;color:#123449;}
-    #tab2-content .cities {display: none;margin-left: 10px;background-color:#123449;color:#FFF;border-radius:5px;padding:2px;height:300px;overflow: auto;}
-    #tab2-content .cities .city {cursor: pointer;margin-bottom: 5px;}
-    #tab2-content .option-group {display: none;background-color:#123449;color:#FFF;padding:5px;margin-left:5px;border-radius:5px;height:auto;width:200px;}
-    #tab2-content .option-group .sub-option {cursor:pointer;display:flex;flex-basis:100%;}
-    .destaque {background-color:white;color:black;}
-    #tab2-content .option-group.active {display:flex;align-content: flex-start !important;align-items:flex-start !important;flex-wrap:wrap;}
-    .ativo {background-color:#FFF;color:#000;}
-    #tab2-content .comission-options {display: none;background-color:#123449;color:#FFF;height:70px;margin-left:7px;border-radius:5px;padding:3px;}
-    #tab2-content .comission-options .option {cursor: pointer;margin-bottom: 5px;}
-    #tab2-content .selected-city {display: none;margin-top: 10px;}
-    #tab2-content .selected-plano {display: none;}
-    #tab2-content .selected-tipo {display: none;}
-    #tab2-content .escolher-plano {display: none;}
-    #tab2-content .selected-city .option {cursor: pointer;margin-bottom: 5px;}
-    .config-block {margin-bottom: 20px;}
-    #logo_corretora input[type='file'] {display:none;}
-    .imageContainer {max-width: 120px;background-color: #eee;border:5px solid #ccc;border-radius: 5%;display: flex;align-items: center;justify-content: center;margin:0 auto;}
-    .imageContainer img {width:100%;padding:5px;cursor: pointer;transition: background .3s;}
-    .imageContainer:hover {background-color: rgb(180,180,180);border:5px solid #111;}
-    .config-line {display: flex;align-items: center;margin-bottom: 10px;}
-    .config-line label {flex-basis: 50%;box-sizing: border-box;padding: 5px;}
-    .config-line input {flex: 1;box-sizing: border-box;padding: 5px;border: 1px solid #ccc;}
-    .column {display: flex;flex-direction: column;flex-basis: 50%;}
-    .columns {display: flex;flex-direction: column;flex-basis: 50%;padding: 10px;}
-    .columns-1 {display:flex;flex-basis:28%;flex-wrap: wrap;justify-content: space-between;align-content: flex-start;align-items: flex-start;}
-    .columns-2 {display:flex;flex-basis:72%;flex-wrap: wrap;align-content: center;align-items: center;justify-content: space-between;}
-    .tab-container {display: flex;}
-    .tab {display: inline-block;cursor: pointer;padding: 10px;background-color: #123449;color: #fff;border-radius: 5px 5px 0 0;}
-    .active.tab {background-color: #FFF;color:#123449;font-weight:bold;}
-    .tab-content {display: none;margin-top:5px;width: 100%;}
-    .column-wrapper {display: flex;width: 100%;}
-    .column-1 {flex-basis: 10%;}
-    .column-2 {flex-basis: 38%;background-color:#123449;border-radius: 5px;margin:0 1%;}
-    .column-2 span  {color:#FFF;font-weight:normal;}
-    .column-3 {flex-basis: 50%;}
-    .comission-table {display: none;width: 100%;margin-left: 30px;background-color:#123449;color:#FFF;padding:5px;border-radius:5px;}
-    .comission-table.active {display: block;}
-    #tab3-content {display:flex;}
-    #tab3-content #content_left_comission {display:flex;margin-right:5px;}
-    #tab3-content #content_right_comission {display:flex;color:#FFF;width:400px;}
-    #tab2-content .comission-options .option {cursor: pointer;margin-bottom: 5px;}
-    #hapvida-options-comissions-planos {display: none;background-color:#123449;color:#FFF;padding:5px;margin-left:5px;border-radius:5px;height:auto;font-size:0.9em;}
-    #coletivo-por-adesao-options-comissions {display: none;background-color:#123449;color:#FFF;padding:5px;margin-left:5px;border-radius:5px;height:100px;width:80px;min-width:80px;font-size:0.9em;}
-    #comission-cities {display:none;margin-left: 10px;background-color:#123449;color:#FFF;border-radius:5px;padding:2px;height:300px;overflow: auto;flex-basis:100px;min-width:110px;width:110px !important;font-size:0.9em;}
-    #hapvida-options-comissions {display: none;background-color:#123449;color:#FFF;height:70px;margin-left:7px;border-radius:5px;min-width:140px !important;padding:3px;width:140px !important;font-size:0.9em;}
-    .comission-type {display:flex;flex-direction: column;width:138px;}
-    #hapvida-options-comissions-planos.comission-option,
-    #coletivo-por-adesao-options-comissions.comission-option {margin-left:20px;}
-    .lista-destaque {
-        background-color:#FFF !important;
-        color:#000 !important;
-
-    }
-</style>
-    @stop
-
-
-
-
-
-
-
 
 @section('js')
     <script src="{{asset('vendor/select2/js/select2.min.js')}}"></script>
@@ -626,554 +774,34 @@
 
         $(document).ready(function() {
 
-            $("body").on('click','.btnAtualizarCorretor',function(){
-                let camposVazios = 0;
-                $('#tabelas_corretor input[type="text"]').each(function() {
-                    if ($(this).val() == '') {                      
-                        camposVazios++;
-                        $(this).addClass('campo-em-branco');
-                    } else {
-                        $(this).removeClass('campo-em-branco');
-                    }
-                });
-
-                if (camposVazios > 0) {
-                    toastr["error"]("Todos os campo são obrigatório")
-                    toastr.options = {
-                        "closeButton": false,
-                        "debug": false,
-                        "newestOnTop": false,
-                        "progressBar": false,
-                        "positionClass": "toast-top-right",
-                        "preventDuplicates": false,
-                        "onclick": null,
-                        "showDuration": "300",
-                        "hideDuration": "1000",
-                        "timeOut": "5000",
-                        "extendedTimeOut": "1000",
-                        "showEasing": "swing",
-                        "hideEasing": "linear",
-                        "showMethod": "fadeIn",
-                        "hideMethod": "fadeOut"
-                    }
-                    return false; // Impede o envio do formulário
-                } else {
-
-                    let formulario = $('#tabelas_corretor');
-                    let campos = formulario.find('input[type="text"]');
-                    let dados = {};
-                    campos.each(function() {
-                        var nomeDoCampo = $(this).attr('name');
-                        var valorDoCampo = $(this).val();
-                        dados[nomeDoCampo] = valorDoCampo;
-                    });
-                    let dadosReorganizados = {};
-                    let tt = "";
-                    for (var chave in dados) {
-                        let tipo = chave.split("_")[2];
-                        tt   = chave.split("_")[2];
-                        let administradora_or_plano = chave.split("_")[3]; // Extrair o nome da administradora(Qualicorp) ou PME Simples Simples Individual
-                        let cidade = chave.split("_")[4];
-                        let plano = chave.split("_")[5];
-                        let indice = tipo+"_"+administradora_or_plano+"_"+cidade+"_"+plano;
-                        if (!dadosReorganizados[indice]) {
-                            dadosReorganizados[indice] = {};
-                        }
-                        let parcela = chave.split("_")[1]; // Extrair o número da parcela
-                        let valor = dados[chave];
-                        dadosReorganizados[indice][parcela] = valor;
-                    }
-
-                    $.ajax({
-                        url:"{{route('corretor.alterar.comissao.valores')}}",
-                        method:"POST",
-                        data: {
-                            dados:dadosReorganizados,
-                            tipo: $("#tipo_corretor").val()
-                        },
-                        success:function(res) {
-                            if(res == "alterado") {
-
-                                toastr["success"]("Dados Atualizados com sucesso")
-                                toastr.options = {
-                                    "closeButton": false,
-                                    "debug": false,
-                                    "newestOnTop": false,
-                                    "progressBar": false,
-                                    "positionClass": "toast-top-right",
-                                    "preventDuplicates": false,
-                                    "onclick": null,
-                                    "showDuration": "300",
-                                    "hideDuration": "1000",
-                                    "timeOut": "5000",
-                                    "extendedTimeOut": "1000",
-                                    "showEasing": "swing",
-                                    "hideEasing": "linear",
-                                    "showMethod": "fadeIn",
-                                    "hideMethod": "fadeOut"
-                                }
-
-
-
-
-
-
-                            } 
-                            
-                        }
-                });
-
+            $("#cep").change(function(){
+                let cep = $(this).val().replace("-","");
+                const url = `https://viacep.com.br/ws/${cep}/json`;
+                const options = {method: "GET",mode: "cors",
+                    headers: {'content-type': 'application/json;charset=utf-8'}
                 }
-            });
-
-
-            $("#tipos_list_corretor li").on('click',function(){
-                
-                let id = $(this).attr('data-id');
-                
-                $("#tipos_list_corretor li").removeClass('lista-destaque');
-                $(this).addClass('lista-destaque');
-                $("#tipo_corretor").val(id);
-                $.ajax({
-                    url:"{{route('show.corretor.alterar.comissao')}}",
-                    method:"POST",
-                    data: {
-                        id
-                    },
-                    success:function(res) {
-                        $("#tabelas_corretor").html(res);
-                    }
-                });
-            });
-
-
-
-
-
-
-
-            $("body").on('click','#cities_list_corretora li',function(){
-                let id = $(this).attr('data-id');
-                $("#cidade_id_corretora").val(id);
-                let texto = $(this).text();
-                
-                //$("#cidade_clicada").html("<h5>Comissão <strong>"+texto+"</strong></h5>");
-                $("#cities_list_corretora li").removeClass("lista-destaque");
-                $(this).addClass('lista-destaque');
-                
-                $.ajax({
-                    url:"{{route('corretora.lista.cidade')}}",
-                    method:"POST",
-                    data:"id="+id,
-                    success:function(res) {
-                        $("#tabelas").slideUp('slow',function(){
-                            $("#tabelas").html(res).slideDown('slow');
-                        });
+                fetch(url,options).then(response => response.json()).then(
+                    data => {
+                        $("#cidade").val(data.localidade);
+                        $("#bairro").val(data.bairro);
+                        $("#rua").val(data.logradouro);
+                        $("#complemento").val(data.complemento);
+                        $("#uf").val(data.uf);
                         
                     }
-                });
-            });
 
-            $('body').on('click','.btn-atualizar-corretora',function(){
-                let cidade_id = $("#cidade_id_corretora").val();
-                let formulario = $('#tabelas');
-                let campos = formulario.find('input[type="text"]');
-                let dados = {};
-                campos.each(function() {
-                    var nomeDoCampo = $(this).attr('name');
-                    var valorDoCampo = $(this).val();
-                    dados[nomeDoCampo] = valorDoCampo;
-                });
-                let dadosReorganizados = {};
-                for (var chave in dados) {
-                    let tipo = chave.split("_")[3];
-                    let administradora_id = chave.split("_")[5];
-                    let administradora_or_plano = chave.split("_")[2]; // Extrair o nome da administradora(Qualicorp) ou PME Simples Simples Individual
-                    let id_plano = chave.split("_")[4];
-                    let indice = administradora_or_plano+"_"+tipo+"_"+id_plano+"_"+administradora_id;
-                    if (!dadosReorganizados[indice]) {
-                        dadosReorganizados[indice] = {};
-                    }
-                    let parcela = chave.split("_")[1]; // Extrair o número da parcela
-                    let valor = dados[chave];
-                    dadosReorganizados[indice][parcela] = valor;
-                }
-                $.ajax({
-                    url:"{{route('corretora.alterar.comissao.corretor')}}",
-                    method:"POST",
-                    data: {
-                        cidade:cidade_id,
-                        dados:dadosReorganizados
-                    },
-                    success:function(res) {
-                        if(res == "cadastrar") {
-                            toastr["success"]("Dados Atualizados com sucesso")
-                            toastr.options = {
-                                "closeButton": false,
-                                "debug": false,
-                                "newestOnTop": false,
-                                "progressBar": false,
-                                "positionClass": "toast-top-right",
-                                "preventDuplicates": false,
-                                "onclick": null,
-                                "showDuration": "300",
-                                "hideDuration": "1000",
-                                "timeOut": "5000",
-                                "extendedTimeOut": "1000",
-                                "showEasing": "swing",
-                                "hideEasing": "linear",
-                                "showMethod": "fadeIn",
-                                "hideMethod": "fadeOut"
-                            }
-                        }
-                    }
-                });
-            });
-
-            
-
-            $('#configurarModal').on('shown.bs.modal', function (event) {
-                $("#cities_list_corretora li").removeClass("lista-destaque");
-                $("#cidade_id_corretora").val('');  
-            });
-       
-            $("#citiesCorretor").on('change',function(){
-                let id = $(this).val();
-                $("#cidade_id_corretor").val(id);
-            });
-
-            $("#comissionTypeCorretor").on('change',function(){
-                let tipo = $(this).val();
-                $("#tipo_corretor").val(tipo);
-            });
-
-
-
-            $("#salvar_comissoes_corretor").on('click',function(){
-                let tipo_corretor = $("#comissionTypeCorretor").val();
-                let cidade_id = $("#citiesCorretor").val();
-                let planosSelecionadosCorretor = $("input[name='planos_corretor']:checked").map(function () {return $(this).val();}).get();
-                
-                $.ajax({
-                    url:"{{route('corretora.cadastrar.comissao.corretor')}}",
-                    method:"POST",
-                    data: {
-                        tipo:tipo_corretor,
-                        cidade:cidade_id,
-                        planos:planosSelecionadosCorretor
-                    },
-                    success:function(res) {
-                        $("#tabelas_corretor").html(res);
-                        $('#comissionModal').modal('hide');
-                    }
-                });
-
-            });
-
-
-           
-
-
-
-
-
-
-
-
-            
-            
-            $("body").on('click','#btnCadastrarCorretor',function(){
-                let camposVazios = 0;
-
-                $('#tabelas_corretor input[type="text"]').each(function() {
-                    if ($(this).val() == '') {                      
-                        camposVazios++;
-                        $(this).addClass('campo-em-branco');
-                    } else {
-                        $(this).removeClass('campo-em-branco');
-                    }
-                });
-
-                if (camposVazios > 0) {
-                        toastr["error"]("Todos os campo são obrigatório")
-                        toastr.options = {
-                            "closeButton": false,
-                            "debug": false,
-                            "newestOnTop": false,
-                            "progressBar": false,
-                            "positionClass": "toast-top-right",
-                            "preventDuplicates": false,
-                            "onclick": null,
-                            "showDuration": "300",
-                            "hideDuration": "1000",
-                            "timeOut": "5000",
-                            "extendedTimeOut": "1000",
-                            "showEasing": "swing",
-                            "hideEasing": "linear",
-                            "showMethod": "fadeIn",
-                            "hideMethod": "fadeOut"
-                        }
-                    return false; // Impede o envio do formulário
-                } else {
-                    let formulario = $('#tabelas_corretor');
-                    let campos = formulario.find('input[type="text"]');
-                    let dados = {};
-                    campos.each(function() {
-                        var nomeDoCampo = $(this).attr('name');
-                        var valorDoCampo = $(this).val();
-                        dados[nomeDoCampo] = valorDoCampo;
-                    });
-                    let dadosReorganizados = {};
-                    for (var chave in dados) {
-                        let tipo = chave.split("_")[3];
-                        let administradora_or_plano = chave.split("_")[2]; // Extrair o nome da administradora(Qualicorp) ou PME Simples Simples Individual
-                        let id_plano = chave.split("_")[4];
-                        let indice = administradora_or_plano+"_"+tipo+"_"+id_plano;
-                        if (!dadosReorganizados[indice]) {
-                            dadosReorganizados[indice] = {};
-                        }
-                        let parcela = chave.split("_")[1]; // Extrair o número da parcela
-                        let valor = dados[chave];
-                        dadosReorganizados[indice][parcela] = valor;
-                    }
-                    let cidade_id = $("#cidade_id_corretor").val();
-                    let tipo = $("#tipo_corretor").val();
-                    $.ajax({
-                        url:"{{route('corretora.cadastrar.corretor.comissao')}}",
-                        method:"POST",
-                        data: {
-                            cidade:cidade_id,
-                            dados:dadosReorganizados,
-                            tipo
-                        },
-                        success:function(res) {                            
-                            if(res == "cadastrado") {
-                                toastr["success"]("Cadastrado com sucesso")
-                                toastr.options = {
-                                    "closeButton": false,
-                                    "debug": false,
-                                    "newestOnTop": false,
-                                    "progressBar": false,
-                                    "positionClass": "toast-top-right",
-                                    "preventDuplicates": false,
-                                    "onclick": null,
-                                    "showDuration": "300",
-                                    "hideDuration": "1000",
-                                    "timeOut": "5000",
-                                    "extendedTimeOut": "1000",
-                                    "showEasing": "swing",
-                                    "hideEasing": "linear",
-                                    "showMethod": "fadeIn",
-                                    "hideMethod": "fadeOut"
-                                }
-                            }                           
-                        }
-                    });
-                }
-            });
-
-            $("body").on('click','#btnCadastrar',function(){
-                let camposVazios = 0;
-                // Iterar por todos os campos de entrada
-                $('#tabelas input[type="text"]').each(function() {
-                    if ($(this).val() == '') {                      
-                        camposVazios++;
-                        $(this).addClass('campo-em-branco');
-                    } else {
-                        $(this).removeClass('campo-em-branco');
-                    }
-                });
-                
-                if (camposVazios > 0) {
-                        toastr["error"]("Todos os campo são obrigatório")
-                        toastr.options = {
-                            "closeButton": false,
-                            "debug": false,
-                            "newestOnTop": false,
-                            "progressBar": false,
-                            "positionClass": "toast-top-right",
-                            "preventDuplicates": false,
-                            "onclick": null,
-                            "showDuration": "300",
-                            "hideDuration": "1000",
-                            "timeOut": "5000",
-                            "extendedTimeOut": "1000",
-                            "showEasing": "swing",
-                            "hideEasing": "linear",
-                            "showMethod": "fadeIn",
-                            "hideMethod": "fadeOut"
-                        }
-                    return false; // Impede o envio do formulário
-                } else {
-                    let formulario = $('#tabelas');
-                    let campos = formulario.find('input[type="text"]');
-                    let dados = {};
-                    campos.each(function() {
-                        var nomeDoCampo = $(this).attr('name');
-                        var valorDoCampo = $(this).val();
-                        dados[nomeDoCampo] = valorDoCampo;
-                    });
                     
-                    let dadosReorganizados = {};
 
-                    for (var chave in dados) {
-                        let tipo = chave.split("_")[3];
-                        let administradora_or_plano = chave.split("_")[2]; // Extrair o nome da administradora(Qualicorp) ou PME Simples Simples Individual
-                        let id_plano = chave.split("_")[4];
-                        let indice = administradora_or_plano+"_"+tipo+"_"+id_plano;
-                        if (!dadosReorganizados[indice]) {
-                            dadosReorganizados[indice] = {};
-                        }
-                        let parcela = chave.split("_")[1]; // Extrair o número da parcela
-                        let valor = dados[chave];
-                        dadosReorganizados[indice][parcela] = valor;
-                    }
-
-                    let cidade_id = $("#cidade_id_corretora").val();
-
-                    $.ajax({
-                        url:"{{route('corretora.store.comissao')}}",
-                        method:"POST",
-                        data: {
-                            cidade:$("#cidade_id_corretora").val(),
-                            dados:dadosReorganizados
-                        },
-                        success:function(res) {
-                            if(res.resposta == "ja_existe") {
-                                $("#cities_list_corretora").empty();
-                                let ul = $("<ul>");
-                                $.each(res.cidade_corretora, function(index, item) {
-                                    let li = $("<li>").attr("data-id", item.id).text(item.nome);
-                                    ul.append(li);
-                                });
-                                $("#cities_list_corretora").append(ul);
-                            } else if(res == "error") {
-
-                            } else {
-                                $("#cities_list_corretora").empty();
-
-                                let ul = $("<ul>");
-                                $.each(res, function(index, item) {
-                                    let li = $("<li>").attr("data-id", item.id).text(item.nome);
-                                    ul.append(li);
-                                });
-
-                                $("#cities_list_corretora").append(ul);
-
-
-                                toastr["success"]("Comissão cadastrada com Sucesso")
-                                toastr.options = {
-                                    "closeButton": false,
-                                    "debug": false,
-                                    "newestOnTop": false,
-                                    "progressBar": false,
-                                    "positionClass": "toast-top-right",
-                                    "preventDuplicates": false,
-                                    "onclick": null,
-                                    "showDuration": "300",
-                                    "hideDuration": "1000",
-                                    "timeOut": "5000",
-                                    "extendedTimeOut": "1000",
-                                    "showEasing": "swing",
-                                    "hideEasing": "linear",
-                                    "showMethod": "fadeIn",
-                                    "hideMethod": "fadeOut"
-                                }
-                            }   
-
-
-
-
-                            if(res != "error") {
-
-                                
-                            }
-                            
-                        }
-                    });
-                    
-                    
+                )
+                if($(this).val() != "") {
+                    $(".errorcep").html('');
                 }
-
-
-
-
             });
 
 
 
 
-
-
-
-            $("#salvarConfiguracao").click(function () {
-                let cidadesSelecionadas = $("#areaDeAtuacao").val().join(",");;
-                $("#tabelas").html("");
-                let planosSelecionados = $("input[name='planos']:checked").map(function () {
-                    return $(this).val();
-                }).get();
-                if (cidadesSelecionadas.length > 0 && planosSelecionados.length > 0) {
-                    // Limpe o conteúdo anterior, se houver
-                    $("#tabelas").html('');
-                    $.ajax({
-                        url:"{{route('corretora.criar.tabelas.cadastro.dinamicamente')}}",
-                        method:"POST",
-                        data:"cidade="+cidadesSelecionadas+"&plano="+planosSelecionados,
-                        success:function(res) {
-                            console.log(res);
-                            // $("#tabelas").html(res);
-                            // $('#configurarModal').modal('hide');
-                        }
-                    });                
-                } else {
-                    toastr["error"]("Pelo Menos 1 Cidade e Planos tem que estar Marcado")
-                    toastr.options = {
-                        "closeButton": false,
-                        "debug": false,
-                        "newestOnTop": false,
-                        "progressBar": false,
-                        "positionClass": "toast-top-right",
-                        "preventDuplicates": false,
-                        "onclick": null,
-                        "showDuration": "300",
-                        "hideDuration": "1000",
-                        "timeOut": "5000",
-                        "extendedTimeOut": "1000",
-                        "showEasing": "swing",
-                        "hideEasing": "linear",
-                        "showMethod": "fadeIn",
-                        "hideMethod": "fadeOut"
-                    }
-                }
-        });
-
-
-
-        $("#cep").change(function(){
-            let cep = $(this).val().replace("-","");
-            const url = `https://viacep.com.br/ws/${cep}/json`;
-            const options = {method: "GET",mode: "cors",
-                headers: {'content-type': 'application/json;charset=utf-8'}
-            }
-            fetch(url,options).then(response => response.json()).then(
-                data => {
-                    $("#cidade").val(data.localidade);
-                    $("#bairro").val(data.bairro);
-                    $("#rua").val(data.logradouro);
-                    $("#complemento").val(data.complemento);
-                    $("#uf").val(data.uf);
-                    
-                }
-            )
-            if($(this).val() != "") {
-                $(".errorcep").html('');
-            }
-        });
-
-
-
-
-        $.getJSON("{{asset('js/estados_cidades.json')}}", function (data) {
+            $.getJSON("{{asset('js/estados_cidades.json')}}", function (data) {
                 
                 var items = [];
                 var options = '<option value="">UF</option>';
@@ -1197,8 +825,7 @@
                     });
                     $("#cidade_tabela_origens").html(options_cidades);
                 }).change();
-
-        });
+            });
 
             $("body").on('click','.deletar_tabela_origens',function(){
                 let id = $(this).attr("data-id");
@@ -1215,17 +842,82 @@
                 });
             });
 
-            $("body").on('click','.city',function(){
-                let id = $(this).val();
-                $("#cidade_id_corretora").val(id);
-                //let cidade = $(this).text(); 
-                //$("#cidade_clicada").html("<h5>Comissão <strong>"+cidade+"</strong></h5>");
+
+
+
+
+            $(".cities .city").on('click',function(){               
+                $("#corretora_tabela_origens_id").val($(this).attr('data-id'));
+                let id = $(this).attr('data-id');
+                
+                if($("#corretora_tipo_plano").val() != "" && ($("#corretora_tipo_plano_individual").val() != "" || $("#corretora_administradora_coletivo").val() != "")) {
+                    $.ajax({
+                        url:"{{route('verificar.corretora.cidades')}}",
+                        method:"POST",
+                        data: {
+                            cidade_id:id,
+                            tipo_plano: $("#corretora_tipo_plano").val(),
+                            plano_individual: $("#corretora_tipo_plano_individual").val(),
+                            admnistradora_coletivo: $("#corretora_administradora_coletivo").val()
+                        },
+                        success:function(res) {
+                            
+                            if($("#corretora_tipo_plano").val() == 3) {
+
+                                if(res == "nada") {
+                                    $(".comissao_corretora_1_parcela").val('');
+                                    $(".comissao_corretora_2_parcela").val('');
+                                    $(".comissao_corretora_3_parcela").val('');
+                                    $(".comissao_corretora_4_parcela").val('');
+                                    $(".comissao_corretora_5_parcela").val('');
+                                    $(".comissao_corretora_6_parcela").val('');
+                                    $(".comissao_corretora_7_parcela").val('');
+                                } else {
+                                    $(".comissao_corretora_1_parcela").val(res[0].valor);
+                                    $(".comissao_corretora_2_parcela").val(res[1].valor);
+                                    $(".comissao_corretora_3_parcela").val(res[2].valor);
+                                    $(".comissao_corretora_4_parcela").val(res[3].valor);
+                                    $(".comissao_corretora_5_parcela").val(res[4].valor);
+                                    $(".comissao_corretora_6_parcela").val(res[5].valor);
+                                    $(".comissao_corretora_7_parcela").val(res[6].valor);
+                                }
+                            
+                            } else {
+
+                                if(res == "nada") {
+                                    $(".corretora_comissao_1_parcela_individual").val('');
+                                    $(".corretora_comissao_2_parcela_individual").val('');
+                                    $(".corretora_comissao_3_parcela_individual").val('');
+                                    $(".corretora_comissao_4_parcela_individual").val('');
+                                    $(".corretora_comissao_5_parcela_individual").val('');
+                                    $(".corretora_comissao_6_parcela_individual").val('');
+                                    
+                                } else {
+                                    $(".corretora_comissao_1_parcela_individual").val(res[0].valor);
+                                    $(".corretora_comissao_2_parcela_individual").val(res[1].valor);
+                                    $(".corretora_comissao_3_parcela_individual").val(res[2].valor);
+                                    $(".corretora_comissao_4_parcela_individual").val(res[3].valor);
+                                    $(".corretora_comissao_5_parcela_individual").val(res[4].valor);
+                                    $(".corretora_comissao_6_parcela_individual").val(res[5].valor);
+                                    
+                                }    
+
+
+                            }
+                        }
+                    });
+                }
+
+
+                
+
+
+                selectedCityCorretora = $(this).text();
+                
+                updatePathCorretora();
+
 
             });
-
-
-
-           
 
             let image_admin = ""
             $("#image_administradora").on('change',function(e){
@@ -1822,7 +1514,229 @@
                 });
             });
 
+            // Variáveis para rastrear as seleções em cada categoria
+            var selectedComissionType = "";
+            var selectedCity = "";
+            var selectedCityCorretora = "";
+            var selectedPlanDetail = "";
+            var selectedPlanDetailCorretora = "";
+            var selectedPlan = "";
+            var selectedPlanCorretora = "";
+            var selectedUser = "";
+
+             // Exibir a tabela de comissão quando selecionar uma cidade e opção
+             $("#comission-cities .city").on('click',function(){
+                var clickedCity = $(this).text();
+                
+
+                if(
+                    selectedCity !== "" && 
+                    selectedCity != clickedCity && 
+                    ($("#tipo").val() == 1 || $("#tipo").val() == 2) &&
+                    $("#cidade_comissao_corretor").val() != "" && 
+                    $("#plano").val() != "" && 
+                    $("#administradora").val() != ""
+
+                ) {
+                    $.ajax({
+                        url:"{{route('verificar.comissao.trocar.cidade')}}",
+                        method:"POST",
+                        data: {
+                            tipo: $("#tipo").val(),
+                            cidade: $(this).attr('data-id'),
+                            plano: $("#plano").val(),
+                            administradora: $("#administradora").val()
+                        },
+                        success:function(res) {
+                            if(res == "nada") {
+                                $(".comissao_1_parcela_coletivo").val('');
+                                $(".comissao_2_parcela_coletivo").val('');
+                                $(".comissao_3_parcela_coletivo").val('');
+                                $(".comissao_4_parcela_coletivo").val('');
+                                $(".comissao_5_parcela_coletivo").val('');
+                                $(".comissao_6_parcela_coletivo").val('');
+                                $(".comissao_7_parcela_coletivo").val('');
+                                $(".comissao_1_individual").val('');
+                                $(".comissao_2_individual").val('');
+                                $(".comissao_3_individual").val('');
+                                $(".comissao_4_individual").val('');
+                                $(".comissao_5_individual").val('');
+                                $(".comissao_6_individual").val('');
+                            } else {
+                                if($("#coletivo-table-comission").is(":visible")) {
+                                    $(".comissao_1_parcela_coletivo").val(res[0].valor);
+                                    $(".comissao_2_parcela_coletivo").val(res[1].valor);
+                                    $(".comissao_3_parcela_coletivo").val(res[2].valor);
+                                    $(".comissao_4_parcela_coletivo").val(res[3].valor);
+                                    $(".comissao_5_parcela_coletivo").val(res[4].valor);
+                                    $(".comissao_6_parcela_coletivo").val(res[5].valor);
+                                    $(".comissao_7_parcela_coletivo").val(res[6].valor);                                    
+                                }
+                                if($("#hapvida-table-comission").is(":visible")) {
+                                    $(".comissao_1_individual").val(res[0].valor);
+                                    $(".comissao_2_individual").val(res[1].valor);
+                                    $(".comissao_3_individual").val(res[2].valor);
+                                    $(".comissao_4_individual").val(res[3].valor);
+                                    $(".comissao_5_individual").val(res[4].valor);
+                                    $(".comissao_6_individual").val(res[5].valor);
+                                }
+                            }
+                        }
+                    });
+                }
+
+                if(
+                    selectedCity !== "" && 
+                    selectedCity != clickedCity && 
+                    $("#tipo").val() == 3 &&
+                    $("#cidade_comissao_corretor").val() != "" && 
+                    $("#plano").val() != "" && 
+                    $("#administradora") != "" &&
+                    $("#user_id").val() != ""            
+                ) {
+                    $.ajax({
+                        url:"{{route('verificar.comissao.trocar.cidade')}}",
+                        method:"POST",
+                        data: {
+                            tipo: $("#tipo").val(),
+                            cidade: $(this).attr('data-id'),
+                            plano: $("#plano").val(),
+                            administradora: $("#administradora").val(),
+                            user:$("#user_id").val()
+                        },
+                        success:function(res) {
+                            if(res == "nada") {
+                                $(".comissao_1_parcela_coletivo").val('');
+                                $(".comissao_2_parcela_coletivo").val('');
+                                $(".comissao_3_parcela_coletivo").val('');
+                                $(".comissao_4_parcela_coletivo").val('');
+                                $(".comissao_5_parcela_coletivo").val('');
+                                $(".comissao_6_parcela_coletivo").val('');
+                                $(".comissao_7_parcela_coletivo").val('');
+                                $(".comissao_1_individual").val('');
+                                $(".comissao_2_individual").val('');
+                                $(".comissao_3_individual").val('');
+                                $(".comissao_4_individual").val('');
+                                $(".comissao_5_individual").val('');
+                                $(".comissao_6_individual").val('');
+                            } else {
+                                if($("#coletivo-table-comission").is(":visible")) {
+                                    $(".comissao_1_parcela_coletivo").val(res[0].valor);
+                                    $(".comissao_2_parcela_coletivo").val(res[1].valor);
+                                    $(".comissao_3_parcela_coletivo").val(res[2].valor);
+                                    $(".comissao_4_parcela_coletivo").val(res[3].valor);
+                                    $(".comissao_5_parcela_coletivo").val(res[4].valor);
+                                    $(".comissao_6_parcela_coletivo").val(res[5].valor);
+                                    $(".comissao_7_parcela_coletivo").val(res[6].valor);                                    
+                                }
+                                if($("#hapvida-table-comission").is(":visible")) {
+                                    $(".comissao_1_individual").val(res[0].valor);
+                                    $(".comissao_2_individual").val(res[1].valor);
+                                    $(".comissao_3_individual").val(res[2].valor);
+                                    $(".comissao_4_individual").val(res[3].valor);
+                                    $(".comissao_5_individual").val(res[4].valor);
+                                    $(".comissao_6_individual").val(res[5].valor);
+                                }
+                            }
+                        }
+                    });
+                }
+                selectedCity = clickedCity;
+                let idCity = $(this).attr('data-id');
+                $("#comission-cities .city").removeClass('ativo');
+                $(this).addClass('ativo');
+                $("#cidade_comissao_corretor").val(idCity);
+                $("#hapvida-options-comissions").css({"display":"flex","flex-direction":"column"});
+                updatePath();
+            });        
+
+            // Função para atualizar o caminho clicado
+            function updatePath() {
+                var pathArray = [];
+
+                if (selectedComissionType !== "") {
+                    pathArray.push("<strong>" + selectedComissionType + "</strong>");
+                }
+                if (selectedCity !== "") {
+                    pathArray.push("<strong>" + selectedCity + "</strong>");
+                }
+                if (selectedPlanDetail !== "") {
+                    pathArray.push("<strong>" + selectedPlanDetail + "</strong>");
+                }
+                if (selectedPlan !== "") {
+                    pathArray.push("<strong>" + selectedPlan + "</strong>");
+                }
+                if (selectedUser !== "") {
+                    pathArray.push("<strong>" + selectedUser + "</strong>");
+                }
+
+                $("#path_clicado").html(pathArray.join(" / "));
+            }
+
+            function updatePathCorretora() {
+                var pathArrayCorretora = [];
+
+                if (selectedCityCorretora !== "") {
+                    pathArrayCorretora.push("<strong>" + selectedCityCorretora + "</strong>");
+                }
+
+                if (selectedPlanDetailCorretora !== "") {
+                    
+                    pathArrayCorretora.push("<strong>" + selectedPlanDetailCorretora + "</strong>");
+                }
+
+                if (selectedPlanCorretora !== "") {
+                    
+                    pathArrayCorretora.push("<strong>" + selectedPlanCorretora + "</strong>");
+                }
+
+                
+
+                $("#path_clicado_corretora").html(pathArrayCorretora.join(" / "));
+            }
+
             
+
+            $(".city").click(function() {
+                // selectedCity = $(this).text();
+                // selectedPlanDetail = "";
+                // selectedPlan = "";
+                // selectedUser = "";
+                // updatePath();
+            });
+
+            $(".option[data-plan-detail='hapvida'], .option[data-plan-detail='coletivo']").click(function() {
+                selectedPlanDetail = $(this).text();
+                selectedPlan = "";
+                selectedUser = "";
+                updatePath();
+            });
+
+            $(".option[data-detail-type='hapvida-options-comissions-planos'], .option[data-detail-type='coletivo-por-adesao-options-comissions']").click(function() {
+                selectedPlan = $(this).text();
+                selectedUser = "";
+                updatePath();
+            });
+
+            $(".option[data-detail-type='user-list-plan']").click(function() {
+                selectedUser = $(this).text();
+                updatePath();
+            });
+
+            $("#cnpj").mask('00.000.000/0000-00');
+            $("#celular").mask('(00) 0 0000-0000');
+            $("#telefone").mask('0000-0000');
+            $("#cep").mask('00000-000');
+            $('#consulta_eletivas_individual').mask("#.##0,00", {reverse: true});
+            $('#consulta_urgencia_individual').mask("#.##0,00", {reverse: true});
+            $('#exames_simples_individual').mask("#.##0,00", {reverse: true});
+            $('#exames_complexos_individual').mask("#.##0,00", {reverse: true});
+            $('#consulta_eletivas_coletivo').mask("#.##0,00", {reverse: true});
+            $('#consulta_urgencia_coletivo').mask("#.##0,00", {reverse: true});
+            $('#exame_simples_coletivo').mask("#.##0,00", {reverse: true});
+            $('#exames_complexos_coletivo').mask("#.##0,00", {reverse: true});
+            $('#terapias_individual').mask("#.##0,00", {reverse: true});
+            $('#terapias_coletivo').mask("#.##0,00", {reverse: true});
 
             $.ajaxSetup({
                 headers: {
@@ -1830,7 +1744,122 @@
                 }
             });
 
-           
+            function showCities() {
+                $("#tab2-content .cities").show();
+            }
+
+            // Função para mostrar as opções de comissão
+            function showComissionOptions() {
+                $("#tab2-content .comission-options").show();
+            }
+
+            // Função para mostrar as sub-opções
+            function showSubOptions() {
+                $("#tab2-content .selected-city .sub-option").show();
+            }
+
+            function showEscolherPlano() {
+                $("#tab2-content .selected-plano .escolher-plano").show();
+            }
+
+            // Área de Atuação
+            $("#tab2-content .area-atuacao").click(function() {
+                showCities();
+            });
+
+            // Cidades
+            $("#tab2-content .city").click(function() {
+                $(".cities .city").removeClass("destaque");
+                $(this).addClass('destaque');
+
+                //var cityName = $(this).text();
+                //$("#tab2-content .selected-city").show().find(".city-name").text(cityName);
+                showComissionOptions();
+            });
+
+            // Opções de Comissão
+            $("#tab2-content .option").click(function() {
+                $(".comission-options .option").removeClass("destaque");
+                $(this).addClass('destaque');
+                let optionPlano = $(this).attr('data-texto');
+                //console.log(optionPlano);
+                //$("#tab2-content .selected-plano").show().find(".escolher-plano").text(optionPlano);
+                //$("#tab2-content .selected-plano").show().find(".escolher-plano").text(optionPlano);
+                //showEscolherPlano();
+                // Esconder todas as opções e mostrar a opção selecionada
+                $("#tab2-content .option-group").removeClass("active");
+                $("#" + optionPlano.toLowerCase() + "-options").addClass("active");
+            });
+
+            $("#tab2-content .sub-option").click(function() {
+                $(".option-group .sub-option").removeClass("destaque");
+                $(this).addClass('destaque');
+                let optionName = $(this).text();
+                let tableName = "";
+                let tableTitle = "";
+                switch(optionName) {
+                    case "Individual":
+                        tableName = "Hapvida";
+                        tableTitle = "Hapvida - Plano Individual";
+                        $(".title-hap").text(tableTitle);
+                        break;
+                    case "Super Simples":
+                        tableName = "Hapvida";
+                        tableTitle = "Hapvida - Plano Super Simples";
+                        $(".title-hap").text(tableTitle);
+                        break;
+                    case "PME":
+                        tableName = "Hapvida";
+                        tableTitle = "Hapvida - Plano PME";
+                        $(".title-hap").text(tableTitle);
+                        break;
+                    case "Sindicato - Sindipão":
+                        tableName = "Hapvida";
+                        tableTitle = "Hapvida - Plano Corpore";
+                        $(".title-hap").text(tableTitle);
+                    break;
+                    case "Corporit":
+                        tableName = "Hapvida";
+                        tableTitle = "Hapvida - Plano Corpore";
+                        $(".title-hap").text(tableTitle);    
+                    break;   
+                    case "Coletivo Integrado":
+                        tableName = "Hapvida";
+                        tableTitle = "Coletivo Integrado";
+                        $(".title-hap").text(tableTitle);
+                    break;    
+                    case "Sindimaco":
+                        tableName = "Hapvida";
+                        tableTitle = "Sindimaco";
+                        $(".title-hap").text(tableTitle);
+                    break;    
+                    case "Qualicorp":
+                        tableName = "Coletivo";
+                        tableTitle = "Qualicorp";
+                        $(".title-coletivo").text(tableTitle);
+                        break;
+                    case "Allcare":
+                        tableName = "Coletivo";
+                        tableTitle = "Allcare"
+                        $(".title-coletivo").text(tableTitle);
+                        break;
+                    case "Alter":
+                        tableName = "Coletivo";
+                        tableTitle = "Alter"
+                        $(".title-coletivo").text(tableTitle);
+                        break;
+                    case "Afix":
+                        tableName = "Coletivo";
+                        tableTitle = "Afix";
+                        $(".title-coletivo").text(tableTitle);
+                    break;
+                }
+
+                $(".comission-table").removeClass("active");
+                // Mostrar a tabela correspondente à opção selecionada
+                $("#" + tableName.toLowerCase() + "-table").addClass("active");
+
+            });
 
 
 
@@ -2882,3 +2911,509 @@
     </script>
 
 @stop
+
+@section('css')
+<style>
+
+
+
+
+
+
+
+
+
+
+    #user-list-parceiro {
+        background-color:#123449;
+        display: none;
+        color:white;
+        padding:5px;
+        height:300px;
+        font-size:0.9em;
+        margin-left:5px;
+        max-height: 300px; /* Altura máxima da div antes de aparecer a barra de rolagem */
+        overflow-y: auto; /* Adicionar barra de rolagem vertical automaticamente */
+        border-radius:5px;
+        scrollbar-width: thin; /* Largura fina da barra de rolagem (Firefox) */
+        scrollbar-color: blue white; /* Cor da barra de rolagem (Firefox) */
+    }
+
+    /* Estilo da barra de rolagem para navegadores Webkit (Chrome, Safari, etc.) */
+    #user-list-parceiro::-webkit-scrollbar {
+        width: 8px; /* Largura da barra de rolagem */
+        background-color: #ffffff;
+    }
+
+    #user-list-parceiro::-webkit-scrollbar-thumb {
+        background-color: #0a2034; /* Cor da barra de rolagem */
+    }
+
+    #user-list-parceiro::-webkit-scrollbar-thumb:hover {
+        
+    }
+   
+
+
+
+
+
+
+
+
+
+
+    .borda-destaque {
+        border:3px solid white;
+    }
+
+
+
+    .dados-corretor {
+        display:flex;
+
+    }
+
+
+    #coletivo-table-comission,
+    #hapvida-table-comission
+    {
+        display:none;
+    }
+
+    .tab2-content-left {
+        display:flex;
+        flex-basis: 45%;
+        align-content:flex-start !important;
+        align-items:flex-start !important;
+
+    }
+
+    .tab2-content-right {
+        display:flex;
+        flex-basis: 55%;
+    }
+
+    #area_atuacao::-webkit-scrollbar {
+        width: 5px; /* Largura da barra de rolagem */
+        height: 3px !important;
+        background-color: white; /* Cor de fundo da barra de rolagem */
+    }
+
+    /* Estilização do polegar (scrollbar thumb) */
+    #area_atuacao::-webkit-scrollbar-thumb {
+        background-color: #0dcaf0; /* Cor do polegar (scrollbar thumb) */
+    }
+
+    #area_atuacao_administradora::-webkit-scrollbar {
+        width: 5px; /* Largura da barra de rolagem */
+        height: 3px !important;
+        background-color: white; /* Cor de fundo da barra de rolagem */
+    }
+
+    /* Estilização do polegar (scrollbar thumb) */
+    #area_atuacao_administradora::-webkit-scrollbar-thumb {
+        background-color: #0dcaf0; /* Cor do polegar (scrollbar thumb) */
+    }
+
+    #area_atuacao_planos::-webkit-scrollbar {
+        width: 5px; /* Largura da barra de rolagem */
+        height: 3px !important;
+        background-color: white; /* Cor de fundo da barra de rolagem */
+    }
+
+    /* Estilização do polegar (scrollbar thumb) */
+    #area_atuacao_planos::-webkit-scrollbar-thumb {
+        background-color: #0dcaf0; /* Cor do polegar (scrollbar thumb) */
+    }
+
+
+    #tab2-content .cities::-webkit-scrollbar {
+        width: 5px; /* Largura da barra de rolagem */
+        height: 3px !important;
+        background-color: white; /* Cor de fundo da barra de rolagem */
+    }
+
+    #tab2-content .cities::-webkit-scrollbar-thumb {
+        background-color: #0dcaf0; /* Cor do polegar (scrollbar thumb) */
+    }
+
+
+    #tab2-content .area-atuacao {
+        display:flex;
+        align-content: flex-start !important;
+        align-items: flex-start !important;
+        justify-content:center;
+        height:30px;
+        width: 140px;
+        color:#FFF;
+        background-color: #123449;
+        text-align:center;
+        cursor: pointer;
+    }
+
+    .toast {
+        width: 500px !important; /* Ajuste este valor conforme necessário */
+    }
+
+
+
+
+    #tab2-content .area-atuacao:hover {
+        background-color: #FFF;
+        color:#123449;
+    }
+
+    #tab2-content .cities {
+        display: none;
+        margin-left: 10px;
+        background-color:#123449;
+        color:#FFF;
+        border-radius:5px;
+        padding:2px;
+        height:300px;
+        overflow: auto;
+    }
+
+    #tab2-content .cities .city {
+        cursor: pointer;
+        margin-bottom: 5px;
+    }
+
+    #tab2-content .option-group {
+        display: none;
+        background-color:#123449;
+        color:#FFF;
+        padding:5px;
+        margin-left:5px;
+        border-radius:5px;
+        height:auto;
+        width:200px;
+
+    }
+
+    #tab2-content .option-group .sub-option {
+        cursor:pointer;
+        display:flex;
+        flex-basis:100%;
+    }
+
+    .destaque {
+        background-color:white;
+        color:black;
+    }
+
+    #tab2-content .option-group.active {
+        display:flex;
+        align-content: flex-start !important;
+        align-items:flex-start !important;
+        flex-wrap:wrap;
+    }
+
+    .ativo {
+        background-color:#FFF;
+        color:#000;
+    }
+
+
+    #tab2-content .comission-options {
+        display: none;
+        background-color:#123449;
+        color:#FFF;
+        height:70px;
+        margin-left:7px;
+        border-radius:5px;
+        padding:3px;
+    }
+
+    #tab2-content .comission-options .option {
+        cursor: pointer;
+        margin-bottom: 5px;
+    }
+
+    #tab2-content .selected-city {
+        display: none;
+        margin-top: 10px;
+    }
+
+    #tab2-content .selected-plano {
+        display: none;
+
+    }
+
+    #tab2-content .selected-tipo {
+        display: none;
+
+    }
+
+
+    #tab2-content .escolher-plano {
+        display: none;
+
+    }
+
+
+
+    #tab2-content .selected-city .option {
+        cursor: pointer;
+        margin-bottom: 5px;
+    }
+
+
+    /*#tab2-content .option-group .sub-option {*/
+    /*    display: none;*/
+    /*    margin-left: 20px;*/
+    /*    cursor: pointer;*/
+    /*}*/
+
+
+
+    /* Estilo para as abas */
+    .config-block {
+        margin-bottom: 20px;
+    }
+
+    #logo_corretora input[type='file'] {
+        display:none;
+    }
+
+    .imageContainer {
+        max-width: 120px;
+        background-color: #eee;
+        border:5px solid #ccc;
+        border-radius: 5%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin:0 auto;
+    }
+
+    .imageContainer img {
+        width:100%;
+        padding:5px;
+        cursor: pointer;
+        transition: background .3s;
+    }
+
+    .imageContainer:hover {
+        background-color: rgb(180,180,180);
+        border:5px solid #111;
+    }
+
+    .config-line {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .config-line label {
+        flex-basis: 50%;
+        box-sizing: border-box;
+        padding: 5px;
+    }
+
+    .config-line input {
+        flex: 1;
+        box-sizing: border-box;
+        padding: 5px;
+        border: 1px solid #ccc;
+    }
+
+    .column {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 50%;
+    }
+
+    .columns {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 50%;
+        padding: 10px;
+    }
+
+    .columns-1 {
+        display:flex;
+        flex-basis:28%;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-content: flex-start;
+        align-items: flex-start;
+    }
+
+    .columns-2 {
+        display:flex;
+        flex-basis:72%;
+        flex-wrap: wrap;
+        align-content: center;
+        align-items: center;
+        justify-content: space-between;
+
+    }
+
+    .tab-container {
+        display: flex;
+    }
+
+    .tab {
+        display: inline-block;
+        cursor: pointer;
+        padding: 10px;
+        background-color: #123449;
+        color: #fff;
+        border-radius: 5px 5px 0 0;
+    }
+
+    .active.tab {
+        background-color: #FFF;
+        color:#123449;
+        font-weight:bold;
+    }
+
+    .tab-content {
+        display: none;
+        margin-top:5px;
+        width: 100%;
+    }
+
+    /* Estilo para o layout da primeira aba */
+    .column-wrapper {
+        display: flex;
+        width: 100%;
+    }
+
+    .column-1 {
+        flex-basis: 10%;
+    }
+
+    .column-2 {
+        flex-basis: 38%;
+        background-color:#123449;
+        border-radius: 5px;
+        margin:0 1%;
+    }
+
+    .column-2 span  {
+        color:#FFF;
+        font-weight:normal;
+    }
+
+    .column-3 {
+        flex-basis: 50%;
+    }
+
+    .comission-table {
+        display: none;
+        width: 100%;
+        margin-left: 30px;
+        background-color:#123449;
+        color:#FFF;
+        padding:5px;
+        border-radius:5px;
+    }
+
+    .comission-table.active {
+        display: block;
+    }
+
+
+    #tab3-content {
+        display:flex;
+    }
+
+    #tab3-content #content_left_comission {
+        display:flex;
+        /* flex-basis:50%; */
+        margin-right:5px;
+        
+    }
+
+    #tab3-content #content_right_comission {
+        display:flex;
+        /* flex-basis:30%; */
+        color:#FFF;
+        width:400px;
+    }
+
+    #tab2-content .comission-options .option {
+        cursor: pointer;
+        margin-bottom: 5px;
+    }
+
+    #hapvida-options-comissions-planos {
+        display: none;
+        background-color:#123449;
+        color:#FFF;
+        padding:5px;
+        margin-left:5px;
+        border-radius:5px;
+        height:auto;
+        font-size:0.9em;
+    }
+
+    #coletivo-por-adesao-options-comissions {
+        display: none;
+        background-color:#123449;
+        color:#FFF;
+        padding:5px;
+        margin-left:5px;
+        border-radius:5px;
+        height:100px;
+        width:80px;
+        min-width:80px;
+        font-size:0.9em;
+    }
+
+    
+
+
+
+
+    #comission-cities {
+        display:none;
+        margin-left: 10px;
+        background-color:#123449;
+        color:#FFF;
+        border-radius:5px;
+        padding:2px;
+        height:300px;
+        overflow: auto;
+        flex-basis:100px;
+        min-width:110px;
+        width:110px !important;
+        font-size:0.9em;
+
+    }
+
+    #hapvida-options-comissions {
+        display: none;
+        background-color:#123449;
+        color:#FFF;
+        height:70px;
+        margin-left:7px;
+        border-radius:5px;
+        min-width:140px !important;
+        padding:3px;
+        width:140px !important;
+        font-size:0.9em;
+    }
+
+
+    .comission-type {
+        display:flex;
+        flex-direction: column;
+        width:138px;
+
+    }
+
+    #hapvida-options-comissions-planos.comission-option,
+    #coletivo-por-adesao-options-comissions.comission-option {
+        margin-left:20px;
+    }
+
+
+
+
+</style>
+    @stop
+

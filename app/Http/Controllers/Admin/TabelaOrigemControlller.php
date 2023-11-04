@@ -30,13 +30,26 @@ class TabelaOrigemControlller extends Controller
 
     public function store(Request $request)
     {
-        if($request->ajax()) {
-            $dados['nome'] = $request->nome;
-            $dados['uf'] = $request->uf;
-            $this->repository->create($request->all());
-            
-        }
+          $cidade = $request->cidade;
+          $uf = $request->uf;
+
+          $to = new TabelaOrigens();
+          $to->nome = $cidade;
+          $to->uf = $uf;
+          $to->save();
+
+          $dados = TabelaOrigens::all();
+
+          return view('admin.pages.home.tabela-origens',[
+             "dados" => $dados
+          ]);
     }
 
+    public function deletar(Request $request)
+    {
+        $del = TabelaOrigens::find($request->id);
+        $del->delete();
+        
+    }
 
 }

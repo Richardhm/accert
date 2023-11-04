@@ -20,8 +20,13 @@ class OrcamentoController extends Controller
 {
     public function index()
     {
+
         $faixaEtaria = FaixaEtaria::all();
         $tabelaOrigem = TabelaOrigens::all();
+
+
+
+
 
         return view('admin.pages.orcamento.index',[
             "faixaEtaria" => $faixaEtaria,
@@ -454,46 +459,17 @@ class OrcamentoController extends Controller
         $img = $pdf->logo;
 
 
-
-
-
-        // if($administradora_search->nome == "Hapvida" || $administradora_search->nome == "hapvida" || $administradora_search->nome == "PME" || $administradora_search->nome == "Super Simples" || $administradora_search->nome == "Sindicato - Sindipão") {
-
-        //     $linha01 = $pdf->linha_01_individual;
-        //     $linha02 = $pdf->linha_02_individual;
-        //     $linha03 = $pdf->linha_03_individual;
-
-        //     $consultas_eletivas     = $pdf->consultas_eletivas_individual;
-        //     $consultas_de_urgencia  = $pdf->consultas_urgencia_individual;
-        //     $exames_simples         = $pdf->exames_simples_individual;
-        //     $exames_complexos       = $pdf->exames_complexos_individual;
-        //     $terapias               = $pdf->terapias_individual;
-
-
-
-        //     $nome_pdf = "orcamento ".$administradora_search->nome." ".$plano_nome."_".date('d/m/Y')."_".date('H:i').".pdf";
-
-        // } else {
-        //     $linha01 = $pdf->linha_01_coletivo;
-        //     $linha02 = $pdf->linha_02_coletivo;
-        //     $linha03 = $pdf->linha_03_coletivo;
-
-        //     $consultas_eletivas = $pdf->consultas_eletivas_coletivo;
-        //     $consultas_de_urgencia = $pdf->consultas_urgencia_coletivo;
-        //     $exames_simples = $pdf->exames_simples_coletivo;
-        //     $exames_complexos = $pdf->exames_complexos_coletivo;
-        //     $terapias               = $pdf->terapias_coletivo;
-
-        //     $nome_pdf = "orcamento ".$administradora_search->nome." ".$plano_nome."_".date('d/m/Y')."_".date('H:i').".pdf";
-
-        // }
-
         $user = User::find(auth()->user()->id);
 
        if($user) {
             $nome = $user->name;
             if($user->celular) {
-                $telefone_user = $user->celular;
+                if(auth()->user()->id == 15) {
+                    $telefone_user = $user->celular."- (62) 9 9358-1475";
+                } else {
+                    $telefone_user = $user->celular;
+                }
+
                 $telefone_whattsap = str_replace([" ","(",")","-"],"",$user->celular);
             } else {
                 $telefone_user = $pdf->celular;
@@ -547,7 +523,8 @@ class OrcamentoController extends Controller
             "terapias" => $terapias,
             "site_icone" => $site_icone,
             "quantidade" => $quantidade,
-            "texto_odonto" => $texto_odonto
+            "texto_odonto" => $texto_odonto,
+            "plano_id" => $plano_id
 
         ]);
 
@@ -568,74 +545,6 @@ class OrcamentoController extends Controller
         return response()
             ->download(storage_path("app/temp/{$nome_img}.png"))
             ->deleteFileAfterSend(true);
-        //return true;
-
-        // $html = $view->render();
-        // // Instancia o objeto Dompdf
-
-        // // Carrega o HTML no Dompdf
-        // $pdf = PDF::loadHTML($html);
-
-
-
-        // //$pdfPath = $pdf->download('documento.pdf');
-        // $imagePath = url('teste.png');
-
-        // $imagick = new \Imagick();
-        // $imagick->readImageBlob($view);
-        // $imagick->setImageFormat('png');
-        // $imagick->resizeImage(800, 0, \Imagick::FILTER_LANCZOS, 1);
-        // // $imagick->setResolution(300, 300); // Ajuste a resolução para 300 DPI (ou a resolução desejada)
-        // // $imagick->readImage($pdfPath);
-        // // $imagick->setImageFormat('png');
-        // // $imagick->writeImage($imagePath);
-        // $imagick->clear();
-        // $imagick->destroy();
-
-        // header('Content-Type: image/png');
-        // readfile($imagePath);
-        // return;
-
-
-
-        // $pdf = PDF::loadView('admin.pages.orcamento.pdf2',[
-        //     "frase_consultor" => $frase_consultor,
-        //     "planos" => $dados,
-        //     "nome" => $nome,
-        //     "administradoras" => $administradora,
-        //     "telefone" => $telefone_user,
-        //     "telefone_whattsap" => $telefone_whattsap,
-        //     "image"=>$image_user,
-        //     "plano" => $plano,
-        //     "icone_site_oficial"=>$icone_site_oficial,
-        //     "icone_boleto"=>$icone_boleto,
-        //     "icone_marcar_consulta" => $icone_marcar_consulta,
-        //     "icone_rede_atendimento" => $icone_rede_atendimento,
-        //     "icone_clinica" => $icone_clinica,
-        //     "icone_hospital" => $icone_hospital,
-        //     "icone_lupa" => $icone_lupa,
-        //     "icone_endereco" => $icone_endereco,
-        //     "icone_zap_footer" => $icone_zap_footer,
-        //     "logo" => $logo,
-        //     "nome_cidade" => $cidade_nome,
-        //     "consultas_eletivas" => $consultas_eletivas,
-        //     "consultas_de_urgencia" => $consultas_de_urgencia,
-        //     "exames_simples" => $exames_simples,
-        //     "exames_complexos" => $exames_complexos,
-        //     "linha01" => $linha01,
-        //     "linha02" => $linha02,
-        //     "linha03" => $linha03,
-        //     "site" => $site,
-        //     "endereco" => $endereco,
-        //     "terapias" => $terapias,
-        //     "site_icone" => $site_icone
-        // ]);
-
-        // return $pdf;
-
-
-
-        //return $pdf->download(Str::kebab($nome_pdf));
 
 
 

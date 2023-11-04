@@ -30,11 +30,13 @@ class ContratosExport implements FromCollection, WithHeadings, WithMapping
             DB::raw('(select nome from administradoras where administradoras.id = comissoes.administradora_id) as administradora'),
             DB::raw('(select nome from planos where planos.id = comissoes.plano_id) as plano'),
             DB::raw('
-                case when comissoes.empresarial then
-                    (select valor_plano from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
-                else
-                    (select valor_plano from contratos where contratos.id = comissoes.contrato_id)
-                END AS valor
+                COALESCE(
+        CASE
+            WHEN comissoes.empresarial THEN
+                (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+            ELSE
+                (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
+        END, 0) AS valor
             '),
             DB::raw('
                 case when comissoes.empresarial then
@@ -43,6 +45,13 @@ class ContratosExport implements FromCollection, WithHeadings, WithMapping
                     (SELECT cpf FROM clientes WHERE id = ((SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id)))
                 END AS documento
             '),
+
+            DB::raw('CASE WHEN comissoes.empresarial THEN
+                     (SELECT quantidade_vidas FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                 ELSE
+                     (SELECT quantidade_vidas FROM clientes WHERE id = ((SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id)))
+            END AS quantidade_vidas'),
+
             DB::raw('
                 case when comissoes.empresarial then
                     (select codigo_externo from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
@@ -50,12 +59,18 @@ class ContratosExport implements FromCollection, WithHeadings, WithMapping
                     (SELECT codigo_externo FROM contratos WHERE contratos.id = comissoes.contrato_id)
                 END AS codigo_externo
             '),
+
+
+
             DB::raw('
-                case when comissoes.empresarial then
-                    (select desconto_corretor from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
-                else
-                    (select desconto_corretor from contratos where contratos.id = comissoes.contrato_id)
-                END AS desconto
+                COALESCE(
+                CASE
+                    WHEN comissoes.empresarial THEN
+                        (SELECT desconto_corretor FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                    ELSE
+                        (SELECT desconto_corretor FROM contratos WHERE contratos.id = comissoes.contrato_id)
+                END, 0) AS desconto
+
                 '),
             DB::raw('
                 case when comissoes.empresarial then
@@ -84,9 +99,9 @@ class ContratosExport implements FromCollection, WithHeadings, WithMapping
             ->where('status_apto_pagar', 1)
             ->where('status_financeiro', 1)
             ->where('finalizado', 1)
-            //->whereMonth('data_baixa_finalizado', '=', $this->mes)
+            ->whereMonth('data_baixa_finalizado', '=', $this->mes)
             ->groupBy('comissoes_id')
-            ->orderBy('corretor')
+            ->orderByRaw('corretor,plano')
             ->get();
 
         return $comissoes;
@@ -98,15 +113,19 @@ class ContratosExport implements FromCollection, WithHeadings, WithMapping
     public function headings(): array
     {
         return [
-          "corretor",
-          "cliente",
-          "administradora",
-          "plano",
-          "parcela",
-          "data_cadastro",
-          "data_vigencia",
-          "valor",
-          "desconto"
+          "Corretor",
+            "Codigo",
+            "Documento",
+          "Cliente",
+          "Administradora",
+          "Plano",
+          "Parcela",
+          "Data Cadastro",
+          "Data Vigencia",
+          "Valor",
+          "Desconto",
+            "Vidas",
+
         ];
     }
 
@@ -114,6 +133,8 @@ class ContratosExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
            $linha->corretor,
+           $linha->codigo_externo,
+           $linha->documento,
            $linha->cliente,
            $linha->administradora,
            $linha->plano,
@@ -121,7 +142,9 @@ class ContratosExport implements FromCollection, WithHeadings, WithMapping
            $linha->data_cadastro,
            $linha->data_vigencia,
            $linha->valor ?? 0,
-           $linha->desconto
+           $linha->desconto,
+           $linha->quantidade_vidas,
+
         ];
     }
 

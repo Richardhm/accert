@@ -373,7 +373,16 @@
                                 {{$dados->codigo_externo}}
 
                             </td>
-                            <td style="font-size:0.875em;">{{date('d/m/Y',strtotime($cr->data))}}</td>
+                            <td style="font-size:0.875em;">
+                                @if($cr->parcela == 1)
+                                    {{date('d/m/Y',strtotime($dados->data_boleto))}}
+                                @elseif($cr->parcela == 2)
+                                    {{date('d/m/Y',strtotime($dados->data_vigencia))}}    
+                                @else
+                                    {{date('d/m/Y',strtotime($cr->data))}}
+                                @endif
+                           
+                            </td>
                             <td style="font-size:0.875em;">
 
                                 @if($cr->parcela == 1)

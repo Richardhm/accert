@@ -3,11 +3,11 @@
 @section('plugins.Datatables', true)
 
 @section('content_top_nav_right')
-   
+
     <a class="nav-link" data-widget="fullscreen" href="#" role="button">
         <i class="fas fa-expand-arrows-alt text-white"></i>
     </a>
-    
+
 @stop
 
 @section('content_header')
@@ -25,7 +25,7 @@
         </div>
 
     </div>
-    
+
 @stop
 
 
@@ -37,7 +37,7 @@
 
     <div style="flex-basis:83%;">
         <div class="p-2" style="background-color:#123449;color:#FFF;border-radius:5px;">
-            <table id="tabela_individual" class="table table-sm listardados">
+            <table id="tabela_individual" class="table table-sm listardados" style="table-layout: fixed;">
                 <thead>
                     <tr>
                         <th>Data</th>
@@ -47,16 +47,28 @@
                         <th>CPF/CNPJ</th>
                         <th>Vidas</th>
                         <th>Valor</th>
-                        <th>Vencimento</th>                                  
-                        <th>Status</th>
+                        <th>Plano</th>
                         <th>Ver</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
-                
-            </table>   
+
+            </table>
         </div>
-    </div>  
+    </div>
+@stop
+
+@section('css')
+    <style>
+        #tabela_individual td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: clip;
+        }
+
+        th { font-size: 0.8em !important; }
+        td { font-size: 0.7em !important; }
+    </style>
 @stop
 
 @section('js')
@@ -66,7 +78,7 @@
             $(".back").on('click',function(){
                 window.history.go(-1);
                 return false;
-            });    
+            });
 
 
 
@@ -83,7 +95,7 @@
             var corretor = $("#corretor").val();
 
             var estagio = $("#estagio").val();
-            
+
             var taindividual = $(".listardados").DataTable({
                 dom: '<"d-flex justify-content-between"<"#title_individual">ft><t><"d-flex justify-content-between"lp>',
                 order: [[0, 'desc']],
@@ -95,175 +107,68 @@
                     "dataSrc": ""
                 },
                 "lengthMenu": [1000,2000,3000],
-                "ordering": true,
+
                 "paging": true,
                 "searching": true,
                 "info": true,
                 "autoWidth": false,
                 "responsive": true,
-               
+                "ordering": false,
                 columns: [
-                    {data:"created_at",name:"data",
-                        "createdCell": function (td,cellData,rowData,row,col) {
-                            if(rowData.empresarial) {
-                                let datas = rowData.contrato_empresarial.created_at.split("T")[0];
-                                let alvo = datas.split("-").reverse().join("/");
-                                $(td).html(alvo)    
+                    {data:"data",name:"data",width:"5%"},
+                    {data:"orcamento",name:"orcamento",width:"5%"},
+                    {data:"corretor",name:"corretor",width:"10%"},
+                    {data:"cliente",name:"cliente",width:"20%"},
+                    {data:"documento",name:"documento",width:"10%"},
+                    {data:"vidas",name:"vidas",width:"5%",className:'dt-center'},
+                    {data:"valor",name:"valor",width:"8%"},
+                    {data:"plano_nome",name:"plano_nome",width:"8%"},
+                    {data:"plano",name:"plano",width:"5%","createdCell":function(td,cellData,rowData,row,col) {
+                            let contrato_id = rowData.id;
+                            if(cellData == 1) {
+                                $(td).html(`<div class='text-center text-white'>
+                                    <a href="/admin/financeiro/detalhes/${contrato_id}" target="_blank" class="text-white">
+                                        <i class='fas fa-eye'></i>
+                                    </a>
+                                </div>
+                            `);
+                            } else if(cellData == 3) {
+                                $(td).html(`<div class='text-center text-white'>
+                                    <a href="/admin/financeiro/detalhes/coletivo/${contrato_id}" target="_blank" class="text-white">
+                                        <i class='fas fa-eye'></i>
+                                    </a>
+                                </div>
+                            `);
                             } else {
-                                let datas = cellData.split("T")[0]
-                                let alvo = datas.split("-").reverse().join("/")
-                                $(td).html(alvo)    
+                                $(td).html(`<div class='text-center text-white'>
+                                    <a href="/admin/financeiro/detalhes/empresarial/${contrato_id}" target="_blank" class="text-white">
+                                        <i class='fas fa-eye'></i>
+                                    </a>
+                                </div>
+                            `);
                             }
-                        },                       
-                    },
-                    {
-                        data:"created_at",name:"orcamento",
-                        "createdCell": function (td, cellData, rowData, row, col) {
-                            if(rowData.empresarial) {
-                                let codigo = rowData.contrato_empresarial.codigo_externo;
-                                $(td).html(codigo);
-                            } else {
-                                let codigo = rowData.contrato.clientes.codigo_externo;
-                                $(td).html(codigo);
-                            }
-                        }
-                    },
-                    {
-                        data:"user.name",name:"corretor",
-                        "createdCell":function(td, cellData, rowData, row, col) {
-                            let palavra = cellData.split(" ");
-                            if(palavra.length >= 3) {
-                                $(td).html(palavra[0]+" "+palavra[1]+"...")
-                            }
-                        }
-                    },
-                    {
-                        data:"id",name:"cliente",
-                        "createdCell": function (td, cellData, rowData, row, col) {
-                            if(rowData.empresarial) {
-                                let cliente = rowData.contrato_empresarial.responsavel;
-                                let palavra = cliente.split(" ");
-                                if(palavra.length >= 3) {
-                                    $(td).html(palavra[0]+" "+palavra[1]+"...")
-                                } else {
-                                    $(td).html(cliente);
-                                }
-                                
-                            } else {
-                                let cliente = rowData.contrato.clientes.nome;
-                                let palavra = cliente.split(" ");
-                                if(palavra.length >= 3) {
-                                    $(td).html(palavra[0]+" "+palavra[1]+"...")
-                                } else {
-                                    $(td).html(cliente);
-                                }
-                                
-                            }
-                        }
-                    },
-                    {
-                        data:"id",name:"cpf",
-                        "createdCell": function (td, cellData, rowData, row, col) {
-                            if(rowData.empresarial) {
-                                let cpf = rowData.contrato_empresarial.cnpj;
-                                $(td).html(cpf);    
-                            } else {
-                                let cpf = rowData.contrato.clientes.cpf;
-                                $(td).html(cpf);
-                            }
-                        }
-                    },
-                    {
-                        data:"id",name:"vidas",
-                        "createdCell": function (td, cellData, rowData, row, col) {
-                            
-                            if(rowData.empresarial) {
-                                $(td).html(rowData.contrato_empresarial.quantidade_vidas);
-                            } else {
-                                $(td).html(rowData.contrato.clientes.quantidade_vidas);
-                            }
+
+
+
+
 
                         }
-                    },
-                    {
-                        data:"id",name:"valor",
-                        "createdCell": function (td, cellData, rowData, row, col) {
-
-                            if(rowData.empresarial) {
-                                let valor_total = rowData.contrato_empresarial.valor_total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});  
-                                let valor_total_br = parseFloat(valor_total).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
-                                $(td).html(valor_total_br);
-                            } else {
-                                let valor_plano = rowData.contrato.valor_plano;  
-                                let valor_plano_br = parseFloat(valor_plano).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
-                                $(td).html(valor_plano_br);
-                            }
-
-                        }
-                    },
-                    {
-                        data:"id",name:"vencimento",
-                        "createdCell": function (td, cellData, rowData, row, col) {
-
-                            if(rowData.ultima_comissao_paga == null) {
-                                let dados = rowData.comissao_atual_financeiro.data.split("-").reverse().join("/");
-                                $(td).html(dados);
-                            } else {
-                                let dados = rowData.comissao_atual_financeiro.data.split("-").reverse().join("/");
-                                $(td).html(dados);    
-                            }
-
-                        }
-                    },
-                    {
-                        data:"id",name:"status",
-                        "createdCell": function (td, cellData, rowData, row, col) {
-
-                            if(rowData.empresarial) {
-                                $(td).html(rowData.contrato_empresarial.financeiro.nome);
-                            } else {
-                                $(td).html(rowData.contrato.financeiro.nome);
-                            }
-                                
-                        }
-                    },
-                    {
-                        data:"id",name:"ver",
-                        
-                            "createdCell":function(td,cellData,rowData,row,col) {
-                                
-                                if(rowData.plano_id == 1) {
-                                    $(td).css({"text-align":"center"}).html("<a href='/admin/financeiro/detalhes/"+rowData.contrato.id+"' class='text-white'><i class='fas fa-eye'></i></a>")
-                                } else if(rowData.plano_id == 3) {
-                                    $(td).css({"text-align":"center"}).html("<a href='/admin/financeiro/detalhes/coletivo/"+rowData.contrato.id+"' class='text-white'><i class='fas fa-eye'></i></a>")
-                                } else {
-
-                                }
-
-
-                                
-                        
-                                // /financeiro/detalhes/coletivo/{id}
-                            }
                     }
-                    
+
                 ],
                 "columnDefs": [
-                
-                    {
-                        "targets": 0,   
-                        "width":"2%"
-                    }
-                   
+
+
+
                ],
 
                "drawCallback": function( settings ) {
                     var api = this.api();
 
-                    
+
                     total_linhas = api.column(5).data();
-                    
-                    
+
+
                 },
                 "initComplete": function( settings, json ) {
                     $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
@@ -281,7 +186,7 @@
 
                     valor_total = api.column(6).data().reduce(function (a, b) {
 	                    return intVal(a) + intVal(b);
-                    }, 0);  
+                    }, 0);
 
                     // $(".total_contratos").html("Contrato: "+total_linhas);
                     // $(".total_vidas").html("Total Vidas:"+total_vidas);
@@ -290,7 +195,7 @@
 
                 },
                 footerCallback: function (row, data, start, end, display) {
-                    
+
                 }
             });
 

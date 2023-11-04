@@ -16,8 +16,27 @@ class HomeController extends Controller
     public function index()
     {
         $users = User::where("id","!=",1)->get();
+        $ranking = DB::select(
+            "
+            select
+            users.name as usuario,
+            users.image AS imagem,
+            (
+                       (select if(sum(quantidade_vidas)>0,sum(quantidade_vidas),0) from clientes where clientes.user_id = comissoes.user_id)
+                       +
+                       (select if(sum(quantidade_vidas)>0,sum(quantidade_vidas),0) from contrato_empresarial where contrato_empresarial.user_id = comissoes.user_id)
+            ) as quantidade
+            from comissoes
+            inner join users on users.id = comissoes.user_id
+            group by user_id order by quantidade desc
+            "
+            );
+        
+
+
         return view('admin.pages.home.administrador',[
-            "users" => $users
+            "users" => $users,
+            "ranking" => $ranking
         ]);
     }
 
@@ -65,26 +84,18 @@ class HomeController extends Controller
             AS full_tabela");
 
             return view("admin.pages.home.resultado-search",[
-
                 "tabelas" => $tabelas,
                 "card_inicial" => $tabelas[0]->card,
                 "ambulatorial" => $ambulatorial,
                 'card_incial_ambulatorial' => count($ambulatorial) >= 1 ? $ambulatorial[0]->card : ""
-
             ]);
-
-
-
     }
 
     public function tabelaPrecoRespostaCidade(Request $request)
     {
         $id = $request->administradora;
-
-
         if($request->cidade != null) {
             $cidade = $request->cidade;
-
             $tabelas = DB::select("SELECT faixas,administradora,card,cidade,plano,odontos,apartamento_com_coparticipacao_com_odonto,enfermaria_com_coparticipacao_com_odonto,apartamento_sem_coparticipacao_com_odonto,enfermaria_sem_coparticipacao_com_odonto FROM (
             SELECT
             (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS faixas,
@@ -102,9 +113,6 @@ class HomeController extends Controller
 
                 GROUP BY faixa_etaria_id,administradora_id,plano_id,tabela_origens_id,odonto ORDER BY id)
             AS full_tabela");
-
-
-
 
             $ambulatorial = DB::select("SELECT faixas,administradora,card,cidade,plano,odontos,ambulatorial_com_coparticipacao,ambulatorial_com_coparticipacao_total,ambulatorial_sem_coparticipacao,ambulatorial_sem_coparticipacao_total FROM (
             SELECT
@@ -141,22 +149,7 @@ class HomeController extends Controller
                 return "error_vazio";
             }
 
-
-
-
-
-
-
-
-
-
-
-
-
         } else {
-
-
-
 
             $tabelas = DB::select("SELECT faixas,administradora,card,cidade,plano,odontos,apartamento_com_coparticipacao_com_odonto,enfermaria_com_coparticipacao_com_odonto,apartamento_sem_coparticipacao_com_odonto,enfermaria_sem_coparticipacao_com_odonto FROM (
             SELECT
@@ -198,12 +191,10 @@ class HomeController extends Controller
             AS full_tabela");
 
             return view("admin.pages.home.resultado-search",[
-
                 "tabelas" => $tabelas,
                 "card_inicial" => $tabelas[0]->card,
                 "ambulatorial" => $ambulatorial,
                 'card_incial_ambulatorial' => count($ambulatorial) >= 1 ? $ambulatorial[0]->card : ""
-
             ]);
 
 
@@ -224,9 +215,6 @@ class HomeController extends Controller
         $administradoras = Administradoras::orderBy("id","desc")->get();
 
         $cidades = TabelaOrigens::all();
-
-
-
         $tabelas = DB::select('SELECT faixas,administradora,card,cidade,plano,odontos,apartamento_com_coparticipacao_com_odonto,enfermaria_com_coparticipacao_com_odonto,apartamento_sem_coparticipacao_com_odonto,enfermaria_sem_coparticipacao_com_odonto FROM (
             SELECT
             (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS faixas,

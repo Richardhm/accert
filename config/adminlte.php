@@ -347,23 +347,23 @@ return [
             'can' => 'comissao'
         ],
 
-        [
-            'text' => 'Tabela de Preços',
-            'url'  => 'admin/tabela',
-            'icon' => 'fas fa-money-bill',
-            'classes' => 'text-white financeiro_adminlte',
-            'can' => 'financeiro',
-            'active' => ['tabela',"http://localhost:8000/admin/tabela/*"]
-        ],
+        // [
+        //     'text' => 'Tabela de Preços',
+        //     'url'  => 'admin/tabela',
+        //     'icon' => 'fas fa-money-bill',
+        //     'classes' => 'text-white financeiro_adminlte',
+        //     'can' => 'financeiro',
+        //     'active' => ['tabela',"http://localhost:8000/admin/tabela/*"]
+        // ],
 
-        [
-            'text' => 'Corretores',
-            'url'  => 'admin/corretores/active_inative',
-            'icon' => 'fas fa-users',
-            'classes' => 'text-white financeiro_adminlte',
-            'can' => 'financeiro',
-            'active' => ['corretores',"http://localhost:8000/admin/corretores/*"]
-        ],
+        // [
+        //     'text' => 'Corretores',
+        //     'url'  => 'admin/corretores/active_inative',
+        //     'icon' => 'fas fa-users',
+        //     'classes' => 'text-white financeiro_adminlte',
+        //     'can' => 'financeiro',
+        //     'active' => ['corretores',"http://localhost:8000/admin/corretores/*"]
+        // ],
 
 
 
@@ -401,7 +401,7 @@ return [
                 ],
                [
                     'text' => 'Colaborador',
-                    'url'  => '',
+                    'url'  => 'admin/corretores',
                     'icon' => 'fas fa-users',
                     'classes' => 'text-white',
                     'active' => ['corretores',"http://localhost:8000/admin/corretores/*"]
@@ -490,6 +490,18 @@ return [
         JeroenNoten\LaravelAdminLte\Menu\Filters\DataFilter::class,
     ],
 
+    'extensions' => [
+        'Datatables' => [
+            'language' => [
+                'url' => '/traducao/pt-BR.json', // Substitua pelo caminho correto
+            ],
+        ],
+    ],
+
+
+
+
+
     /*
     |--------------------------------------------------------------------------
     | Plugins Initialization
@@ -531,18 +543,6 @@ return [
                     'location' => '/vendor/datatables/datatables.min.css',
                 ],
 
-
-
-
-
-
-
-                // [
-                //     'type' => 'js',
-                //     'asset' => false,
-                //     'location' => '//cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js',
-                // ],
-
             ],
         ],
         'Select2' => [
@@ -575,6 +575,7 @@ return [
                 ],
             ],
         ],
+        
         'Toastr' => [
             'active' => false,
             'files' => [
@@ -588,6 +589,44 @@ return [
                     'asset' => true,
                     'location' => '/vendor/toastr/toastr.min.css',
                 ],
+
+            ]
+        ],
+        'Leaf' => [
+            'active' => false,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '/vendor/leaflet/leaflet.js',
+                ],
+                [
+                    'type' => 'css',
+                    'asset' => true,
+                    'location' => '/vendor/leaflet/leaflet.css',
+                ],
+
+            ]
+        ],
+        'Carousel' => [
+            'active' => false,
+            'files' => [
+                [
+                    'type' => 'css',
+                    'asset' => true,
+                    'location' => '/vendor/carousel/slick.min.css',
+                ],
+                [
+                    'type' => 'css',
+                    'asset' => true,
+                    'location' => '/vendor/carousel/slick-theme.min.css',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '/vendor/carousel/slick.min.js',
+                ],
+               
 
             ]
         ],

@@ -11,6 +11,7 @@ use App\Models\FaixaEtaria;
 use App\Models\TabelaOrigens;
 use App\Models\Tabela;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class TabelaController extends Controller
 {
@@ -34,17 +35,17 @@ class TabelaController extends Controller
 
     public function search()
     {
-        
+
         $administradoras = Administradoras::all();
-        $tipos = Planos::all();    
-        
+        $tipos = Planos::all();
+
         $modelos = Acomodacao::all();
         $cidades =  TabelaOrigens::all();
 
-        
+
 
         return view('admin.pages.tabelas.search',[
-            
+
             "administradoras" => $administradoras,
             "tipos" => $tipos,
             "modelos" => $modelos,
@@ -54,9 +55,8 @@ class TabelaController extends Controller
 
     public function pesquisar(Request $request)
     {
-        
+
         $rules = [
-            
             "administradora_search" => "required",
             "planos_search" => "required",
             "coparticipacao_search" => "required",
@@ -65,7 +65,6 @@ class TabelaController extends Controller
         ];
 
         $message = [
-            
             "administradora_search.required" => "O campo administradora e campo obrigatorio",
             "planos_search.required" => "O campo plano e campo obrigatorio",
             "coparticipacao_search.required" => "O campo coparticipacao e campo obrigatorio",
@@ -74,36 +73,32 @@ class TabelaController extends Controller
         ];
 
         $request->validate($rules,$message);
-        
+
         $administradora = $request->administradora_search;
         $planos = $request->planos_search;
         $coparticipacao = ($request->coparticipacao_search == "sim" ? 1 : 0);
         $odonto = ($request->odonto_search == "sim" ? 1 : 0);
         $cidade = $request->cidade_search;
-        
-        
-        
 
         $tabelas = DB::select("SELECT faixas,apartamento,id_apartamento,enfermaria,id_enfermaria,ambulatorial,id_ambulatorial FROM (
-                select 
+                select
                     (SELECT nome FROM faixa_etarias WHERE faixa_etarias.id = fora.faixa_etaria_id) AS faixas,
                     (SELECT valor FROM tabelas AS dentro where administradora_id = ".$administradora." AND plano_id = ".$planos." AND coparticipacao = ".$coparticipacao." AND odonto = ".$odonto." AND tabela_origens_id = ".$cidade." AND acomodacao_id = 1 AND dentro.faixa_etaria_id = fora.faixa_etaria_id) AS apartamento,
                     (SELECT id    FROM tabelas AS dentro where administradora_id = ".$administradora." AND plano_id = ".$planos." AND coparticipacao = ".$coparticipacao." AND odonto = ".$odonto." AND tabela_origens_id = ".$cidade." AND acomodacao_id = 1 AND dentro.faixa_etaria_id = fora.faixa_etaria_id) AS id_apartamento,
-                    
+
                     (SELECT valor FROM tabelas as dentro where administradora_id = ".$administradora." AND plano_id = ".$planos." AND coparticipacao = ".$coparticipacao." AND odonto = ".$odonto." AND tabela_origens_id = ".$cidade." AND acomodacao_id = 2 AND dentro.faixa_etaria_id = fora.faixa_etaria_id) AS enfermaria,
                     (SELECT id FROM tabelas AS dentro where administradora_id = ".$administradora." AND plano_id = ".$planos." AND coparticipacao = ".$coparticipacao." AND odonto = ".$odonto." AND tabela_origens_id = ".$cidade." AND acomodacao_id = 2 AND dentro.faixa_etaria_id = fora.faixa_etaria_id) AS id_enfermaria,
-                    (SELECT valor FROM tabelas as dentro where administradora_id = ".$administradora." AND plano_id = ".$planos." AND coparticipacao = ".$coparticipacao." AND odonto = ".$odonto." AND tabela_origens_id = ".$cidade." AND acomodacao_id = 3 AND dentro.faixa_etaria_id = fora.faixa_etaria_id) AS ambulatorial, 
-                    (SELECT id FROM tabelas as dentro where administradora_id = ".$administradora." AND plano_id = ".$planos." AND coparticipacao = ".$coparticipacao." AND odonto = ".$odonto." AND tabela_origens_id = ".$cidade." AND acomodacao_id = 3 AND dentro.faixa_etaria_id = fora.faixa_etaria_id) AS id_ambulatorial 
-                    
-                    
-                    from tabelas AS fora 
-                    where administradora_id = ".$administradora." AND plano_id = ".$planos." AND coparticipacao = ".$coparticipacao." AND odonto = ".$odonto." AND tabela_origens_id = ".$cidade." GROUP BY faixa_etaria_id ORDER BY id) AS full_tabela");
-        
+                    (SELECT valor FROM tabelas as dentro where administradora_id = ".$administradora." AND plano_id = ".$planos." AND coparticipacao = ".$coparticipacao." AND odonto = ".$odonto." AND tabela_origens_id = ".$cidade." AND acomodacao_id = 3 AND dentro.faixa_etaria_id = fora.faixa_etaria_id) AS ambulatorial,
+                    (SELECT id FROM tabelas as dentro where administradora_id = ".$administradora." AND plano_id = ".$planos." AND coparticipacao = ".$coparticipacao." AND odonto = ".$odonto." AND tabela_origens_id = ".$cidade." AND acomodacao_id = 3 AND dentro.faixa_etaria_id = fora.faixa_etaria_id) AS id_ambulatorial
 
-        
+
+                    from tabelas AS fora
+                    where administradora_id = ".$administradora." AND plano_id = ".$planos." AND coparticipacao = ".$coparticipacao." AND odonto = ".$odonto." AND tabela_origens_id = ".$cidade." GROUP BY faixa_etaria_id ORDER BY id) AS full_tabela");
+
+
+
         $administradoras = Administradoras::all();
-        $tipos = Planos::all();   
-        
+        $tipos = Planos::all();
         $cidades =  TabelaOrigens::all();
 
 
@@ -113,30 +108,89 @@ class TabelaController extends Controller
                 "cidades" => $cidades,
                 "administradoras" => $administradoras,
                 "tipos" => $tipos,
-                
-                
+
+
                 "administradora_id" => $administradora ?? "",
                 "plano_id" => !empty($planos) ? $planos : "",
-                "cidade_id" => !empty($cidade) ? $cidade : "",    
+                "cidade_id" => !empty($cidade) ? $cidade : "",
                 "coparticipacao" => ($request->coparticipacao_search == "sim" ? 1 : 0),
                 "odonto" => ($request->odonto_search == "sim" ? 1 : 0),
                 "coparticipacao_texto" => ($request->coparticipacao_search == "sim" ? "Com Coparticipacao" : "Sem Coparticipacao"),
                 "odonto_texto" => ($request->odonto_search == "sim" ? "Com Odonto" : "Sem Odonto"),
                 "administradora_texto" => Administradoras::where("id",$request->administradora_search)->selectRaw("nome")->first()->nome
-            ]);    
+            ]);
     }
 
-    public function store(Request $request) 
+
+
+
+
+    protected function regraValidacaoUnicidade()
     {
+        $odonto = $this->request->odonto == "sim" ? true : false;
+        $coparticipacao = $this->request->coparticipacao == "sim" ? true : false;
+
+
+        return Rule::unique('tabelas')
+            ->where('administradora_id', $this->request->administradora)
+            ->where('plano_id', $this->request->planos)
+            ->where('tabela_origens_id', $this->request->tabela_origem)
+            ->where('coparticipacao', $coparticipacao)
+            ->where('odonto', $odonto);
+
+    }
+
+
+    /*Precisa verificar apenas os campos administradora_id,plano_id,tabela_origens_id,coparticipacao,odonto*/
+
+
+    public function store(Request $request)
+    {
+
+        $ja_existe = Tabela
+            ::where("administradora_id",$request->administradora)
+            ->where("tabela_origens_id",$request->tabela_origem)
+            ->where("plano_id",$request->planos)
+            ->where("coparticipacao",$request->coparticipacao)
+            ->where("odonto",$request->odonto);
+
+        if($ja_existe->count() >= 1) {
+            return redirect()->route('tabela.index')->with('error',"Já existe essa tabela cadastrada");
+        }
+
+        $regras = [
+            'administradora' => 'required',
+            'planos' => 'required',
+            'tabela_origem' => 'required',
+            'coparticipacao' => 'required',
+            'odonto' => 'required',
+            'faixa_etaria_id_apartamento' => 'required|array',
+            'faixa_etaria_id_enfermaria' => 'required|array',
+            'faixa_etaria_id_ambulatorial' => 'required|array',
+            'valor_apartamento' => 'required|array',
+            'valor_apartamento.*' => 'required', // Validação para cada valor do array
+            'valor_enfermaria' => 'required|array',
+            'valor_enfermaria.*' => 'required', // Validação para cada valor do array
+            'valor_ambulatorial' => 'required|array',
+            'valor_ambulatorial.*' => 'required', // Validação para cada valor do array
+        ];
+
+        // Mensagens de erro personalizadas
+        $mensagens = [
+            'required' => 'O campo :attribute é obrigatório.',
+        ];
+
+        // Executa a validação
+        $request->validate($regras, $mensagens);
 
          foreach($request->faixa_etaria_id_apartamento as $k => $v) {
                 $tabela = new Tabela();
-                
+
                 $tabela->administradora_id = $request->administradora;
                 $tabela->plano_id = $request->planos;
                 $tabela->tabela_origens_id = $request->tabela_origem;
                 $tabela->acomodacao_id = 1;
-                
+
                 $tabela->coparticipacao = ($request->coparticipacao == "sim" ? true : false);
                 $tabela->odonto = ($request->odonto == "sim" ? true : false);
                 $tabela->faixa_etaria_id = $request->faixa_etaria_id_apartamento[$k];
@@ -151,24 +205,24 @@ class TabelaController extends Controller
                 $tabela->plano_id = $request->planos;
                 $tabela->tabela_origens_id = $request->tabela_origem;
                 $tabela->acomodacao_id = 2;
-                
+
                 $tabela->coparticipacao = ($request->coparticipacao == "sim" ? true : false);
                 $tabela->odonto = ($request->odonto == "sim" ? true : false);
 
                 $tabela->faixa_etaria_id = $request->faixa_etaria_id_enfermaria[$k];
                 $tabela->valor = str_replace([".",","],["","."],$request->valor_enfermaria[$k]);
-                
+
                 $tabela->save();
             }
 
             foreach($request->faixa_etaria_id_ambulatorial as $k => $v) {
                 $tabela = new Tabela();
-                
+
                 $tabela->administradora_id = $request->administradora;
                 $tabela->plano_id = $request->planos;
                 $tabela->tabela_origens_id = $request->tabela_origem;
                 $tabela->acomodacao_id = 3;
-                
+
                 $tabela->coparticipacao = ($request->coparticipacao == "sim" ? true : false);
                 $tabela->odonto = ($request->odonto == "sim" ? true : false);
 
@@ -180,12 +234,7 @@ class TabelaController extends Controller
             }
 
             return redirect()->route('tabela.index')->with('success',"A tabela foi cadastrada com sucesso");
-
-
-
-
     }
-
 
     public function edit(Request $request)
     {

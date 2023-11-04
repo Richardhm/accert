@@ -8,6 +8,13 @@
 
 @section('content')
 
+    <div class="ajax_load">
+        <div class="ajax_load_box">
+            <div class="ajax_load_box_circle"></div>
+            <p class="ajax_load_box_title">Aguarde, carregando...</p>
+        </div>
+    </div>
+
     <div class="modal fade" id="mudarDataCriacao" tabindex="-1" role="dialog" aria-labelledby="mudarDataCriacaoLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -22,7 +29,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Salvar Data</button>
-                
+
             </div>
             </div>
         </div>
@@ -43,29 +50,29 @@
             </div>
 
             <div style="display:flex;justify-content: space-around;">
-                <div style="display:flex;flex-direction: column;">   
-                    <span>Corretora:</span>        
-                    <input type="text" id="desconto_corretora_valores">
-                </div>   
                 <div style="display:flex;flex-direction: column;">
-                    <span>Corretor</span> 
+                    <span>Corretora:</span>
+                    <input type="text" id="desconto_corretora_valores">
+                </div>
+                <div style="display:flex;flex-direction: column;">
+                    <span>Corretor</span>
                     <input type="text" id="desconto_corretor_valores" disabled>
                 </div>
             </div>
-      
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Salvar Valores</button>
-                
+
             </div>
             </div>
         </div>
     </div>
 
-	
+
 	<div style="background-color:#123449;border-radius:5px;padding:10px 5px;">
-	
+
 	<form action="" method="post" class="px-3" name="cadastrar_pessoa_fisica_formulario_modal_coletivo" id="cadastrar_pessoa_fisica_formulario_modal_coletivo">
-            @csrf              
+            @csrf
             <input type="hidden" name="tipo_cadastro" value="administrador_cadastro">
 
             <input type="hidden" name="tipo_financeiro" value="true">
@@ -77,7 +84,7 @@
 
             <!-- Primeiro Linha -->
             <div class="d-flex">
-                
+
                 <div style="flex-basis:13%;">
                     <div class="form-group">
                         <span for="administradora" class="text-white">Usuarios:</span>
@@ -86,7 +93,7 @@
                             @foreach($users as $u)
                                 <option value="{{$u->id}}">{{$u->name}}</option>
                             @endforeach
-                        </select>    
+                        </select>
                     </div>
                 </div>
 
@@ -98,7 +105,7 @@
                             @foreach($administradoras as $admin)
                                 <option value="{{$admin->id}}" {{old('administradora') == $admin->id ? 'selected' : ''}}>{{$admin->nome}}</option>
                             @endforeach
-                        </select>    
+                        </select>
                         <div class="erroradministradora"></div>
                     </div>
                 </div>
@@ -111,7 +118,7 @@
                             @foreach($cidades as $cc)
                                 <option value="{{$cc->id}}" {{old('cidade_id') == $cc->id ? 'selected' : ''}}>{{$cc->nome}}</option>
                             @endforeach
-                        </select>   
+                        </select>
                        <div class="errorcidade"></div>
                     </div>
                 </div>
@@ -149,7 +156,7 @@
                         <input type="email" name="email_coletivo" id="email_coletivo" placeholder="Email" class="form-control  form-control-sm" value="">
                         <div class="erroremail"></div>
                     </div>
-                </div>    
+                </div>
 
                 <div style="flex-basis:5;margin-right: 1%;">
                     <span for="celular" class="text-white">Celular:</span>
@@ -159,13 +166,13 @@
                 <div style="flex-basis:5;">
                     <span for="telefone" class="text-white">Telefone:</span>
                     <input type="text" placeholder="Telefone" class="form-control form-control-sm" name="telefone" id="telefone" />
-                </div>    
+                </div>
 
-            </div>    
+            </div>
             <!-- Fim Primeiro Linha -->
 
-            <!-- Segunda Linha -->                
-            <div class="d-flex">                 
+            <!-- Segunda Linha -->
+            <div class="d-flex">
 
                 <div style="flex-basis:8%;margin-right:1%;">
                     <div class="form-group">
@@ -184,38 +191,38 @@
                 <div class="form-group" style="flex-basis:13%;margin-right:1%;">
                     <span for="bairro" class="text-white">Bairro:</span>
                     <input type="text" name="bairro_coletivo" id="bairro_coletivo" value="{{old('bairro_coletivo')}}" placeholder="Bairro" class="form-control  form-control-sm" value="">
-                    
+
                 </div>
 
                 <div class="form-group" style="flex-basis:12%;margin-right:1%;">
                     <span for="rua" class="text-white">Rua:</span>
                     <input type="text" name="rua_coletivo" id="rua_coletivo" value="{{old('rua_coletivo')}}" placeholder="Logradouro(Rua)" class="form-control  form-control-sm" value="">
-                    
+
                 </div>
 
                 <div class="form-group" style="flex-basis:15%;">
                     <span for="bairro" class="text-white">Complemento:</span>
                     <input type="text" name="complemento_coletivo" id="complemento_coletivo" value="{{old('complemento_coletivo')}}" placeholder="Complemento(Opcional)" class="form-control  form-control-sm" value="">
-                    
+
                 </div>
 
 
                 <div class="form-group" style="flex-basis:5%;margin-left:1%;">
                     <span for="uf" class="text-white">UF:</span>
                     <input type="text" name="uf_coletivo" id="uf_coletivo" value="{{old('uf_coletivo')}}" placeholder="UF" class="form-control  form-control-sm" value="">
-                    
+
                 </div>
 
 
-                
+
 
                 <div style="flex-basis:10%;margin:0 1%;">
                     <div class="form-group">
                         <span for="codigo_externo" class="text-white">Codigo Externo:</span>
                         <input type="text" name="codigo_externo_coletivo" required id="codigo_externo_coletivo" value="{{old('codigo_externo_coletivo')}}" class="form-control  form-control-sm" placeholder="COD.">
-                        
+
                     </div>
-                </div>  
+                </div>
 
                 <div style="flex-basis:10%;margin:0 1% 0 0">
                     <div class="form-group d-flex justify-content-center flex-column">
@@ -227,16 +234,16 @@
                             <label class="btn btn-outline-light" id="coparticipacao_nao" style="padding:0.21rem 0.75rem;">
                                 <input type="radio" name="coparticipacao_coletivo" id="coparticipacao_radio_nao" value="nao" {{old('coparticipacao_coletivo') == "nao" ? 'checked' : ''}}> Não
                             </label>
-                            
+
                         </div>
-                        
+
                     </div>
-                </div>        
+                </div>
 
                 <div style="flex-basis:10%;">
                     <div class="form-group  d-flex justify-content-center flex-column">
                         <span for="odonto" class="text-white">Odonto:</span>
-                        
+
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-outline-light" id="odonto_sim" style="padding:0.21rem 0.75rem;">
                                 <input type="radio" name="odonto_coletivo" id="odonto_radio_sim" value="sim" {{old('odonto') == "sim" ? 'checked' : ''}}> Sim
@@ -244,31 +251,31 @@
                             <label class="btn btn-outline-light" id="odonto_nao" style="padding:0.21rem 0.75rem;">
                                 <input type="radio" name="odonto_coletivo" id="odonto_radio_nao" value="nao" {{old('odonto') == "nao" ? 'checked' : ''}}> Não
                             </label>
-                            
+
                         </div>
                         <div class='errorodonto'></div>
                     </div>
-                </div>   
+                </div>
 
 
             </div>
             <!-- Fim Segunda Linha -->
-        
+
             <div class="d-flex">
-                    
+
                 <div style="flex-basis:10%;">
                     <input type="checkbox" id="dependente_coletivo" name="dependente_coletivo"><span class="text-white">Responsável</span>
                 </div>
 
                 <div style="flex-basis:90%;" class="d-none" id="container_responsavel_coletivo">
 
-                    <div class="d-flex">                      
+                    <div class="d-flex">
                         <div style="flex-basis:30%;margin-right:1%;display:flex;">
-                           
+
                                 <span style="flex-basis:30%;" for="codigo_externo" class="text-white">Responsável:</span>
                                 <input style="flex-basis:70%;" type="text" name="responsavel_financeiro_coletivo_cadastrar_nome" id="responsavel_financeiro_coletivo_cadastrar_nome" value="{{old('responsavel_financeiro_coletivo_cadastrar_nome')}}" class="form-control  form-control-sm" placeholder="Nome Responsavel">
-                        </div>  
-                        <div style="flex-basis:70%;display:flex;">                            
+                        </div>
+                        <div style="flex-basis:70%;display:flex;">
                                 <span style="flex-basis:17%;" for="codigo_externo" class="text-white">CPF Responsável:</span>
                                 <input style="flex-basis:30%;" type="text" name="responsavel_financeiro_coletivo_cadastrar_cpf" id="responsavel_financeiro_coletivo_cadastrar_cpf" value="{{old('responsavel_financeiro_coletivo_cadastrar_cpf')}}" class="form-control  form-control-sm" placeholder="CPF Responsavel">
                        </div>
@@ -278,9 +285,9 @@
             </div>
             <!--Faixas Etarias--->
            <section>
-                <div class="errorfaixas"></div>                   
+                <div class="errorfaixas"></div>
                     <div class="d-flex">
-                        
+
                         <div style="flex-basis:10%;">
                             <span for="" class="text-white">0-18:</span>
                             <div class="border border-white rounded">
@@ -293,8 +300,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
 
                         <div style="flex-basis:10%;margin:0 10px;">
@@ -309,8 +316,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;">
                             <span for="" class="text-white">24-28:</span>
@@ -324,8 +331,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;margin:0 10px;">
                             <span for="" class="text-white">29-33:</span>
@@ -339,8 +346,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;">
                             <span for="" class="text-white">34-38:</span>
@@ -354,8 +361,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>              
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;margin:0 10px;">
                             <span for="" class="text-white">39-43:</span>
@@ -369,8 +376,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;">
                             <span for="" class="text-white">44-48:</span>
@@ -384,8 +391,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;margin:0 10px;">
                             <span for="" class="text-white">49-53:</span>
@@ -399,8 +406,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;margin:0 10px 0 0;">
                             <span for="" class="text-white">54-58:</span>
@@ -414,8 +421,8 @@
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
-                        </div>      
+                            </div>
+                        </div>
 
                         <div style="flex-basis:10%;">
                             <span for="" class="text-white">59+</span>
@@ -425,29 +432,29 @@
                                     <button type="button" class="minus align-items-center d-flex justify-content-center bg-danger"  id="faixa-59_individual" style="border:none;background:#FF0000;width:30%;max-height: 30px;" aria-label="−" tabindex="0">
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">－</span>
                                     </button>
-                                    
+
                                     <input type="tel" data-change="change_faixa_59" name="faixas_etarias[10]" value="{{isset($colunas) && in_array(10,$colunas) ? $faixas[array_search(10, array_column($faixas, 'faixa_etaria_id'))]['faixa_quantidade'] : ''}}" id="faixa-input-59_coletivo" class="text-center font-weight-bold faixas_etarias d-flex" style="border:none;width:40%;font-size:1.2em;max-height: 30px;" value="" step="1" min="0" />
-                                    
+
                                     <button type="button" class="plus align-items-center d-flex justify-content-center" style="border:none;background:rgb(17,117,185);width:30%;max-height: 30px;" aria-label="+" tabindex="0">
                                         <span class="text-white font-weight-bold" style="font-size:1.5em;">＋</span>
                                     </button>
                                 </div>
-                            </div>  
+                            </div>
                         </div>
 
                     </div>
-                    <!--Fim Faixa Etaria-->                      
-                </section> 
+                    <!--Fim Faixa Etaria-->
+                </section>
                 <div class="form-row mt-3">
                     <div class="col-12 d-flex rounded">
                         <button id="mostrar_plano_coletivo" class="w-100">Mostrar Planos</button>
                     </div>
                 </div>
                 <div id="resultado_coletivo">
-                </div>    
+                </div>
             </form>
 
-    </div>        
+    </div>
 
 
 
@@ -457,11 +464,16 @@
 @section('css')
     <style>
         .destaque {border:5px solid rgba(36,125,157) !important;box-shadow: 5px -9px 3px #000 !important; }
+        .ajax_load {display:none;position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;}
+        .ajax_load_box{margin:auto;text-align:center;color:#fff;font-weight:var(700);text-shadow:1px 1px 1px rgba(0,0,0,.5)}
+        .ajax_load_box_circle{border:16px solid #e3e3e3;border-top:16px solid #61DDBC;border-radius:50%;margin:auto;width:80px;height:80px;-webkit-animation:spin 1.2s linear infinite;-o-animation:spin 1.2s linear infinite;animation:spin 1.2s linear infinite}
+        @-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg)}}
+        @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
     </style>
 @stop
 
 @section('js')
-	<script src="{{asset('js/jquery.mask.min.js')}}"></script>  
+	<script src="{{asset('js/jquery.mask.min.js')}}"></script>
 	<script>
 		$(function(){
             $("#email_coletivo").on('keyup',(e) => {
@@ -472,7 +484,7 @@
                 var Soma;
                 var Resto;
                 Soma = 0;
-                
+
                 if (strCPF == "00000000000") return false;
                 for (i=1; i<=9; i++) Soma = Soma + parseInt(strCPF.substring(i-1, i)) * (11 - i);
                 Resto = (Soma * 10) % 11;
@@ -489,10 +501,10 @@
 
 
 			function adicionaZero(numero){
-                if (numero <= 9) 
+                if (numero <= 9)
                     return "0" + numero;
                 else
-                    return numero; 
+                    return numero;
             }
             $("#cep_coletivo").change(function(){
                 let cep = $(this).val().replace("-","");
@@ -501,7 +513,7 @@
                     headers: {'content-type': 'application/json;charset=utf-8'}
                 }
                 fetch(url,options).then(response => response.json()).then(
-                    data => {       
+                    data => {
                         $("#rua_coletivo").val(data.logradouro);
                         $("#bairro_coletivo").val(data.bairro);
                         $("#complemento_coletivo").val(data.complemento);
@@ -511,7 +523,7 @@
                 )
                 if($(this).val() != "") {
                     $(".errorcep").html('');
-                }   
+                }
             });
 
             $('#cnpj').mask('00.000.000/0000-00');
@@ -530,23 +542,23 @@
             $('#desconto_corretora_valores').mask("#.##0,00", {reverse: true});
             //$('#desconto_corretor_valores').mask("#.##0,00", {reverse: true});
             $('#cpf_individual').mask('000.000.000-00');
-            $('#cpf_financeiro_individual_cadastro').mask('000.000.000-00');   
-            $('#responsavel_financeiro_coletivo_cadastrar_cpf').mask('000.000.000-00');            
-            $('#cpf_coletivo').mask('000.000.000-00');  
-            $('#cep_individual').mask('00000-000');          
-            $('#cep_coletivo').mask('00000-000');      
+            $('#cpf_financeiro_individual_cadastro').mask('000.000.000-00');
+            $('#responsavel_financeiro_coletivo_cadastrar_cpf').mask('000.000.000-00');
+            $('#cpf_coletivo').mask('000.000.000-00');
+            $('#cep_individual').mask('00000-000');
+            $('#cep_coletivo').mask('00000-000');
 			$.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
-            });    
+            });
 
 			$("body").on('change','#dependente_coletivo',function(){
                if($(this).is(':checked')) {
                     $("#container_responsavel_coletivo").removeClass('d-none');
                 } else {
                     $("#container_responsavel_coletivo").addClass('d-none');
-                } 
+                }
             });
 
             let plus = $(".plus");
@@ -575,7 +587,7 @@
             });
 
             $("body").on('change','input[name="boleto"]',function(){
-                let data_boleto = $(this).val();                
+                let data_boleto = $(this).val();
                 $(this).closest('form').find('#data_boleto').val(data_boleto);
             });
 
@@ -781,8 +793,8 @@
                         "hideMethod": "fadeOut"
                     }
                     return false;
-                 }               
-                 
+                 }
+
                  if($("#cep_coletivo").val() == "") {
                     toastr["error"]("Cep é campo obrigatório")
                     toastr.options = {
@@ -934,8 +946,8 @@
                         "showMethod": "fadeIn",
                         "hideMethod": "fadeOut"
                     }
-                    return false;  
-                } 
+                    return false;
+                }
 
                 if(!$('input:radio[name=odonto_coletivo]').is(':checked')) {
                     toastr["error"]("Odonto é campo obrigatório")
@@ -956,19 +968,19 @@
                         "showMethod": "fadeIn",
                         "hideMethod": "fadeOut"
                     }
-                    return false;  
-                } 
+                    return false;
+                }
 
                 if(
-                    $("#faixa-input-0-18_coletivo").val() == "" && 
-                    $("#faixa-input-19-23_coletivo").val() == "" && 
-                    $("#faixa-input-24-28_coletivo").val() == "" && 
-                    $("#faixa-input-29-33_coletivo").val() == "" && 
-                    $("#faixa-input-34-38_coletivo").val() == "" && 
-                    $("#faixa-input-39-43_coletivo").val() == "" && 
-                    $("#faixa-input-44-48_coletivo").val() == "" && 
-                    $("#faixa-input-49-53_coletivo").val() == "" && 
-                    $("#faixa-input-54-58_coletivo").val() == "" && 
+                    $("#faixa-input-0-18_coletivo").val() == "" &&
+                    $("#faixa-input-19-23_coletivo").val() == "" &&
+                    $("#faixa-input-24-28_coletivo").val() == "" &&
+                    $("#faixa-input-29-33_coletivo").val() == "" &&
+                    $("#faixa-input-34-38_coletivo").val() == "" &&
+                    $("#faixa-input-39-43_coletivo").val() == "" &&
+                    $("#faixa-input-44-48_coletivo").val() == "" &&
+                    $("#faixa-input-49-53_coletivo").val() == "" &&
+                    $("#faixa-input-54-58_coletivo").val() == "" &&
                     $("#faixa-input-59_coletivo").val() == ""
                 ) {
                     toastr["error"]("Preencher pelo menos 1 faixa etaria")
@@ -989,8 +1001,8 @@
                         "showMethod": "fadeIn",
                         "hideMethod": "fadeOut"
                     }
-                    return false;  
-                }    
+                    return false;
+                }
 
                 $.ajax({
                     url:"{{route('contratos.montarPlanos')}}",
@@ -1013,6 +1025,7 @@
                             '10' : $('#faixa-input-59_coletivo').val()
                         }]
                     },
+
                     success(res) {
                         $("#resultado_coletivo").slideUp().html(res).delay(100).slideToggle(100,function(){
                             $('body,html').animate({
@@ -1020,10 +1033,10 @@
                             },1500);
                         });
                         $("body").find('.vigente').datepicker({
-                            onSelect: function() { 
-                                var dateObject = $(this).datepicker('getDate'); 
-                                let dataFormatada = (dateObject.getFullYear() + "-" + adicionaZero(((dateObject.getMonth() + 1))) + "-" + adicionaZero((dateObject.getDate()))) ;     
-                                $("form[name='cadastrar_pessoa_fisica_formulario_modal_coletivo']").find("#data_vigencia").attr("value",dataFormatada);   
+                            onSelect: function() {
+                                var dateObject = $(this).datepicker('getDate');
+                                let dataFormatada = (dateObject.getFullYear() + "-" + adicionaZero(((dateObject.getMonth() + 1))) + "-" + adicionaZero((dateObject.getDate()))) ;
+                                $("form[name='cadastrar_pessoa_fisica_formulario_modal_coletivo']").find("#data_vigencia").attr("value",dataFormatada);
                             }
                         });
 
@@ -1057,9 +1070,9 @@
                     }
                 });
                 return false;
-            });	
+            });
 
-			$('body').on('click','.valores-acomodacao',function(e){        
+			$('body').on('click','.valores-acomodacao',function(e){
                 if($("#created_at").val() == "") {
                     $('#mudarDataCriacao').modal('show');
                 }
@@ -1085,9 +1098,9 @@
                 });
                 if($(e.target).is('.form-control')) {
                     return;
-                }  
+                }
             });
-           
+
 
             $('#mudarDataCriacao').on('hidden.bs.modal', function (e) {
                 let valor = $("#data_criacao").val();
@@ -1097,12 +1110,12 @@
             var intVal = function (i) {
                 return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
             };
-            
+
             $('#modalDiferencaEntreValores').on('hidden.bs.modal', function (e) {
                 $('form[name="cadastrar_pessoa_fisica_formulario_modal_coletivo"]').submit();
             });
 
-            
+
             $("#desconto_corretora_valores").change(function(){
                 let valor = $(this).val().replace(".","").replace(",",".");
                 let total = $(".diferenca_entre_valores").text().replace("R$","").replace(".","").replace(",",".").trim();
@@ -1115,6 +1128,7 @@
 
 
             $('form[name="cadastrar_pessoa_fisica_formulario_modal_coletivo"]').on('submit',function(){
+                var load = $(".ajax_load");
                 $.ajax({
                     url:"{{route('contratos.store')}}",
                     method:"POST",
@@ -1140,7 +1154,7 @@
                                 "showMethod": "fadeIn",
                                 "hideMethod": "fadeOut"
                             }
-                            return false;  
+                            return false;
                         }
 
                         if($("#data_boleto").val() == "") {
@@ -1162,7 +1176,7 @@
                                 "showMethod": "fadeIn",
                                 "hideMethod": "fadeOut"
                             }
-                            return false;      
+                            return false;
                         }
 
                         if($("#valor_adesao").val() == "") {
@@ -1184,7 +1198,7 @@
                                 "showMethod": "fadeIn",
                                 "hideMethod": "fadeOut"
                             }
-                            return false;            
+                            return false;
                         }
 
                         if(($("#valor_adesao").val() != $("#valor").val()) && $("#desconto_corretor").val() == "") {
@@ -1192,14 +1206,14 @@
                             let valor_a = $("#valor_adesao").val().replace(".","").replace(",",".");
                             let diferenca = valor_t - valor_a;
                             let valor_difrenca = diferenca.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
-                            $(".diferenca_entre_valores").text(valor_difrenca);                            
+                            $(".diferenca_entre_valores").text(valor_difrenca);
                             $('#modalDiferencaEntreValores').modal('show');
                             return false;
                         }
-
+                        load.fadeIn(100).css("display", "flex");
                     },
                     success:function(res) {
-                        
+                        load.fadeOut(300);
                         if(res == "contratos") {
                             $(location).prop('href','/admin/contratos?ac=coletivo');
                             return true;
@@ -1209,20 +1223,20 @@
                         }  else {
                             $(location).prop('href','/admin/contrato?ac=coletivo');
                             return true;
-                        }      
+                        }
                     }
-                });  
+                });
                 return false;
             });
 
 			function montarValores(data) {
-                
+
                 $.ajax({
                     url:"{{route('contratos.montarPlanos')}}",
                     method:"POST",
                     data: data,
                     success(res) {
-                         console.log(res);  
+                         console.log(res);
                         // $("#resultado_coletivo").slideUp().html(res).delay(100).slideToggle(100,function(){
                         //     $('body,html').animate({
                         //         scrollTop:$(window).scrollTop() + $(window).height(),
@@ -1230,10 +1244,10 @@
                         // });
 
                         // $("body").find('.vigente').datepicker({
-                        //     onSelect: function() { 
-                        //         var dateObject = $(this).datepicker('getDate'); 
-                        //         let dataFormatada = (dateObject.getFullYear() + "-" + adicionaZero(((dateObject.getMonth() + 1))) + "-" + adicionaZero((dateObject.getDate()))) ;     
-                        //         $("form[name='cadastrar_pessoa_fisica_formulario_modal_coletivo']").find("#data_vigencia").attr("value",dataFormatada);   
+                        //     onSelect: function() {
+                        //         var dateObject = $(this).datepicker('getDate');
+                        //         let dataFormatada = (dateObject.getFullYear() + "-" + adicionaZero(((dateObject.getMonth() + 1))) + "-" + adicionaZero((dateObject.getDate()))) ;
+                        //         $("form[name='cadastrar_pessoa_fisica_formulario_modal_coletivo']").find("#data_vigencia").attr("value",dataFormatada);
                         //     }
                         // });
 
@@ -1267,7 +1281,7 @@
                     }
                 });
                 return false;
-            }				
+            }
 		});
 	</script>
 

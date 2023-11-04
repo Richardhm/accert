@@ -1,5 +1,5 @@
 @extends('adminlte::page')
-@section('title', 'Gerenciavel - Baixas')
+@section('title', 'Gerenciavel - Concluidos')
 
 @section('content_top_nav_right')
     <a class="nav-link" data-widget="fullscreen" href="#" role="button">
@@ -8,7 +8,7 @@
 @stop
 
 @section('content_header')
-    <h1 class=" border-bottom border-dark">Baixas</h1>
+    <h1 class=" border-bottom border-dark">Concluidos</h1>
 @stop
 
 @section('content')
@@ -24,14 +24,27 @@
            <!-- 0 <h3 style="background-color:#123449;text-align:center;color:#FFF;margin:0;border-top-left-radius: 5px;border-top-right-radius: 5px;height:20px;"></h3> -->
             <table class="table table-sm table-striped table-bordered">
                 <thead>
+
                     <tr style="background-color:#123449;color:#FFF;">
+
                         <th colspan="6" style="vertical-align : middle;text-align:center;">
                             <h6 class="mx-auto" style="margin-top:6px;">{{$cliente}} - {{$cpf}}</h6>
                         </th>
-                        <td style="text-align:center;">Corretora</td>
-                        <td style="text-align:center;">Corretor</td>
-                        <td style="text-align:center;">Status</td>
+
+                        <td style="text-align:center;">
+                            Corretora
+                        </td>
+
+                        <td style="text-align:center;">
+                            Corretor
+                        </td>
+
+                        <td style="text-align:center;">
+                            Status
+                        </td>
+
                     </tr>
+
                 </thead>
                 <tbody>
                     <tr>
@@ -53,52 +66,24 @@
                             <td>{{date("d/m/Y",strtotime($co->data_baixa))}}</td>
                             <td>0</td>
                             <td>R$ {{number_format($co->comissao_valor_corretora,2,",",".")}}</td>
-
-{{--                            <td>--}}
-{{--                                <input type="text" data-corretora="{{$co->id_corretora}}" data-configuracao-porcentagem="{{$co->porcentagem_parcela_corretora_id}}" id="porcentagem_corretora" value="{{$co->porcentagem_paga ? $co->porcentagem_paga : $co->porcentagem_parcela_corretora}}" style="width:45px">--}}
-{{--                            </td>--}}
-
-{{--                            <td>--}}
-{{--                                <input type="text" style="color:#666;" name="recebido" data-corretora-valor="{{$co->id_corretora}}" data-configuracao-porcentagem-valor="{{$co->porcentagem_parcela_corretora_id}}" class="form-control-sm" id="recebido" value="{{$co->valor_pago != 0 ? $co->valor_pago : $co->comissao_valor_corretora }}">--}}
-{{--                            </td>--}}
-
-
                             <td>
                                 R$ {{number_format($co->comissao_valor_corretor,2,",",".")}}
                             </td>
-
-{{--                            <td><input type="text" data-corretor="{{$co->id_corretor}}" data-default-porcentagem="{{$co->porcentagem_parcela_corretor_id}}" id="porcentagem_corretor" value="{{$co->comissao_porcentagem_pago_corretor != 0 ? $co->comissao_porcentagem_pago_corretor :  $co->porcentagem_parcela_corretores}}" style="width:45px"></td>--}}
-{{--                            <td><input type="text" style="color:#666;" data-corretor="{{$co->id_corretor}}" class="form-control-sm" id="recebido_corretor" value="{{ number_format($co->comissao_valor_corretor,2,',','.') }}"></td>--}}
                             <td align="center" v-align="middle" style="vertical-align : middle;text-align:center;">
                                 <select name="" data-comissao-corretor="{{$co->id_corretor_comissao}}" data-comissao-corretora="{{$co->id_corretora}}" class="form-control-sm mx-auto d-flex mudar_pago_parcela" data-corretor="{{$co->id_corretor}}" data-corretora="{{$co->id_corretora}}">
-                                    <option value="">Em Aberto</option>
-                                    <option value="pago">Pago</option>
-                                    <option value="repique">Repique</option>
+                                    <option value="">----</option>
+                                    <option value="voltar">Voltar</option>
                                 </select>
                             </td>
-
-
                         </tr>
                     @endforeach
                 </tbody>
             </table>
-
         </section>
-
         <hr style="background-color:tomato" width="100%" />
-
         <section>
-
-
-
-
         </section>
     </main>
-
-
-
-
-
     <a href="{{route('gerente.index')}}" class="btn btn-block btn-lg mt-3 text-white" style="background-color:#123449;">Voltar</a>
 @stop
 
@@ -138,7 +123,6 @@
                     method:"POST",
                     data:"id="+id+"&valor="+valor+"&valor_plano="+valor_plano+"&valor_corretora="+valor_corretora+"&id_configuracao_corretora="+id_configuracao_corretora+"&acao=porcentagem",
                     success:function(res) {
-
                         $("#recebido").val(res.valor);
                         $("#porcentagem_corretora").val(res.porcentagem);
                     }
@@ -156,7 +140,6 @@
                     method:"POST",
                     data:"id="+id+"&valor="+valor+"&valor_plano="+valor_plano+"&default_corretor="+default_corretor+"&acao=porcentagem",
                     success:function(res) {
-
                         $("#recebido_corretor").val(res.valor);
                         $("#porcentagem_corretor").val(res.porcentagem);
                     }
@@ -173,12 +156,9 @@
                     method:"POST",
                     data:"id="+id+"&valor="+valor+"&valor_plano="+valor_plano+"&id_configuracao="+id_configuracao+"&acao=valor",
                     success:function(res) {
-
                         $("#porcentagem_corretora").val(res)
-
                     }
                 });
-
             });
 
             $("#recebido_corretor").on('change',function(){
@@ -198,22 +178,17 @@
 
             $(".mudar_pago_parcela").on('change',function(){
                 let valor = $(this).val();
-                //let corretor = $(this).attr('data-corretor');
-                //let corretora = $(this).attr('data-corretora');
                 let corretor = $(this).attr('data-comissao-corretor');
                 let corretora = $(this).attr('data-comissao-corretora');
-                let select = $(this);
-
+                let select = $(this);               
+                
                 $.ajax({
-                    url:"{{route('gerente.administradorapagoucomissao')}}",
+                    url:"{{route('gerente.administradorapagoucomissao.pagos')}}",
                     method:"POST",
                     data:"corretor="+corretor+"&corretora="+corretora,
                     success:function(res) {
                         select.closest('tr').slideUp("slow");
-                        //console.log(res);
-                        // $("#porcentagem_corretor").val(res);
-                        // $("#recebido_corretor").val(res.valor);
-                        // $("#porcentagem_corretor").val(res.porcentagem);
+                        
                     }
                 });
             });

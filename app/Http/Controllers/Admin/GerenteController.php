@@ -24,6 +24,7 @@ use App\Models\{Contrato,
     Cancelado,
     ComissoesCorretoresDefault,
     MotivoCancelados,
+    Corretora,
     Premiacoes,
     PremiacoesCorretoraLancadas,
     PremiacoesCorretoresLancadas,
@@ -35,6 +36,8 @@ use Illuminate\Http\Request;
 use PDF;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Cache;
 
 
 class GerenteController extends Controller
@@ -58,16 +61,104 @@ class GerenteController extends Controller
             ->selectRaw("REPLACE(FORMAT(sum(valor_salario),2),'.',',') as total_salario")
             ->selectRaw("REPLACE(FORMAT(sum(valor_premiacao),2),'.',',') as valor_premiacao")
             ->selectRaw("REPLACE(FORMAT(sum(valor_desconto),2),'.',',') as valor_desconto")
-            ->selectRaw("REPLACE(FORMAT(sum(valor_desconto),2),'.',',') as valor_desconto")
             ->selectRaw("REPLACE(FORMAT(sum(valor_estorno),2),'.',',') as valor_estorno")
+            ->selectRaw("REPLACE(FORMAT(sum(valor_total),2),'.',',') as total_mes")
             ->whereMonth("data",$mes)
             ->first();
-        return $dados;
+
+        $total_individual_quantidade = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            ->where("status_apto_pagar",1)
+            //->where("finalizado",1)
+            ->whereMonth("data_baixa_finalizado",$mes)
+            ->whereHas('comissao',function($query){
+                $query->where("plano_id",1);
+            })->count();
+
+
+        $total_coletivo_quantidade = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            ->where("status_apto_pagar",1)
+            //->where("finalizado","=",1)
+            ->whereMonth("data_baixa_finalizado",$mes)
+            ->whereHas('comissao',function($query){
+                $query->where("plano_id",3);
+            })->count();
+
+        $total_empresarial_quantidade = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            ->where("status_apto_pagar",1)
+            ->whereMonth("data_baixa_finalizado",$mes)
+            ->whereHas('comissao',function($query){
+                $query->where("plano_id","!=",1);
+                $query->where("plano_id","!=",3);
+            })->count();
+
+
+        $total_empresarial = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_empresarial_valor FROM (
+            SELECT SUM(valor) AS total_plano1 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = 03
+            ) AS plano1,
+            (
+            SELECT SUM(valor) AS total_plano3 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = 03
+            ) AS plano3
+        ")[0]->total_empresarial_valor;
+
+
+        $total_individual = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_individual_valor FROM (
+            SELECT
+                    SUM(valor)
+                    AS total_plano1
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+            ) AS plano1,
+            (
+            SELECT
+                SUM(valor)
+                AS total_plano3
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_finalizado) = {$mes}
+            ) AS plano3;
+        ")[0]->total_individual_valor;
+
+
+
+        $total_coletivo = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_coletivo_valor FROM (
+            SELECT
+                SUM(valor)
+                AS total_plano1 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+            ) AS plano1,
+            (
+            SELECT
+                SUM(valor)
+                AS total_plano3
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes}
+            ) AS plano3
+        ")[0]->total_coletivo_valor;
+
+        return [
+            "dados" => $dados,
+            "total_individual_quantidade" => $total_individual_quantidade,
+            "total_coletivo_quantidade" => $total_coletivo_quantidade,
+            "total_empresarial_quantidade" => $total_empresarial_quantidade,
+            "total_empresarial" => number_format($total_empresarial,2,",","."),
+            "total_individual" => number_format($total_individual,2,",","."),
+            "total_coletivo" => number_format($total_coletivo,2,",",".")
+        ];
 
     }
-
-
-
 
     public function montarTabelaMesModal(Request $request)
     {
@@ -86,110 +177,8 @@ class GerenteController extends Controller
 
     public function index()
     {
-
-
-
-
-//        $users_select = DB::table('users')
-//            ->where('ativo',1)
-//            ->whereNotIn('id', function($query) {
-//                $query->select('user_id')
-//                    ->from('valores_corretores_lancados')
-//                    ->whereMonth('data',03);
-//            })
-//            ->orderBy("name")
-//            ->get();
-//        dd($users_select);
-
-
-
-
-
-
-
-//        $empresarial = DB::select("
-//        SELECT
-//            (SELECT razao_social FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id) as cliente,
-//            (SELECT codigo_externo FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id) as codigo_externo,
-//            DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS data,
-//            (SELECT desconto_corretor FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id) as desconto,
-//            (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id) as valor_plano_contratado,
-//            comissoes_corretores_lancadas.valor AS comissao,
-//            comissoes_corretores_lancadas.parcela
-//            FROM comissoes_corretores_lancadas
-//            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
-//            INNER JOIN contrato_empresarial ON comissoes.contrato_empresarial_id = contrato_empresarial.id
-//            WHERE
-//            comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 AND
-//            comissoes.user_id = 14 AND month(data_baixa_finalizado) = 07 AND valor != 0 AND comissoes.plano_id != 1 AND comissoes.plano_id != 3 ORDER BY comissoes.administradora_id
-//        ");
-//        dd($empresarial);
-
-//        $dados = DB::select("
-//        SELECT
-//        (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
-//        (comissoes.plano_id) AS plano,
-//        comissoes_corretores_lancadas.data_antecipacao as data_antecipacao,
-//            case when comissoes.empresarial then
-//                               (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-//                               ELSE
-//                               (SELECT nome FROM clientes WHERE id = ((SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id)))
-//                       END AS cliente,
-//                       DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS data,
-//                       if(
-//                        comissoes_corretores_lancadas.data_baixa_gerente,
-//                        DATE_FORMAT(comissoes_corretores_lancadas.data_baixa_gerente,'%d/%m/%Y'),
-//                        DATE_FORMAT(comissoes_corretores_lancadas.data_baixa,'%d/%m/%Y')
-//                    ) AS data_baixa_gerente,
-//                    comissoes_corretores_lancadas.desconto AS desconto,
-//                       case when empresarial then
-//                            (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-//              else
-//                      (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
-//                    END AS valor_plano_contratado,
-//                       comissoes_corretores_lancadas.valor AS comissao_esperada,
-//                       if(comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor) AS comissao_recebida,
-//                    comissoes_corretores_lancadas.id,
-//                    comissoes_corretores_lancadas.comissoes_id,
-//                    comissoes_corretores_lancadas.parcela
-//        FROM comissoes_corretores_lancadas
-//        INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
-//        INNER JOIN contratos ON comissoes.contrato_id = contratos.id
-//        WHERE
-//        comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 AND
-//        comissoes.user_id = 14 AND month(data_baixa_finalizado) = 07  AND comissoes.plano_id = 3
-//        ORDER BY comissoes.administradora_id");
-//
-//
-//
-//
-//        foreach($dados as $d) {
-//            echo $d->parcela." - ".$d->cliente." - ".$d->desconto."<br />";
-//        }
-//
-//
-//
-//        return;
-
-
-
-
-//        $total_individual_quantidade = ComissoesCorretoresLancadas
-//            ::where("status_financeiro",1)
-//            ->where("status_apto_pagar",1)
-//            //->where("finalizado",1)
-//            ->whereMonth("data_baixa_finalizado",07)
-//            ->whereHas('comissao',function($query){
-//                $query->where("plano_id",1);
-//                $query->where("user_id",2);
-//            })->count();
-//
-//        dd($total_individual_quantidade);
-
+        
         $folha_aberto = FolhaMes::where("status",0);
-
-
-
         $total_empresarial_quantidade = 0;
         $total_individual_quantidade = 0;
         $total_coletivo_quantidade = 0;
@@ -198,34 +187,33 @@ class GerenteController extends Controller
         $total_individual = 0;
         $total_coletivo = 0;
 
-        $total_comissao = 0;
-        $total_salario = 0;
-        $total_premiacao = 0;
-        $total_desconto = 0;
-        $total_mes = 0;
+        $total_comissao = "0,00";
+        $total_salario = "0,00";
+        $total_premiacao = "0,00";
+        $total_desconto = "0,00";
+        $total_mes = "0,00";
+        $total_estorno = "0,00";
 
         if($folha_aberto->count() == 1) {
             $mes_aberto = $folha_aberto->first()->mes;
-
             $mes = date('m', strtotime($mes_aberto));
 
             $dados_totais = DB::table('valores_corretores_lancados')
                 ->selectRaw("REPLACE(FORMAT(sum(valor_comissao),2),'.',',') as total_comissao")
                 ->selectRaw("REPLACE(FORMAT(sum(valor_salario),2),'.',',') as total_salario")
+                ->selectRaw("REPLACE(FORMAT(sum(valor_estorno),2),'.',',') as total_estorno")
                 ->selectRaw("REPLACE(FORMAT(sum(valor_premiacao),2),'.',',') as valor_premiacao")
                 ->selectRaw("REPLACE(FORMAT(sum(valor_desconto),2),'.',',') as valor_desconto")
                 ->selectRaw("REPLACE(FORMAT(sum(valor_total),2),'.',',') as total_mes")
                 ->whereMonth("data",$mes)
                 ->first();
 
-
-
-
             $total_comissao = $dados_totais->total_comissao;
             $total_salario = $dados_totais->total_salario;
             $total_premiacao = $dados_totais->valor_premiacao;
             $total_desconto = $dados_totais->valor_desconto;
             $total_mes = $dados_totais->total_mes;
+            $total_estorno = $dados_totais->total_estorno;
 
             $total_empresarial_quantidade = ComissoesCorretoresLancadas
                 ::where("status_financeiro",1)
@@ -236,15 +224,25 @@ class GerenteController extends Controller
                     $query->where("plano_id","!=",3);
                 })->count();
 
-            $total_empresarial = ComissoesCorretoresLancadas
-                ::where("status_financeiro",1)
-                ->where("status_apto_pagar",1)
-                ->whereMonth("data_baixa_finalizado",$mes)
-                ->whereHas('comissao',function($query){
-                    $query->where("plano_id","!=",1);
-                    $query->where("plano_id","!=",3);
+            $total_empresarial = DB::select("
+                SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_empresarial_valor FROM (
+                SELECT
+                    SUM(valor_pago)
+                        AS total_plano1 FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+                ) AS plano1,
+                (
+                SELECT
+                    SUM(valor_pago)
+                        AS total_plano3 FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes}
+                ) AS plano3
+            ")[0]->total_empresarial_valor;
 
-                })->selectRaw("if(sum(valor)>0,REPLACE(FORMAT(sum(valor),2),'.',','),0) as total_coletivo")->first()->total_coletivo;
+
+
 
             $total_individual_quantidade = ComissoesCorretoresLancadas
                 ::where("status_financeiro",1)
@@ -253,8 +251,8 @@ class GerenteController extends Controller
                 ->whereMonth("data_baixa_finalizado",$mes)
                 ->whereHas('comissao',function($query){
                     $query->where("plano_id",1);
-
                 })->count();
+
 
             $total_coletivo_quantidade = ComissoesCorretoresLancadas
                 ::where("status_financeiro",1)
@@ -265,96 +263,48 @@ class GerenteController extends Controller
                     $query->where("plano_id",3);
                 })->count();
 
+            $total_individual = DB::select("
+                SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_individual_valor FROM (
+                SELECT SUM(valor) AS total_plano1 FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+                ) AS plano1,
+                (
+                SELECT SUM(valor) AS total_plano3 FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_finalizado) = {$mes}
+                ) AS plano3;
+            ")[0]->total_individual_valor;
 
 
-            $total_individual = ComissoesCorretoresLancadas
-                ::where("status_financeiro",1)
-                ->where("status_apto_pagar",1)
-                //->where("finalizado","=",1)
-                ->whereMonth("data_baixa_finalizado",$mes)
-                ->whereHas('comissao',function($query){
-                    $query->where("plano_id",1);
-                })
-                //->toSql();
-                ->selectRaw("if(sum(valor)>0,REPLACE(FORMAT(sum(valor),2),'.',','),0) as total_individual")->first()->total_individual;
+
+
+            $total_coletivo = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_coletivo_valor FROM (
+            SELECT
+                SUM(valor)
+                    AS total_plano1
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+            ) AS plano1,
+            (
+            SELECT
+                SUM(valor)
+                AS total_plano3
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes}
+            ) AS plano3
+        ")[0]->total_coletivo_valor;
 
 
 
 
-            $total_coletivo = ComissoesCorretoresLancadas
-                ::where("status_financeiro",1)
-                ->where("status_apto_pagar",1)
-                ->whereMonth("data_baixa_finalizado",$mes)
-                ->whereHas('comissao',function($query){
-                    $query->where("plano_id",3);
 
-                })->selectRaw("if(sum(valor)>0,REPLACE(FORMAT(sum(valor),2),'.',','),0) as total_coletivo")->first()->total_coletivo;
+
+
         }
-        /*
-
-        */
-
-//        $cadastrados = Contrato
-//                ::selectRaw("(select nome from clientes where clientes.id = contratos.cliente_id) as cliente")
-//                ->selectRaw("(select name from users where users.id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor")
-//                ->selectRaw("(select nome from planos where planos.id = contratos.plano_id) as plano")
-//                ->selectRaw("(select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as estagio")
-//                ->selectRaw("(select nome from administradoras where administradoras.id = contratos.administradora_id) as administradora")
-//                ->first();
-//        dd($cadastrados);
-        /*
-        Para Zerar a parcela 4
-        $comissoesLancadas = DB::table('comissoes_corretores_lancadas')
-            ->join('comissoes','comissoes.id',"=",'comissoes_corretores_lancadas.comissoes_id')
-            ->join('contratos','contratos.id',"=",'comissoes.contrato_id')
-            ->whereRaw("comissoes_id IN(SELECT id FROM comissoes where user_id in(2,3,26,36,57,18,24) and plano_id = 3)")
-            ->selectRaw("comissoes_corretores_lancadas.id,contratos.valor_plano")
-            ->where("parcela",4)
-            ->get();
-
-        foreach($comissoesLancadas as $d) {
-            DB::table('comissoes_corretores_lancadas')->where("id",$d->id)->update(["valor"=>0]);
-        }
-        */
-
-
-        /*
-        Parcela 3 calcular comissao
-        $dados = \App\Models\ComissoesCorretoresConfiguracoes
-            ::where("plano_id",3)
-            ->where("administradora_id",3)
-            ->where("user_id",2)
-            ->where("parcela",3)
-            ->first()->valor;
-
-        $comissoesLancadas = DB::table('comissoes_corretores_lancadas')
-            ->join('comissoes','comissoes.id',"=",'comissoes_corretores_lancadas.comissoes_id')
-            ->join('contratos','contratos.id',"=",'comissoes.contrato_id')
-            ->whereRaw("comissoes_id IN(SELECT id FROM comissoes where user_id in(2,3,26,36,57,18,24) and plano_id = 3)")
-            ->selectRaw("comissoes_corretores_lancadas.id,contratos.valor_plano")
-            ->where("parcela",3)
-            ->get();
-
-        foreach($comissoesLancadas as $d) {
-
-            $contrato = $d->valor_plano;
-            $valor = ($contrato * $dados) / 100;
-            DB::table('comissoes_corretores_lancadas')->where("id",$d->id)->update(["valor"=>$valor]);
-        }
-        */
-
-
-
-
-
-
-//        $users = DB::table('valores_corretores_lancados')
-//            ->selectRaw("(SELECT NAME FROM users WHERE users.id = valores_corretores_lancados.user_id) AS user")
-//            ->selectRaw("SUM(valor_comissao+valor_salario+valor_premiacao) AS total")
-//            ->selectRaw("user_id")
-//            ->groupBy("user_id")
-//            ->get();
-
 
         $folhaMesAberto = FolhaMes::where("status",0)->first();
         $status_disabled = false;
@@ -362,34 +312,9 @@ class GerenteController extends Controller
             $mes = 0;
             $status_disabled = true;
         } else {
-
             $mes = date('m', strtotime($folhaMesAberto->mes));
         }
 
-        /*
-        $users_apto_apagar = DB::table('valores_corretores_lancados')
-            ->join('folha_pagamento', 'folha_pagamento.valores_corretores_lancados_id', '=', 'valores_corretores_lancados.id')
-            ->join("folha_mes","folha_mes.id","=","folha_pagamento.folha_mes_id")
-            ->selectRaw("(SELECT NAME FROM users WHERE users.id = valores_corretores_lancados.user_id) AS user,valores_corretores_lancados.id")
-            ->selectRaw("valor_total AS total")
-            ->selectRaw("user_id")
-            ->whereRaw("folha_mes.status = 0")
-            ->groupBy("user_id")
-
-            ->get();
-        */
-
-//        $users_apto_apagar = User::whereIn('id', function ($query) {
-//            $query->select('user_id')->from('valores_corretores_lancados');
-//        })
-//            ->whereHas('comissoesValoresCorretores',function($query){
-//                $query->where('data',04);
-//            })
-//            ->selectRaw("id as user_id")
-//            ->selectRaw("name as user")
-//            ->selectRaw("(select valor_total from valores_corretores_lancados where valores_corretores_lancados.user_id = users.id) as total")
-//
-//            ->orderBy('name')->get();
         $users_apto_apagar = User::whereIn('id', function ($query) use($mes) {
             $query->select('user_id')->from('valores_corretores_lancados')->whereMonth('data',$mes);
         })
@@ -400,7 +325,6 @@ class GerenteController extends Controller
 
 
 
-
         $usuarios = DB::table('users')
             ->where('ativo',1)
             ->whereNotIn('id', function($query) {
@@ -408,42 +332,42 @@ class GerenteController extends Controller
                     ->from('valores_corretores_lancados');
             })->get();
 
+        /*********************************************************************Card Contrato Geral******************************************************/
+        $quantidade_geral = DB::select("SELECT (SELECT COUNT(*) FROM contratos) + (SELECT COUNT(*) FROM contrato_empresarial) AS total_contratos")[0]->total_contratos;
+        $total_valor_geral = DB::select("select (select sum(valor_plano) from contratos) + (select sum(valor_plano) from contrato_empresarial) as total_soma_formatado")[0]->total_soma_formatado;
+        $quantidade_vidas_geral = DB::select("select (select sum(quantidade_vidas) from clientes) + (select sum(quantidade_vidas) from contrato_empresarial) as total_vidas")[0]->total_vidas;
 
-//        $individual = ComissoesCorretoresLancadas
-//            ::where("status_financeiro",1)
-//            ->where("status_apto_pagar",1)
-//            ->where('status_comissao',0)
-//            ->whereHas('comissao.plano',function($query){
-//                $query->where("id",1);
-//            })
-//            ->with([
-//                'comissao',
-//                'comissao.contrato',
-//                'comissao.administradoras',
-//                'comissao.contrato.clientes'
-//            ])
-//            ->get();
-//
-//        dd($individual);
+        /********************************************************************Fim Card Contrato Geral**************************************************/
 
+        /*********************************************************************Card A Receber**********************************************************/
+        $total_quantidade_a_receber = DB::select("SELECT count(*) as total FROM comissoes_corretores_lancadas WHERE comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_gerente = 0 AND comissoes_corretores_lancadas.valor != 0")[0]->total;
 
+        $total_valor_a_receber = DB::select("SELECT sum(if(comissoes_corretores_lancadas.valor_pago != null, valor_pago, valor)) as total FROM comissoes_corretores_lancadas WHERE comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_gerente = 0 AND comissoes_corretores_lancadas.valor != 0")[0]->total;
 
-        //Geral
+        $quantidade_vidas_a_receber = Cliente::whereHas('contrato.comissao.comissoesLancadas',function($query){
+            $query->where("status_financeiro",1);
+            $query->where("status_gerente",0);
+            $query->where("valor","!=",0);
+        })->selectRaw("sum(quantidade_vidas) as total_quantidade_vidas_recebidas")->first()->total_quantidade_vidas_recebidas;
 
+        $quantidade_vidas_a_receber_empresarial = ContratoEmpresarial::whereHas('comissao.comissoesLancadas',function($query){
+            $query->where("status_financeiro",1);
+            $query->where("status_gerente",0);
+            $query->where("valor","!=",0);
+        })->selectRaw("sum(quantidade_vidas) as total_quantidade_vidas_recebidas")->first()->total_quantidade_vidas_recebidas;
 
-
-        $quantidade_geral     = Contrato::count();
-        $total_valor_geral = Contrato::selectRaw("SUM(valor_plano) as total_geral")->first()->total_geral;
-        $quantidade_vidas_geral = Cliente::selectRaw("SUM(quantidade_vidas) as quantidade_vidas")->first()->quantidade_vidas;
-
+        $total_valor_a_receber_empresarial = ContratoEmpresarial::whereHas('comissao.comissoesLancadas',function($query){
+            $query->where("status_financeiro",1);
+            $query->where("status_gerente",0);
+            $query->where("valor","!=",0);
+        })->selectRaw("if(sum(valor_total)>=1,sum(valor_total),0) as total_valor_plano")->first()->total_valor_plano;
+        /*********************************************************************Fim Card A Receber******************************************************/
         $total_quantidade_recebidos = Contrato::whereHas('comissao.comissoesLancadas',function($query){
             $query->where("status_financeiro",1);
             $query->where("status_gerente",1);
 
             $query->where("valor","!=",0);
         })->count();
-
-        //dd($total_quantidade_recebidos);
 
 
         $total_valor_recebidos = Contrato::whereHas('comissao.comissoesLancadas',function($query){
@@ -464,28 +388,6 @@ class GerenteController extends Controller
             ->selectRaw("if(sum(quantidade_vidas)>=1,sum(quantidade_vidas),0) as total_quantidade_vidas_recebidas")
             ->first()
             ->total_quantidade_vidas_recebidas;
-
-        $total_quantidade_a_receber = Contrato::whereHas('comissao.comissoesLancadas',function($query){
-            $query->where("status_financeiro",1);
-            $query->where("status_gerente",0);
-            $query->where("valor","!=",0);
-        })->count();
-
-        $total_valor_a_receber = Contrato::whereHas('comissao.comissoesLancadas',function($query){
-            $query->where("status_financeiro",1);
-            $query->where("status_gerente",0);
-            $query->where("valor","!=",0);
-        })
-        ->selectRaw("if(sum(valor_plano)>=1,sum(valor_plano),0) as total_valor_plano")->first()->total_valor_plano;
-
-
-
-        $quantidade_vidas_a_receber = Cliente::whereHas('contrato.comissao.comissoesLancadas',function($query){
-            $query->where("status_financeiro",1);
-            $query->where("status_gerente",0);
-            $query->where("valor","!=",0);
-        })->selectRaw("if(sum(quantidade_vidas)>=1,sum(quantidade_vidas),0) as total_quantidade_vidas_recebidas")->first()->total_quantidade_vidas_recebidas;
-
 
 
         $qtd_atrasado = Contrato
@@ -729,9 +631,6 @@ class GerenteController extends Controller
             ->first()
             ->total_quantidade_vidas_recebidas;
 
-
-
-
         $qtd_atrasado_coletivo = Contrato
             ::whereIn("financeiro_id",[3,4,5,6,7,8,9,10])
             ->whereHas('comissao.comissoesLancadas',function($query){
@@ -755,8 +654,6 @@ class GerenteController extends Controller
             ->selectRaw("sum(valor_plano) as total_valor_plano")
             ->first()
             ->total_valor_plano;
-
-
 
         $qtd_atrasado_quantidade_vidas_coletivo = Cliente::whereHas('contrato.comissao.comissoesLancadas',function($query){
             $query->whereRaw("DATA < CURDATE()");
@@ -836,25 +733,7 @@ class GerenteController extends Controller
             $query->where("status_financeiro",1);
             $query->where("status_gerente",0);
             $query->where("valor","!=",0);
-        })
-            ->count();
-
-        $total_valor_a_receber_empresarial = ContratoEmpresarial::whereHas('comissao.comissoesLancadas',function($query){
-            $query->where("status_financeiro",1);
-            $query->where("status_gerente",0);
-            $query->where("valor","!=",0);
-        })
-            ->selectRaw("if(sum(valor_total)>=1,sum(valor_total),0) as total_valor_plano")->first()->total_valor_plano;
-
-        $quantidade_vidas_a_receber_empresarial = ContratoEmpresarial::whereHas('comissao.comissoesLancadas',function($query){
-            $query->where("status_financeiro",1);
-            $query->where("status_gerente",0);
-            $query->where("valor","!=",0);
-        })
-            ->selectRaw("if(sum(quantidade_vidas)>=1,sum(quantidade_vidas),0) as total_quantidade_vidas_recebidas")
-            ->first()
-            ->total_quantidade_vidas_recebidas;
-
+        })->count();
 
 
 
@@ -906,26 +785,19 @@ class GerenteController extends Controller
 
         //Fim Empresarial
 
-        // $total_geral = Contrato::selectRaw("sum(valor_plano) as total_geral")->first()->total_geral;
-        // $total_recebidos = Contrato::where("financeiro_id","!=",12)->whereHas('comissao.comissoesLancadas',function($query){
-        //     $query->where("status_financeiro",1);
-        //     $query->where("status_gerente",1);
+        $users = DB::select("
+            SELECT users.id AS id, users.name AS name
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            INNER JOIN users ON users.id = comissoes.user_id
+            WHERE (status_financeiro = 1 or status_gerente = 1) and finalizado != 1 and valor != 0 and users.id NOT IN (SELECT user_id FROM valores_corretores_lancados WHERE MONTH(data) = {$mes})
+            GROUP BY users.id, users.name
+            ORDER BY users.name
+        ");
 
-        // })->whereHas('clientes',function($query){$query->whereRaw('cateirinha IS NOT NULL');})->selectRaw("sum(valor_plano) as total_plano")->first()->total_plano;
-        //dd($total_recebidos);
 
 
-        //$users = User::where("ativo","=",1)->get();
 
-        $users = DB::table('users')
-            ->where('ativo',1)
-            ->whereNotIn('id', function($query) use($mes) {
-                $query->select('user_id')
-                    ->from('valores_corretores_lancados')
-                    ->whereMonth('data',$mes);
-            })
-            ->orderBy("name")
-            ->get();
 //        dd($users);
 
 
@@ -977,24 +849,22 @@ class GerenteController extends Controller
             "users" => $users,
             "users_apto_apagar" => $users_apto_apagar,
             "mes" => $mes,
-            "quantidade_geral"           => $quantidade_geral + $quantidade_empresarial_geral,
-            "total_valor_geral" => $total_valor_geral + $total_valor_geral_empresarial,
-            "quantidade_vidas_geral" => $quantidade_vidas_geral + $quantidade_vidas_geral_empresarial,
+
+            "quantidade_geral" => $quantidade_geral,
+            "total_valor_geral" => $total_valor_geral,
+            "quantidade_vidas_geral" => $quantidade_vidas_geral,
 
             "total_quantidade_recebidos" => $total_quantidade_recebidos + $total_quantidade_recebidos_empresarial,
             "total_valor_recebidos"      => $total_valor_recebidos + $total_valor_recebidos_empresarial,
             "quantidade_vidas_recebidas" => $quantidade_vidas_recebidas + $quantidade_vidas_recebidas_empresarial,
 
-
-            "total_quantidade_a_receber" => $total_quantidade_a_receber + $total_quantidade_a_receber_empresarial,
-            "total_valor_a_receber" => $total_valor_a_receber + $total_valor_a_receber_empresarial,
+            "total_quantidade_a_receber" => $total_quantidade_a_receber,
+            "total_valor_a_receber" => $total_valor_a_receber,
             "quantidade_vidas_a_receber" => $quantidade_vidas_a_receber + $quantidade_vidas_a_receber_empresarial,
-
 
             "qtd_atrasado" => $qtd_atrasado + $qtd_atrasado_empresarial,
             "qtd_atrasado_valor" => $qtd_atrasado_valor + $qtd_atrasado_valor_empresarial,
             "qtd_atrasado_quantidade_vidas" => $qtd_atrasado_quantidade_vidas + $qtd_atrasado_quantidade_vidas_empresarial,
-
 
             "qtd_finalizado" => $qtd_finalizado + $qtd_finalizado_empresarial,
             "quantidade_valor_finalizado" => $quantidade_valor_finalizado + $quantidade_valor_finalizado_empresarial,
@@ -1008,9 +878,11 @@ class GerenteController extends Controller
             'total_individual_quantidade' => $total_individual_quantidade,
             'total_coletivo_quantidade' => $total_coletivo_quantidade,
 
-            'total_empresarial' => $total_empresarial,
-            'total_individual' => $total_individual,
-            'total_coletivo' => $total_coletivo,
+            'total_empresarial' => number_format($total_empresarial,2,",","."),
+            'total_individual' => number_format($total_individual,2,",","."),
+            'total_coletivo' => number_format($total_coletivo,2,",","."),
+
+            'total_estorno' => $total_estorno,
 
             'total_comissao' => $total_comissao,
             'total_salario' => $total_salario,
@@ -1090,55 +962,119 @@ class GerenteController extends Controller
     public function listarGerenteCadastrados(Request $request)
     {
         if($request->ajax()) {
-            $cadastrados = Contrato
-                ::selectRaw("(select nome from clientes where clientes.id = contratos.cliente_id) as cliente")
-                ->selectRaw("(select name from users where users.id = (select user_id from clientes where clientes.id = contratos.cliente_id)) as corretor")
-                ->selectRaw("(select nome from planos where planos.id = contratos.plano_id) as plano")
-                ->selectRaw("(select nome from estagio_financeiros where estagio_financeiros.id = contratos.financeiro_id) as estagio")
-                ->selectRaw("(select nome from administradoras where administradoras.id = contratos.administradora_id) as administradora")
-                ->get();
+            $cadastrados = DB::select("
+                select
+                    case when empresarial = 1 then
+                        (select razao_social from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                    else
+                        (select nome from clientes where id = ((select cliente_id from contratos where contratos.id = comissoes.contrato_id)))
+                    end as cliente,
+                    (select nome from administradoras where administradoras.id = comissoes.administradora_id) as administradora,
+                    (select name from users where users.id = comissoes.user_id) as corretor,
+                    (select nome from planos where planos.id = comissoes.plano_id) as plano,
+                    case when empresarial = 1 then
+                       contrato_empresarial_id
+                    else
+                       contrato_id
+                    end as contrato_id,
+                    (comissoes.plano_id) as plano_id
+                from comissoes
+            ");
             return $cadastrados;
         }
     }
+
+    public function mudarSalario(Request $request)
+    {
+        $param = ValoresCorretoresLancados::where("user_id",$request->user_id)->whereMonth("data",$request->mes);
+        if($param->count() == 1) {
+            ValoresCorretoresLancados::where("user_id",$request->user_id)->whereMonth("data",$request->mes)
+                ->update([
+                    "valor_comissao" => $request->comissao,
+                    "valor_salario" => $request->salario,
+                    "valor_premiacao" => $request->premiacao,
+                    "valor_estorno" => $request->estorno,
+                    "valor_desconto" => $request->desconto,
+                    "valor_total" => $request->total
+                ]);
+        } else {
+            $ano = date('Y');
+            $co = new ValoresCorretoresLancados();
+            $co->user_id = $request->user_id;
+            $co->data = date($ano."-".$request->mes."-01");
+            $co->valor_comissao = $request->comissao;
+            $co->valor_salario = $request->salario;
+            $co->valor_premiacao = $request->premiacao;
+            $co->valor_total = $request->total;
+            $co->valor_desconto = $request->desconto;
+            $co->valor_estorno = $request->estorno;
+            $co->save();
+        }
+
+
+
+
+    }
+
+    public function mudarPremiacao(Request $request)
+    {
+        $param = ValoresCorretoresLancados::where("user_id",$request->user_id)->whereMonth("data",$request->mes);
+        if($param->count() == 1) {
+            ValoresCorretoresLancados::where("user_id",$request->user_id)->whereMonth("data",$request->mes)
+                ->update([
+                    "valor_comissao" => $request->comissao,
+                    "valor_salario" => $request->salario,
+                    "valor_premiacao" => $request->premiacao,
+                    "valor_estorno" => $request->estorno,
+                    "valor_desconto" => $request->desconto,
+                    "valor_total" => $request->total
+                ]);
+        } else {
+            $ano = date('Y');
+            $co = new ValoresCorretoresLancados();
+            $co->user_id = $request->user_id;
+            $co->data = date($ano."-".$request->mes."-01");
+            $co->valor_comissao = $request->comissao;
+            $co->valor_salario = $request->salario;
+            $co->valor_premiacao = $request->premiacao;
+            $co->valor_total = $request->total;
+            $co->valor_desconto = $request->desconto;
+            $co->valor_estorno = $request->estorno;
+            $co->save();
+        }
+    }
+
+
+
 
     public function contratoEstorno(Request $request)
     {
 
         $ano = date("Y");
-        if($request->plano == 1 || $request->plano == 3) {
+        $cc = ComissoesCorretoresLancadas::where("id",$request->id_parcela)->first();
+        $cc->estorno = 1;
+        $cc->data_baixa_estorno = date($ano."-".$request->mes."-01");
+        $cc->save();
 
-            $id = $request->id;
-            $c = Contrato::where("id",$id)->first();
-            $c->estorno = 1;
-            $c->data_baixa_estorno = date($ano."-".$request->mes."-01");
-            $c->save();
+        $va = ValoresCorretoresLancados::where("user_id",$request->user_id)->whereMonth("data",$request->mes);
+        if($va->count() == 1) {
+            ///return $request->all();
+            $alt = $va->first();
 
+
+            $alt->valor_estorno = $request->valor;
+            $alt->valor_total = $request->total;
+
+            $alt->save();
         } else {
-
-            $id = $request->id;
-            $c = ContratoEmpresarial::where("id",$id)->first();
-            $c->estorno = 1;
-            $c->data_baixa_estorno = date($ano."-".$request->mes."-01");
-            $c->save();
-
-
-
-
-
+            $ca = new ValoresCorretoresLancados();
+            $ca->valor_comissao = $request->total_comissao;
+            $ca->user_id = $request->user_id;
+            $ca->valor_total = $request->total;
+            $ca->valor_estorno = $request->valor;
+            $ca->data = date($ano."-".$request->mes."-01");
+            $ca->save();
         }
-
-
-        $va = ValoresCorretoresLancados::where("user_id",$request->user_id)->whereMonth("data",$request->mes)->first();
-        $va->valor_estorno = $request->valor;
-        $va->valor_total = $request->total;
-        $va->save();
-
-
-
-
-
-
-
     }
 
 
@@ -1153,31 +1089,184 @@ class GerenteController extends Controller
 
         $contratos = DB::select("
             select
-            (select nome from administradoras where administradoras.id = contratos.administradora_id) as administradora,
-        date_format((contratos.created_at),'%d/%m/%Y') as data,
-        (codigo_externo) as codigo,
-
-        (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
-        (select parcela from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where comissoes.contrato_id = contratos.id) AND cancelados = 0 ORDER BY id DESC LIMIT 1) as parcela,
-        (valor_plano) as valor,
-        (select sum(valor) from comissoes_corretores_lancadas where comissoes_id IN (select id from comissoes where comissoes.contrato_id = contratos.id) AND cancelados != 1) as total_estorno,
-        id,
-        plano_id as plano
-       from `contratos` where `plano_id` = 3 and `financeiro_id` = 12 and estorno = 0 and
-        exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and `user_id` = ${id})
-
-
+                (select nome from administradoras where administradoras.id = comissoes.administradora_id) as administradora,
+                date_format((comissoes_corretores_lancadas.data),'%d/%m/%Y') as data,
+                (contratos.codigo_externo) as codigo,
+                (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+                (comissoes_corretores_lancadas.parcela) as parcela,
+                (contratos.valor_plano) as valor,
+                (comissoes_corretores_lancadas.valor) as total_estorno,
+                contratos.id,
+                comissoes.id as comissoes_id,
+                comissoes.plano_id as plano,
+                cancelados,
+                comissoes_corretores_lancadas.id as id_lancadas
+                from comissoes_corretores_lancadas
+                inner join comissoes on comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                inner join contratos on contratos.id = comissoes.contrato_id
+                where
+                comissoes.plano_id = 3
+                and comissoes_corretores_lancadas.valor != 0
+                and comissoes_corretores_lancadas.estorno = 0
+                and comissoes_corretores_lancadas.cancelados = 0
+                and comissoes_corretores_lancadas.data_baixa_estorno IS NULL
+                and contratos.financeiro_id = 12
+                and
+                exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and `user_id` = ${id});
         ");
+
         return response()->json($contratos);
+    }
+
+    public function cadastrarHistoricoFolhaMes(Request $request)
+    {
+        $date = \DateTime::createFromFormat('Y-m-d', $request->data);
+        $formattedDate = $date->format('Y-m-d');
+
+        $mes = date("m",strtotime($formattedDate));
+        $ano = date("Y",strtotime($formattedDate));
+
+        $users = DB::table('valores_corretores_lancados')
+                ->selectRaw("(SELECT NAME FROM users WHERE users.id = valores_corretores_lancados.user_id) AS user,user_id")
+                ->selectRaw("valor_total AS total")
+                ->whereMonth("data",$mes)
+                ->groupBy("user_id")
+                ->get();
+
+
+        $valores = DB::table('valores_corretores_lancados')
+                ->selectRaw("FORMAT(SUM(valor_comissao),2) AS comissao")
+                ->selectRaw("FORMAT(SUM(valor_salario),2) AS salario")
+                ->selectRaw("FORMAT(SUM(valor_premiacao),2) AS premiacao")
+                ->selectRaw("FORMAT(SUM(valor_comissao+valor_salario+valor_premiacao),2) AS total")
+            ->selectRaw("LPAD(MONTH(data), 2, '0') AS mes")
+            ->whereRaw("MONTH(data) = ${mes}")
+            ->first();
+
+
+        $users_select = DB::table('valores_corretores_lancados')
+        ->selectRaw("(SELECT NAME FROM users WHERE users.id = valores_corretores_lancados.user_id) AS name,user_id as id")
+        ->whereMonth("data",$mes)
+        ->groupBy("user_id")
+        ->get(); 
+
+
+        $dados = DB::table('valores_corretores_lancados')
+            ->selectRaw("FORMAT(sum(valor_comissao),2) as total_comissao")
+            ->selectRaw("FORMAT(sum(valor_salario),2) as total_salario")
+            ->selectRaw("FORMAT(sum(valor_premiacao),2) as valor_premiacao")
+            ->selectRaw("FORMAT(sum(valor_desconto),2) as valor_desconto")
+            ->selectRaw("FORMAT(sum(valor_total),2) as total_mes")
+            ->whereMonth("data",$mes)
+            ->first();
+
+
+        $total_individual_quantidade = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            ->where("status_apto_pagar",1)
+            ->whereMonth("data_baixa_finalizado",$mes)
+            ->whereHas('comissao',function($query){
+                $query->where("plano_id",1);
+            })->count();
+    
+    
+        $total_coletivo_quantidade = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            ->where("status_apto_pagar",1)
+            ->whereMonth("data_baixa_finalizado",$mes)
+            ->whereHas('comissao',function($query){
+                $query->where("plano_id",3);
+            })->count();
+    
+        $total_empresarial_quantidade = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            ->where("status_apto_pagar",1)
+            ->whereMonth("data_baixa_finalizado",$mes)
+            ->whereHas('comissao',function($query){
+                $query->where("plano_id","!=",1);
+                $query->where("plano_id","!=",3);
+            })->count();
+    
+        $total_empresarial = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_empresarial_valor FROM (
+            SELECT SUM(valor) AS total_plano1 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = 03
+            ) AS plano1,
+            (
+            SELECT SUM(valor) AS total_plano3 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = 03
+            ) AS plano3
+        ")[0]->total_empresarial_valor;   
+    
+        $total_individual = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_individual_valor FROM (
+            SELECT
+                    SUM(valor)
+                    AS total_plano1
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+            ) AS plano1,
+            (
+            SELECT
+                SUM(valor)
+                AS total_plano3
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_finalizado) = {$mes}
+            ) AS plano3;
+        ")[0]->total_individual_valor;
+    
+        $total_coletivo = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_coletivo_valor FROM (
+            SELECT
+                SUM(valor)
+                AS total_plano1 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+            ) AS plano1,
+            (
+            SELECT
+                SUM(valor)
+                AS total_plano3
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes}
+            ) AS plano3
+        ")[0]->total_coletivo_valor;
+
+        $total_estorno = ComissoesCorretoresLancadas::whereMonth('data_baixa_estorno',$mes)->where('estorno',1)->selectRaw("if(sum(valor)>0,sum(valor),0) as estorno")->first()->estorno;
+
+
+
+
+        return [
+            "view" => view('admin.pages.gerente.list-users-pdf-historico',[
+                "users" => $users
+            ])->render(),
+            "dados" => $dados,
+            "users" => $users_select,
+            "valores" => $valores,
+            "total_individual_quantidade" => $total_individual_quantidade,
+            "total_coletivo_quantidade" => $total_coletivo_quantidade,
+            "total_empresarial_quantidade" => $total_empresarial_quantidade,
+            "total_empresarial" => $total_empresarial,
+            "total_individual" => $total_individual,
+            "total_coletivo" => $total_coletivo,
+            "total_estorno" => $total_estorno
+        ];
+
 
     }
 
 
 
 
+
     public function cadastrarFolhaMes(Request $request)
     {
-
         $date = \DateTime::createFromFormat('Y-m-d', $request->data);
         $formattedDate = $date->format('Y-m-d');
 
@@ -1189,15 +1278,15 @@ class GerenteController extends Controller
             $folha = new FolhaMes();
             $folha->mes = $formattedDate;
             $folha->save();
-            $users_select = DB::table('users')
-                ->where('ativo',1)
-                ->whereNotIn('id', function($query) use($mes) {
-                    $query->select('user_id')
-                        ->from('valores_corretores_lancados')
-                        ->whereMonth('data',$mes);
-                })
-                ->orderBy("name")
-                ->get();
+            $users_select = DB::select("
+                SELECT users.id AS id, users.name AS name
+                FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                INNER JOIN users ON users.id = comissoes.user_id
+                WHERE (status_financeiro = 1 or status_gerente = 1) and finalizado != 1 and valor != 0 and users.id NOT IN (SELECT user_id FROM valores_corretores_lancados WHERE MONTH(data) = {$mes})
+                GROUP BY users.id, users.name
+                ORDER BY users.name
+            ");
             return [
                 "resposta" => "cadastrado",
                 "users_select" => $users_select
@@ -1209,7 +1298,6 @@ class GerenteController extends Controller
                 ->selectRaw("valor_total AS total")
                 ->whereMonth("data",$mes)
                 ->groupBy("user_id")
-
                 ->get();
 
             $valores = DB::table('valores_corretores_lancados')
@@ -1221,15 +1309,12 @@ class GerenteController extends Controller
                 ->whereRaw("MONTH(data) = ${mes}")
                 ->first();
 
-            $users_select = DB::table('users')
-                ->where('ativo',1)
-                ->whereNotIn('id', function($query) use($mes) {
-                    $query->select('user_id')
-                        ->from('valores_corretores_lancados')
-                        ->whereMonth('data',$mes);
-                })
-                ->orderBy("name")
-                ->get();
+            $users_select = DB::table('valores_corretores_lancados')
+            ->selectRaw("(SELECT NAME FROM users WHERE users.id = valores_corretores_lancados.user_id) AS name,user_id as id")
+            ->whereMonth("data",$mes)
+            ->groupBy("user_id")
+            ->get(); 
+
 
             $dados = DB::table('valores_corretores_lancados')
                 ->selectRaw("FORMAT(sum(valor_comissao),2) as total_comissao")
@@ -1241,6 +1326,97 @@ class GerenteController extends Controller
                 ->first();
 
 
+            $total_individual_quantidade = ComissoesCorretoresLancadas
+                ::where("status_financeiro",1)
+                ->where("status_apto_pagar",1)
+                //->where("finalizado",1)
+                ->whereMonth("data_baixa_finalizado",$mes)
+                ->whereHas('comissao',function($query){
+                    $query->where("plano_id",1);
+                })->count();
+    
+    
+            $total_coletivo_quantidade = ComissoesCorretoresLancadas
+                ::where("status_financeiro",1)
+                ->where("status_apto_pagar",1)
+                //->where("finalizado","=",1)
+                ->whereMonth("data_baixa_finalizado",$mes)
+                ->whereHas('comissao',function($query){
+                    $query->where("plano_id",3);
+                })->count();
+    
+            $total_empresarial_quantidade = ComissoesCorretoresLancadas
+                ::where("status_financeiro",1)
+                ->where("status_apto_pagar",1)
+                ->whereMonth("data_baixa_finalizado",$mes)
+                ->whereHas('comissao',function($query){
+                    $query->where("plano_id","!=",1);
+                    $query->where("plano_id","!=",3);
+                })->count();
+    
+    
+            $total_empresarial = DB::select("
+                SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_empresarial_valor FROM (
+                SELECT SUM(valor) AS total_plano1 FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = 03
+                ) AS plano1,
+                (
+                SELECT SUM(valor) AS total_plano3 FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = 03
+                ) AS plano3
+            ")[0]->total_empresarial_valor;
+    
+    
+            $total_individual = DB::select("
+                SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_individual_valor FROM (
+                SELECT
+                        SUM(valor)
+                        AS total_plano1
+                FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+                ) AS plano1,
+                (
+                SELECT
+                    SUM(valor)
+                    AS total_plano3
+                FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_finalizado) = {$mes}
+                ) AS plano3;
+            ")[0]->total_individual_valor;
+    
+    
+    
+            $total_coletivo = DB::select("
+                SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_coletivo_valor FROM (
+                SELECT
+                    SUM(valor)
+                    AS total_plano1 FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+                ) AS plano1,
+                (
+                SELECT
+                    SUM(valor)
+                    AS total_plano3
+                FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes}
+                ) AS plano3
+            ")[0]->total_coletivo_valor;
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1250,7 +1426,14 @@ class GerenteController extends Controller
                 ])->render(),
                 "dados" => $dados,
                 "users" => $users_select,
-                "valores" => $valores
+                "valores" => $valores,
+                "total_individual_quantidade" => $total_individual_quantidade,
+                "total_coletivo_quantidade" => $total_coletivo_quantidade,
+                "total_empresarial_quantidade" => $total_empresarial_quantidade,
+                "total_empresarial" => $total_empresarial,
+                "total_individual" => $total_individual,
+                "total_coletivo" => $total_coletivo
+                
 
             ];
 
@@ -2958,11 +3141,10 @@ class GerenteController extends Controller
                 $valor      = Contrato::selectRaw("SUM(valor_plano) as total_geral")->first()->total_geral;
                 $vidas      = Cliente::selectRaw("SUM(quantidade_vidas) as quantidade_vidas")->first()->quantidade_vidas;
                 $quantidade_empresarial_geral  = ContratoEmpresarial::count();
-                $total_valor_geral_empresarial = ContratoEmpresarial::selectRaw("if(SUM(valor_total)>=1,SUM(valor_total),0) as total_geral")->first()->total_geral;
                 $quantidade_vidas_geral_empresarial = ContratoEmpresarial::selectRaw("sum(quantidade_vidas) as quantidade_vidas")->first()->quantidade_vidas;
 
                 $quantidade_total = $quantidade + $quantidade_empresarial_geral;
-                $valor_total = $valor + $total_valor_geral_empresarial;
+                $valor_total = DB::select("select (select sum(valor_plano) from contratos) + (select sum(valor_plano) from contrato_empresarial) as total_soma_formatado")[0]->total_soma_formatado;
                 $vidas_total = $vidas + $quantidade_vidas_geral_empresarial;
                 $estagio = 1;
             break;
@@ -3158,13 +3340,10 @@ class GerenteController extends Controller
                 $qtd_cancelado_quantidade_vidas_empresarial = ContratoEmpresarial::where("financeiro_id",12)
                 ->selectRaw("if(sum(quantidade_vidas)>=1,sum(quantidade_vidas),0) as total_quantidade_vidas_cancelado")->first()->total_quantidade_vidas_cancelado;
 
-
                 $quantidade_total = $qtd_cancelado + $qtd_cancelado_empresarial;
                 $valor_total = $quantidade_valor_cancelado + $quantidade_valor_cancelado_empresarial;
                 $vidas_total = $qtd_cancelado_quantidade_vidas + $qtd_cancelado_quantidade_vidas_empresarial;
                 $estagio = 5;
-
-
 
             break;
 
@@ -3189,9 +3368,6 @@ class GerenteController extends Controller
 
     public function verDetalheCard($id_plano="all",$id_tipo="alll",$ano="all",$mes="all",$corretor="all")
     {
-
-
-
         return view('admin.pages.gerente.detalhe-card',[
             "id_plano" => $id_plano,
             "id_tipo" => $id_tipo,
@@ -3199,8 +3375,6 @@ class GerenteController extends Controller
             "mes" => $mes,
             "corretor" => $corretor
         ]);
-
-
     }
 
     public function showDetalheCard($id_plano,$id_tipo,$ano,$mes,$corretor)
@@ -3595,8 +3769,145 @@ class GerenteController extends Controller
         }
     }
 
+    public function infoCorretorHistorico(Request $request)
+    {
+        $id = $request->id;
+        $mes = $request->mes;
+
+        $total_individual_quantidade = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            ->where("status_apto_pagar",1)
+            //->where("finalizado",1)
+            ->whereMonth('data_baixa_finalizado',$mes)
+            ->whereHas('comissao',function($query) use($id){
+                $query->where("plano_id",1);
+                $query->where("user_id",$id);
+            })->count();
+
+        $total_empresarial_quantidade = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            ->where("status_apto_pagar",1)
+            //->where("finalizado",1)
+            ->whereMonth('data_baixa_finalizado',$mes)
+            ->whereHas('comissao',function($query) use($id){
+                $query->where("plano_id","!=",1);
+                $query->where("plano_id","!=",3);
+                $query->where("user_id",$id);
+            })->count();
+
+        $total_coletivo_quantidade = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            ->where("status_apto_pagar",1)
+            //->where("finalizado",1)
+            ->whereMonth('data_baixa_finalizado',$mes)
+            ->whereHas('comissao',function($query)use($id){
+                $query->where("plano_id",3);
+                $query->where("user_id",$id);
+            })->count();    
+
+        $total_individual = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_individual_valor FROM (
+            SELECT
+                COALESCE(SUM(CASE WHEN comissoes_corretores_lancadas.valor THEN valor ELSE valor END), 0)
+                    AS total_plano1
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+            AND user_id = {$id}
+            ) AS plano1,
+            (
+            SELECT
+                COALESCE(SUM(CASE WHEN comissoes_corretores_lancadas.valor THEN valor ELSE valor END), 0)
+                AS total_plano3
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_finalizado) = {$mes}
+            AND user_id = {$id}
+            ) AS plano3;
+        ")[0]->total_individual_valor;    
+
+
+        $total_empresarial = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_empresarial_valor FROM (
+            SELECT SUM(valor) AS total_plano1 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+            AND user_id = {$id}
+            ) AS plano1,
+            (
+            SELECT SUM(valor) AS total_plano3 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes}
+            AND user_id = {$id}
+            ) AS plano3
+        ")[0]->total_empresarial_valor;
+
+        $total_coletivo = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_coletivo_valor FROM (
+            SELECT
+                COALESCE(SUM(CASE WHEN comissoes_corretores_lancadas.valor THEN valor ELSE valor END), 0)
+                AS total_plano1 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes} AND user_id = {$id}
+            ) AS plano1,
+            (
+            SELECT
+                COALESCE(SUM(CASE WHEN comissoes_corretores_lancadas.valor THEN valor ELSE valor END), 0)
+                AS total_plano3
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes} AND user_id = {$id}
+            ) AS plano3
+        ")[0]->total_coletivo_valor;
+
+
+        $valores = ValoresCorretoresLancados::whereMonth('data',$mes)->where("user_id",$id);
+
+        $va = $valores->first();
+        $salario = $va->valor_salario;
+        $premiacao = $va->valor_premiacao;
+        $comissao = $va->valor_comissao;
+        $desconto = $va->valor_desconto;
+        $total = $va->valor_total;
+        $estorno = $va->valor_estorno;
+
+
+        return [
+            "total_individual_quantidade" => $total_individual_quantidade,
+            "total_empresarial_quantidade" => $total_empresarial_quantidade,
+            "total_coletivo_quantidade" => $total_coletivo_quantidade,
+            "total_individual" => $total_individual,
+            "total_empresarial" => $total_empresarial,
+            "total_coletivo" => $total_coletivo,
+
+            "total_comissao" =>  number_format($comissao,2,",","."),
+            "total_salario" =>  number_format($salario,2,",","."),
+            "total_premiacao" =>  number_format($premiacao,2,",","."),
+
+            "desconto" =>  number_format($desconto,2,",","."),
+            "total" =>  number_format($total,2,",","."),
+            "estorno" => number_format($estorno,2,",",".")
+            
+        ];    
+
+    }
+
+
+
+
+
+
+
+
     public function infoCorretor(Request $request)
     {
+        $premiacao_cad = str_replace([".",","],["","."], $request->premiacao);
+        $salario_cad = str_replace([".",","],["","."], $request->salario);
+        $total_cad   = str_replace([".",","],["","."], $request->total);
+        ValoresCorretoresLancados
+            ::where("user_id",$request->user_id)
+            ->whereMonth("data",$request->mes)
+            ->update(["valor_premiacao"=>$premiacao_cad,"valor_total"=>$total_cad,"valor_salario"=>$salario_cad]);
         $id = $request->id;
         $mes = $request->mes;
         $salario = 0;
@@ -3604,7 +3915,7 @@ class GerenteController extends Controller
         $comissao = 0;
         $desconto = 0;
         $total = 0;
-
+        $estorno = 0;
 
         $total_individual_quantidade = ComissoesCorretoresLancadas
             ::where("status_financeiro",1)
@@ -3637,35 +3948,59 @@ class GerenteController extends Controller
                 $query->where("user_id",$id);
             })->count();
 
-        $total_individual = ComissoesCorretoresLancadas
-            ::where("status_financeiro",1)
-            ->where("status_apto_pagar",1)
-            ->whereMonth('data_baixa_finalizado',$mes)
-            ->whereHas('comissao',function($query) use($id){
-                $query->where("plano_id",1);
-                $query->where("user_id",$id);
-            })->selectRaw("if(sum(valor)>0,sum(valor),0) as total_individual")->first()->total_individual;
+        $total_individual = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_individual_valor FROM (
+            SELECT
+                COALESCE(SUM(CASE WHEN comissoes_corretores_lancadas.valor THEN valor_pago ELSE valor END), 0)
+                    AS total_plano1
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+            AND user_id = {$id}
+            ) AS plano1,
+            (
+            SELECT
+                COALESCE(SUM(CASE WHEN comissoes_corretores_lancadas.valor THEN valor_pago ELSE valor END), 0)
+                AS total_plano3
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_finalizado) = {$mes}
+            AND user_id = {$id}
+            ) AS plano3;
+        ")[0]->total_individual_valor;
 
-        $total_empresarial = ComissoesCorretoresLancadas
-            ::where("status_financeiro",1)
-            ->where("status_apto_pagar",1)
-            //->where("finalizado",1)
-            ->whereMonth('data_baixa_finalizado',$mes)
-            ->whereHas('comissao',function($query) use($id){
-                $query->where("plano_id","!=",1);
-                $query->where("plano_id","!=",3);
-                $query->where("user_id",$id);
-            })->selectRaw("if(sum(valor)>0,sum(valor),0) as total_empresarial")->first()->total_empresarial;
+        $total_empresarial = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_empresarial_valor FROM (
+            SELECT SUM(valor) AS total_plano1 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+            AND user_id = {$id}
+            ) AS plano1,
+            (
+            SELECT SUM(valor) AS total_plano3 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes}
+            AND user_id = {$id}
+            ) AS plano3
+        ")[0]->total_empresarial_valor;
 
-        $total_coletivo = ComissoesCorretoresLancadas
-            ::where("status_financeiro",1)
-            ->where("status_apto_pagar",1)
-            //->where("finalizado",1)
-            ->whereMonth('data_baixa_finalizado',$mes)
-            ->whereHas('comissao',function($query)use($id){
-                $query->where("plano_id",3);
-                $query->where("user_id",$id);
-            })->selectRaw("if(sum(valor)>0,sum(valor),0) as total_coletivo")->first()->total_coletivo;
+        $total_coletivo = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_coletivo_valor FROM (
+            SELECT
+                COALESCE(SUM(CASE WHEN comissoes_corretores_lancadas.valor_pago THEN valor_pago ELSE valor END), 0)
+                AS total_plano1 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes} AND user_id = {$id}
+            ) AS plano1,
+            (
+            SELECT
+                COALESCE(SUM(CASE WHEN comissoes_corretores_lancadas.valor_pago THEN valor_pago ELSE valor END), 0)
+                AS total_plano3
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes} AND user_id = {$id}
+            ) AS plano3
+        ")[0]->total_coletivo_valor;
 
         if($comissao == 0 && ($total_coletivo > 0 || $total_individual > 0 || $total_empresarial > 0)) {
             $comissao = $total_coletivo + $total_individual + $total_empresarial;
@@ -3698,19 +4033,21 @@ class GerenteController extends Controller
             ->first()
             ->total;
 
-        $valores = ValoresCorretoresLancados::whereMonth('data',$mes)->where("user_id",$id)->first();
-        if($valores) {
-            $salario = $valores->valor_salario;
-            $premiacao = $valores->valor_premiacao;
-            $comissao = $valores->valor_comissao;
-            $desconto = $valores->valor_desconto;
-            $total = $valores->valor_total;
+        $valores = ValoresCorretoresLancados::whereMonth('data',$mes)->where("user_id",$id);
+        if($valores->count() == 1) {
+            $va = $valores->first();
+            $salario = $va->valor_salario;
+            $premiacao = $va->valor_premiacao;
+            $comissao = $va->valor_comissao;
+            $desconto = $va->valor_desconto;
+            $total = $va->valor_total;
+            $estorno = $va->valor_estorno;
         } else {
             $desconto = ComissoesCorretoresLancadas
                 ::where("status_financeiro",1)
                 ->where("status_apto_pagar",1)
                 ->whereMonth("data_baixa_finalizado",$mes)
-                ->whereHas('comissao.user',function($query)  use($id){
+                ->whereHas('comissao.user',function($query) use($id){
                     $query->where("id",$id);
                 })
                 ->selectRaw("if(SUM(desconto)>0,SUM(desconto),0) AS total")
@@ -3721,16 +4058,77 @@ class GerenteController extends Controller
         }
 
 
+//        $users = DB::table('valores_corretores_lancados')
+//            ->selectRaw("(SELECT NAME FROM users WHERE users.id = valores_corretores_lancados.user_id) AS user,user_id")
+//            ->selectRaw("valor_total AS total")
+//            ->whereMonth('data',$mes)
+//            ->groupBy("user_id")
+//            ->get();
+
+//        $users = DB::table('valores_corretores_lancados')
+//            ->selectRaw("(SELECT NAME FROM users WHERE users.id = valores_corretores_lancados.user_id) AS user,user_id")
+//            ->selectRaw("valor_total AS total")
+//            ->whereMonth('data',$mes)
+//            ->groupBy("user_id")
+//            ->get();
+
+//        $users = DB::select("
+//            SELECT users.id AS user_id
+//                 , users.name AS user,
+//                (SELECT valor_total FROM valores_corretores_lancados WHERE MONTH(data) = {$mes} and valores_corretores_lancados.user_id = users.id) as total
+//
+//            FROM comissoes_corretores_lancadas
+//            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+//            INNER JOIN users ON users.id = comissoes.user_id
+//            WHERE (status_financeiro = 1 or status_gerente = 1) and finalizado != 1 and users.id NOT IN (SELECT user_id FROM valores_corretores_lancados WHERE MONTH(data) = {$mes})
+//            GROUP BY users.id, users.name
+//            ORDER BY users.name
+//         ");
+
+        $users = DB::select("
+            select name as user,users.id as user_id,valor_total as total from
+            valores_corretores_lancados
+            inner join users on users.id = valores_corretores_lancados.user_id
+            where MONTH(data) = {$mes} order by users.name
+        ");
+
+//        $usuarios = DB::select("
+//            SELECT users.id AS id, users.name AS name
+//            FROM comissoes_corretores_lancadas
+//            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+//            INNER JOIN users ON users.id = comissoes.user_id
+//            WHERE (status_financeiro = 1 or status_gerente = 1) and finalizado != 1 and users.id NOT IN (SELECT user_id FROM valores_corretores_lancados WHERE MONTH(data) = {$mes})
+//            GROUP BY users.id, users.name
+//            ORDER BY users.name
+//         ");
+
+        $usuarios = DB::select("
+            SELECT users.id AS id, users.name AS name
+            FROM comissoes_corretores_lancadas
+                     INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                     INNER JOIN users ON users.id = comissoes.user_id
+            WHERE (status_financeiro = 1 or status_gerente = 1) and finalizado != 1 and valor != 0 and users.id NOT IN (SELECT user_id FROM valores_corretores_lancados WHERE MONTH(data) = {$mes})
+            GROUP BY users.id, users.name
+            ORDER BY users.name;
+         ");
 
 
 
-        // $total_premiacao_c = str_replace(',', '.', $premiacao);
-        // $total_salario_c = str_replace(',', '.', $salario);
-        // $total_comissao_c = str_replace(',', '.', $comissao);
-        // $total_desconto_c = str_replace(",",".",$desconto);
 
-        /*$composicao = ($total_premiacao_c + $total_salario_c + $total_comissao_c) - $total_desconto_c;
-        $total = number_format($composicao,2,",",".");*/
+
+
+//        $usuarios = DB::table('users')
+//            ->where('ativo',1)
+//            ->whereNotIn('id', function($query) use($mes) {
+//                $query->select('user_id')
+//                    ->from('valores_corretores_lancados')
+//                    ->whereMonth('data',$mes);
+//            })
+//            ->orderBy("name")
+//            ->get();
+
+
+
 
 
         return [
@@ -3745,7 +4143,12 @@ class GerenteController extends Controller
             "total_premiacao" =>  number_format($premiacao,2,",","."),
             "id_confirmados" => $ids_confirmados,
             "desconto" =>  number_format($desconto,2,",","."),
-            "total" =>  number_format($total,2,",",".")
+            "total" =>  number_format($total,2,",","."),
+            "estorno" => number_format($estorno,2,",","."),
+            "view" => view('admin.pages.gerente.list-users-pdf',[
+                "users" => $users
+            ])->render(),
+            "usuarios" => $usuarios
         ];
 
 
@@ -3756,8 +4159,55 @@ class GerenteController extends Controller
 
     public function showTodosDetalheCard($estagio)
     {
+
         if($estagio == 1) {
-            $dados = Comissoes::with(['contrato','contrato.financeiro','contrato_empresarial','contrato_empresarial.financeiro','user','contrato.clientes','comissaoAtualFinanceiro','ultimaComissaoPaga'])->get();
+            $dados = DB::select("
+                select
+                    case when comissoes.empresarial then
+                        date_format(contrato_empresarial.created_at,'%d/%m/%Y')
+                    else
+                        date_format(contratos.created_at,'%d/%m/%Y')
+                    end as data,
+                    case when comissoes.empresarial then
+                        contrato_empresarial.codigo_externo
+                    else
+                        contratos.codigo_externo
+                    end as orcamento,
+                    users.name as corretor,
+                    case when comissoes.empresarial then
+                        contrato_empresarial.razao_social
+                    else
+                        (select nome from clientes where clientes.id = contratos.cliente_id)
+                    end as cliente,
+                    case when comissoes.empresarial then
+                        contrato_empresarial.cnpj
+                    else
+                        (select cpf from clientes where clientes.id = contratos.cliente_id)
+                    end as documento,
+                    case when comissoes.empresarial then
+                        contrato_empresarial.quantidade_vidas
+                    else
+                        (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id)
+                    end as vidas,
+                    case when comissoes.empresarial then
+                        contrato_empresarial.valor_plano
+                    else
+                        contratos.valor_plano
+                    end as valor,
+                    comissoes.plano_id as plano,
+                    planos.nome as plano_nome,
+                    case when comissoes.empresarial then
+                        contrato_empresarial.id
+                    else
+                        contratos.id
+                    end as id
+                from comissoes
+                    inner join users on users.id = comissoes.user_id
+                    inner join planos on planos.id = comissoes.plano_id
+                    left join contratos on contratos.id = comissoes.contrato_id
+                    left join contrato_empresarial on contrato_empresarial.id = comissoes.contrato_empresarial_id
+                order by comissoes.created_at
+            ");
             return $dados;
         } else if($estagio == 2) {
             $dados = Comissoes
@@ -3769,6 +4219,65 @@ class GerenteController extends Controller
             ->with(['contrato','contrato.financeiro','contrato_empresarial','contrato_empresarial.financeiro','user','contrato.clientes','comissaoAtualFinanceiro','ultimaComissaoPaga'])->get();
             return $dados;
         } else if($estagio == 3) {
+            $dados = DB::select("
+                select
+                    case when comissoes.empresarial then
+                        date_format(contrato_empresarial.created_at,'%d/%m/%Y')
+                    else
+                        date_format(contratos.created_at,'%d/%m/%Y')
+                    end as data,
+                    case when comissoes.empresarial then
+                        contrato_empresarial.codigo_externo
+                    else
+                        contratos.codigo_externo
+                    end as orcamento,
+                    users.name as corretor,
+                    case when comissoes.empresarial then
+                        contrato_empresarial.razao_social
+                    else
+                        (select nome from clientes where clientes.id = contratos.cliente_id)
+                    end as cliente,
+                    case when comissoes.empresarial then
+                        contrato_empresarial.cnpj
+                    else
+                        (select cpf from clientes where clientes.id = contratos.cliente_id)
+                    end as documento,
+                    case when comissoes.empresarial then
+                        contrato_empresarial.quantidade_vidas
+                    else
+                        (select quantidade_vidas from clientes where clientes.id = contratos.cliente_id)
+                    end as vidas,
+                    case when comissoes.empresarial then
+                        contrato_empresarial.valor_plano
+                    else
+                        contratos.valor_plano
+                    end as valor,
+                    comissoes.plano_id as plano,
+                    planos.nome as plano_nome,
+                    case when comissoes.empresarial then
+                        contrato_empresarial.id
+                    else
+                        contratos.id
+                    end as id
+                from comissoes
+                    inner join users on users.id = comissoes.user_id
+                    inner join planos on planos.id = comissoes.plano_id
+                    left join contratos on contratos.id = comissoes.contrato_id
+                    left join contrato_empresarial on contrato_empresarial.id = comissoes.contrato_empresarial_id
+
+                where
+                order by comissoes.created_at
+            ");
+            return $dados;
+
+
+
+
+
+
+
+
+
             $dados = Comissoes
             ::whereHas('comissoesLancadas',function($query){
                 $query->where("status_financeiro",1);
@@ -3800,171 +4309,102 @@ class GerenteController extends Controller
         }
     }
 
-
-    public function listagem()
+    public function concluidos()
     {
-        // $dados = Cliente::with(['contrato','contrato.comissao','contrato.administradora','user','contrato.cidade','contrato.financeiro','contrato.comissao.comissaoAtual','contrato.plano'])
-        // ->whereHas('contrato.comissao.comissoesLancadas',function($query){
-        //     $query->where("status_financeiro",1);
-        //     $query->where("status_gerente",0);
-        // })->get();
-
-        // $dados = DB::select(
-        //     "
-        //     SELECT
-        //     (SELECT nome FROM administradoras WHERE id = (SELECT administradora_id FROM contratos WHERE contratos.cliente_id = clientes.id)) AS administradora,
-        //     (SELECT NAME FROM users WHERE users.id = clientes.user_id) AS corretor,
-        //     (SELECT nome FROM planos WHERE id = (SELECT plano_id FROM contratos WHERE contratos.cliente_id = clientes.id)) AS plano,
-        //     (SELECT nome FROM tabela_origens WHERE id = (SELECT tabela_origens_id FROM contratos WHERE contratos.cliente_id = clientes.id)) AS tabela_origens,
-        //     nome,
-        //     (SELECT codigo_externo FROM contratos WHERE contratos.cliente_id = clientes.id) AS codigo_externo,
-        //     (
-        //       select valor from `comissoes_corretora_lancadas` where `comissoes_corretora_lancadas`.`comissoes_id` =
-        //       (SELECT id FROM comissoes WHERE contrato_id = (SELECT id FROM contratos WHERE contratos.cliente_id = clientes.id))
-        //       and `status_financeiro` = 1 and `status_gerente` = 0
-        //     ) AS valor,
-        //     (
-        //       select data_baixa from `comissoes_corretora_lancadas` where `comissoes_corretora_lancadas`.`comissoes_id` =
-        //       (SELECT id FROM comissoes WHERE contrato_id = (SELECT id FROM contratos WHERE contratos.cliente_id = clientes.id))
-        //       and `status_financeiro` = 1 and `status_gerente` = 0
-        //     ) AS data_baixa,
-        //     (
-        //       select parcela from `comissoes_corretores_lancadas` where `comissoes_corretores_lancadas`.`comissoes_id` =
-        //       (SELECT id FROM comissoes WHERE contrato_id = (SELECT id FROM contratos WHERE contratos.cliente_id = clientes.id))
-        //       and `status_financeiro` = 1 and `status_gerente` = 0
-        //     ) AS parcela,
-        //     (
-        //         select data from `comissoes_corretores_lancadas` where `comissoes_corretores_lancadas`.`comissoes_id` =
-        //         (SELECT id FROM comissoes WHERE contrato_id = (SELECT id FROM contratos WHERE contratos.cliente_id = clientes.id))
-        //         and `status_financeiro` = 1 and `status_gerente` = 0
-        //      ) AS vencimento,
-        //     (SELECT id FROM contratos WHERE contratos.cliente_id = clientes.id) AS contrato_id
-        //         from `clientes`
-        //         where exists (select * from `contratos` where `clientes`.`id` = `contratos`.`cliente_id` AND
-        //         exists (select * from `comissoes` where `contratos`.`id` = `comissoes`.`contrato_id` AND
-        //         exists (select * from `comissoes_corretores_lancadas` where `comissoes`.`id` = `comissoes_corretores_lancadas`.`comissoes_id` and `status_financeiro` = 1 and `status_gerente` = 0)))");
-
-//         $dados = DB::select(
-//             "
-//             SELECT
-// 			comissoes_corretora_lancadas.id,
-//    (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
-//    (SELECT NAME FROM users WHERE users.id = comissoes.user_id) AS corretor,
-//    (SELECT nome FROM planos WHERE planos.id = comissoes.plano_id) AS plano,
-//      case when empresarial then
-//         (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-//      else
-//        (SELECT nome FROM clientes WHERE id = (SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))
-//      END AS cliente,
-//        (SELECT nome FROM tabela_origens WHERE tabela_origens.id = comissoes.tabela_origens_id) AS tabela_origens,
-//                 case when empresarial then
-//                     (SELECT codigo_externo FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-//                         else
-//                     (SELECT codigo_externo FROM contratos WHERE contratos.id = comissoes.contrato_id)
-//                     END AS codigo_externo,
-//                     parcela,
-//                     valor,
-
-//                     comissoes_corretora_lancadas.data as vencimento,
-//                     comissoes.id AS comissao
-
-//                 FROM comissoes_corretora_lancadas
-//                 INNER JOIN comissoes ON comissoes.id = comissoes_corretora_lancadas.comissoes_id
-//                 WHERE valor != 0
-//                 "
-//         );
-
-    //     $dados = DB::select(
-    //         "
-    //         SELECT
-    //         comissoes_corretora_lancadas.id,
-    //         comissoes_corretora_lancadas.status_financeiro,
-    //         comissoes_corretora_lancadas.status_gerente,
-    //         1 AS corretora,
-    //         (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
-    //         (SELECT NAME FROM users WHERE users.id = comissoes.user_id) AS corretor,
-    //         (SELECT nome FROM planos WHERE planos.id = comissoes.plano_id) AS plano,
-    //         case when empresarial then
-    //         (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-    //      else
-    //        (SELECT nome FROM clientes WHERE id = (SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))
-    //      END AS cliente,
-    //         (SELECT nome FROM tabela_origens WHERE tabela_origens.id = comissoes.tabela_origens_id) AS tabela_origens,
-    //             case when empresarial then
-    //         (SELECT codigo_externo FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-    //             else
-    //                     (SELECT codigo_externo FROM contratos WHERE contratos.id = comissoes.contrato_id)
-    //                     END AS codigo_externo,
-    //                     comissoes_corretora_lancadas.parcela,
-    //                     comissoes_corretora_lancadas.valor,
-    //                     comissoes_corretora_lancadas.data as vencimento,
-    //                     comissoes.id AS comissao
-    //         FROM comissoes_corretora_lancadas
-    // INNER JOIN comissoes ON comissoes.id = comissoes_corretora_lancadas.comissoes_id WHERE comissoes_corretora_lancadas.valor != 0
-    // AND comissoes_corretora_lancadas.status_financeiro = 1 AND comissoes_corretora_lancadas.status_gerente = 0
-
-    // UNION
-
-    // SELECT
-    //     comissoes_corretores_lancadas.id,
-    //     comissoes_corretores_lancadas.status_financeiro,
-    //     comissoes_corretores_lancadas.status_gerente,
-    //     0 AS corretora,
-    //     (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
-    //     (SELECT NAME FROM users WHERE users.id = comissoes.user_id) AS corretor,
-    //     (SELECT nome FROM planos WHERE planos.id = comissoes.plano_id) AS plano,
-    //     case when empresarial then
-    //         (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-    //      else
-    //        (SELECT nome FROM clientes WHERE id = (SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))
-    //      END AS cliente,
-    //                      (SELECT nome FROM tabela_origens WHERE tabela_origens.id = comissoes.tabela_origens_id) AS tabela_origens,
-    //                 case when empresarial then
-    //                     (SELECT codigo_externo FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-    //                         else
-    //                     (SELECT codigo_externo FROM contratos WHERE contratos.id = comissoes.contrato_id)
-    //                     END AS codigo_externo,
-    //                     comissoes_corretores_lancadas.parcela,
-    //                     comissoes_corretores_lancadas.valor,
-    //                     comissoes_corretores_lancadas.data as vencimento,
-    //                     comissoes.id AS comissao
-    //     FROM comissoes_corretores_lancadas
-    // INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id WHERE comissoes_corretores_lancadas.valor != 0
-    // AND comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_gerente = 0
-    //         "
-    //     );
-
-    $dados = DB::select(
-        "
-        SELECT
-        (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
-        (SELECT NAME FROM users WHERE users.id = comissoes.user_id) AS corretor,
-        (SELECT nome FROM planos WHERE planos.id = comissoes.plano_id) AS plano,
-        (SELECT nome FROM tabela_origens WHERE tabela_origens.id = comissoes.tabela_origens_id) AS tabela_origens,
-        comissoes_corretores_lancadas.data as vencimento,
-        case when empresarial then
-            (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+        $dados = DB::select(
+            "
+            SELECT
+            (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
+            (SELECT NAME FROM users WHERE users.id = comissoes.user_id) AS corretor,
+            (SELECT nome FROM planos WHERE planos.id = comissoes.plano_id) AS plano,
+            (SELECT nome FROM tabela_origens WHERE tabela_origens.id = comissoes.tabela_origens_id) AS tabela_origens,
+            comissoes_corretores_lancadas.data as vencimento,
+            case when empresarial then
+                (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                else
+                (SELECT nome FROM clientes WHERE id = (SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))
+            END AS cliente,
+            case when empresarial then
+                (SELECT codigo_externo FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                else
+                (SELECT codigo_externo FROM contratos WHERE contratos.id = comissoes.contrato_id)
+            END AS codigo_externo,
+            case when empresarial then
+                (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
             else
-            (SELECT nome FROM clientes WHERE id = (SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))
-        END AS cliente,
-        case when empresarial then
-            (SELECT codigo_externo FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-            else
-            (SELECT codigo_externo FROM contratos WHERE contratos.id = comissoes.contrato_id)
-        END AS codigo_externo,
-        case when empresarial then
-            (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-        else
-        (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
-        END AS valor,
-        comissoes.id AS comissao
-        FROM comissoes_corretores_lancadas
-        INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
-        WHERE status_financeiro = 1 AND status_gerente = 0 AND valor != 0
-        GROUP BY comissao
-            ");
+            (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
+            END AS valor,
+            comissoes.id AS comissao
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE status_financeiro = 1 AND status_gerente = 1 AND valor != 0
+            GROUP BY comissao
+                ");
+    
+            return $dados;
+    }
 
-        return $dados;
+
+
+
+    public function listagem(Request $request)
+    {
+
+        if ($request->ajax()) {
+            $cacheKey = 'listagemNaoConcluidosParcela';
+            $tempoDeExpiracao = 60;
+            
+            $resultado = Cache::remember($cacheKey, $tempoDeExpiracao, function () {
+
+                return DB::select('
+                    SELECT 
+                    administradoras.nome AS administradora,
+                    users.name AS corretor,
+                    planos.nome AS plano,
+                    tabela_origens.nome AS tabela_origens,
+                    comissoes_corretores_lancadas.data as vencimento,
+                        case when comissoes.empresarial then
+                            (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                            else
+                            (SELECT nome FROM clientes WHERE id = (SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))
+                        END AS cliente,
+                        case when comissoes.empresarial then
+                            (SELECT codigo_externo FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                            else
+                            (SELECT codigo_externo FROM contratos WHERE contratos.id = comissoes.contrato_id)
+                        END AS codigo_externo,
+                        case when comissoes.empresarial then
+                            (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                        else
+                            (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
+                        END AS valor,
+                    comissoes.id AS comissao FROM comissoes_corretores_lancadas
+                    INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                    INNER JOIN comissoes_corretora_lancadas ON comissoes_corretora_lancadas.comissoes_id = comissoes.id
+                    INNER JOIN administradoras ON administradoras.id = comissoes.administradora_id
+                    INNER JOIN users ON users.id = comissoes.user_id
+                    INNER JOIN planos ON planos.id = comissoes.plano_id
+                    INNER JOIN tabela_origens ON tabela_origens.id = comissoes.tabela_origens_id
+                    WHERE (comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_gerente = 0 AND comissoes_corretores_lancadas.valor != 0)
+                    or (comissoes_corretora_lancadas.status_financeiro = 1 AND comissoes_corretora_lancadas.status_gerente = 0 AND comissoes_corretora_lancadas.valor != 0)
+                    GROUP BY comissao
+
+                ');
+            });
+            return response()->json($resultado);
+            
+        }
+
+
+
+        
+
+
+
+
+
+
+        return [];
     }
 
     public function listarcontratos()
@@ -4084,7 +4524,6 @@ class GerenteController extends Controller
 
     public function mudarStatusParaNaoPago(Request $request)
     {
-
         $ca = ComissoesCorretoresLancadas::where("id",$request->id)->first();
         $ca->status_apto_pagar = 0;
         $ca->status_comissao = 0;
@@ -4110,26 +4549,68 @@ class GerenteController extends Controller
 
     public function aptarPagamento(Request $request)
     {
+
         $id = $request->id;
+        $user_id = $request->user_id;
         $mes = $request->mes;
         $ano = date("Y");
         $data_comissao = date($ano."-".$mes."-01");
+
         $co = ComissoesCorretoresLancadas::where("id",$id)->first();
         $co->status_apto_pagar = 1;
         $co->status_comissao = 1;
+        $co->finalizado = 1;
         $co->desconto = $request->desconto;
         $co->data_baixa_finalizado = $data_comissao;
         $co->save();
-        return true;
-        // $co = ComissoesCorretoresLancadas::where("id",$request->id)->with('comissao.contrato')->first();
-        // $co->status_antecipar = 1;
-        // $co->data_antecipacao = date('Y-m-d');
-        // $co->save();
-        // return true;
-        // return [
-        //     "valor_plano_contratado" => $co->comissao->contrato->valor_plano,
-        //     "data_baixa_gerente" => date("d/m/Y")
-        // ];
+
+        $va = ValoresCorretoresLancados::where("user_id",$user_id)->whereMonth('data',$request->mes);
+        if($va->count() == 0) {
+
+            $va = new ValoresCorretoresLancados();
+            $va->user_id = $user_id;
+            $va->valor_comissao = str_replace([".",","],["","."], $request->comissao);
+            $va->valor_salario = str_replace([".",","],["","."], $request->salario);
+            $va->valor_premiacao = str_replace([".",","],["","."], $request->premiacao);
+            $va->valor_total = str_replace([".",","],["","."], $request->total);
+            $va->valor_desconto = $request->desconto;
+            $va->data = $data_comissao;
+            $va->valor_estorno = str_replace([".",","],["","."], $request->estorno);
+            $va->save();
+
+            $id_folha_mes = FolhaMes::whereMonth("mes",$mes)->first()->id;
+
+            $folha = new FolhaPagamento();
+            $folha->folha_mes_id = $id_folha_mes;
+            $folha->valores_corretores_lancados_id = $va->id;
+            $folha->save();
+
+        } else {
+
+            $alt = $va->first();
+            $alt->valor_comissao = str_replace([".",","],["","."], $request->comissao);
+            $alt->valor_salario = str_replace([".",","],["","."], $request->salario);
+            $alt->valor_premiacao = str_replace([".",","],["","."], $request->premiacao);
+            $alt->valor_total = str_replace([".",","],["","."], $request->total);
+            $alt->valor_desconto = $request->desconto;
+            $alt->valor_estorno = str_replace([".",","],["","."], $request->estorno);
+            $alt->save();
+
+        }
+
+
+//        $dados_totais = DB::table('valores_corretores_lancados')
+//            ->selectRaw("REPLACE(FORMAT(sum(valor_comissao),2),'.',',') as total_comissao")
+//            ->selectRaw("REPLACE(FORMAT(sum(valor_salario),2),'.',',') as total_salario")
+//            ->selectRaw("REPLACE(FORMAT(sum(valor_premiacao),2),'.',',') as valor_premiacao")
+//            ->selectRaw("REPLACE(FORMAT(sum(valor_desconto),2),'.',',') as valor_desconto")
+//            ->selectRaw("REPLACE(FORMAT(sum(valor_total),2),'.',',') as total_mes")
+//            ->selectRaw("REPLACE(FORMAT(sum(valor_estorno),2),'.',',') as total_estorno")
+//            ->whereMonth("data",$mes)
+//            ->first();
+
+        return $request->all();
+
     }
 
     public function comissaoListagemConfirmadasMesEspecifico(Request $request)
@@ -4196,25 +4677,37 @@ class GerenteController extends Controller
                 $query->where("user_id",$id);
             })->count();
 
-        $total_individual = ComissoesCorretoresLancadas
-            ::where("status_financeiro",1)
-            ->where("status_apto_pagar",1)
-            //->where("finalizado","=",1)
-            ->whereMonth("data_baixa_finalizado",$mes)
-            ->whereHas('comissao',function($query) use($id){
-                $query->where("plano_id",1);
-                $query->where("user_id",$id);
-            })->selectRaw("if(sum(valor)>0,sum(valor),0) as total_individual")->first()->total_individual;
+        $total_individual = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_individual_valor FROM (
+            SELECT SUM(valor) AS total_plano1 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 1 AND comissoes.user_id = {$id} AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+            ) AS plano1,
+            (
+            SELECT SUM(valor) AS total_plano3 FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 1 AND comissoes.user_id = {$id} AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_finalizado) = {$mes}
+            ) AS plano3;
+        ")[0]->total_individual_valor;
 
-        $total_coletivo = ComissoesCorretoresLancadas
-            ::where("status_financeiro",1)
-            ->where("status_apto_pagar",1)
-            //->where("finalizado","=",1)
-            ->whereMonth("data_baixa_finalizado",$mes)
-            ->whereHas('comissao',function($query)use($id){
-                $query->where("plano_id",3);
-                $query->where("user_id",$id);
-            })->selectRaw("if(sum(valor)>0,sum(valor),0) as total_coletivo")->first()->total_coletivo;
+        $total_coletivo = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_coletivo_valor FROM (
+            SELECT
+                COALESCE(SUM(CASE WHEN comissoes_corretores_lancadas.valor_pago THEN valor_pago ELSE valor END), 0)
+                    AS total_plano1
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes.user_id = {$id} AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+            ) AS plano1,
+            (
+            SELECT
+                COALESCE(SUM(CASE WHEN comissoes_corretores_lancadas.valor_pago THEN valor_pago ELSE valor END), 0)
+                AS total_plano3
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes.user_id = {$id} AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes}
+            ) AS plano3
+        ")[0]->total_coletivo_valor;
 
         $total_comissao = $total_individual + $total_coletivo;
 
@@ -4254,17 +4747,30 @@ class GerenteController extends Controller
         $id = $request->id;
         $contratos = DB::select("
             select
-            (select nome from administradoras where administradoras.id = contratos.administradora_id) as administradora,
-            date_format((contratos.created_at),'%d/%m/%Y') as data,
-            (codigo_externo) as codigo,
-            (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
-            (select parcela from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where comissoes.contrato_id = contratos.id) AND cancelados = 0 ORDER BY id LIMIT 1) as parcela,
-            (valor_plano) as valor,
-            (select sum(valor) from comissoes_corretores_lancadas where comissoes_id IN (select id from comissoes where comissoes.contrato_id = contratos.id) AND cancelados != 1) as total_estorno,
-            id,
-            plano_id as plano
-            from `contratos` where `plano_id` = 1 and `financeiro_id` = 12 and estorno = 0 and
-            exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and `user_id` = ${id})
+    (select nome from administradoras where administradoras.id = comissoes.administradora_id) as administradora,
+    date_format((comissoes_corretores_lancadas.data),'%d/%m/%Y') as data,
+    (contratos.codigo_externo) as codigo,
+    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
+    (comissoes_corretores_lancadas.parcela) as parcela,
+    (contratos.valor_plano) as valor,
+    (comissoes_corretores_lancadas.valor) as total_estorno,
+    contratos.id,
+    comissoes.id as comissoes_id,
+    comissoes.plano_id as plano,
+    comissoes_corretores_lancadas.id as id_lancadas,
+    cancelados
+ from comissoes_corretores_lancadas
+inner join comissoes on comissoes.id = comissoes_corretores_lancadas.comissoes_id
+inner join contratos on contratos.id = comissoes.contrato_id
+where
+comissoes.plano_id = 1
+and comissoes_corretores_lancadas.valor != 0
+and comissoes_corretores_lancadas.estorno = 0
+and comissoes_corretores_lancadas.cancelados = 0
+and comissoes_corretores_lancadas.data_baixa_estorno IS NULL
+  and contratos.financeiro_id = 12
+  and
+    exists (select * from `clientes` where `contratos`.`cliente_id` = `clientes`.`id` and `user_id` = ${id});
         ");
         return response()->json($contratos);
     }
@@ -4275,16 +4781,21 @@ class GerenteController extends Controller
         $id = $request->id;
         $contratos = DB::select("
             select
-            ('Hapvida') as administradora,
-            date_format(created_at,'%d/%m/%Y') as data,
-            (codigo_externo) as codigo,
-            (razao_social) as cliente,
-            (select parcela from comissoes_corretores_lancadas where comissoes_id = (select id from comissoes where comissoes.contrato_empresarial_id = contrato_empresarial.id) AND cancelados = 0 ORDER BY id desc LIMIT 1) as parcela,
-            (valor_plano) as valor,
-            (select sum(valor) from comissoes_corretores_lancadas where comissoes_id IN (select id from comissoes where comissoes.contrato_empresarial_id = contrato_empresarial.id) AND cancelados != 1) as total_estorno,
-            id,
-            plano_id as plano
-            from `contrato_empresarial` where `financeiro_id` = 12 and estorno = 0 and `user_id` = ${id}
+    ('Hapvida') as administradora,
+    date_format(comissoes_corretores_lancadas.data,'%d/%m/%Y') as data,
+    (contrato_empresarial.codigo_externo) as codigo,
+    (razao_social) as cliente,
+    parcela as parcela,
+    (valor_plano) as valor,
+    valor as total_estorno,
+    contrato_empresarial.id,
+    contrato_empresarial.plano_id as plano,
+    comissoes.id as comissoes_id,
+    comissoes_corretores_lancadas.id as id_lancadas
+    from comissoes_corretores_lancadas
+    inner join comissoes on comissoes.id = comissoes_corretores_lancadas.comissoes_id
+    inner join contrato_empresarial on contrato_empresarial.id = comissoes.contrato_empresarial_id
+    where contrato_empresarial.financeiro_id = 12 and contrato_empresarial.user_id = {$id} and cancelados = 0 and valor != 0 and comissoes_corretores_lancadas.estorno = 0;
 
         ");
 
@@ -4310,101 +4821,107 @@ class GerenteController extends Controller
         $plano = $request->plano;
 
         if($plano != 0) {
-
             $dados = DB::select("
-        SELECT
-        (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
-        (comissoes.plano_id) AS plano,
-        comissoes_corretores_lancadas.data_antecipacao as data_antecipacao,
-            case when comissoes.empresarial then
-                               (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-                               ELSE
-                               (SELECT nome FROM clientes WHERE id = ((SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id)))
-                       END AS cliente,
-                       DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS data,
-                       if(
-                        comissoes_corretores_lancadas.data_baixa_gerente,
-                        DATE_FORMAT(comissoes_corretores_lancadas.data_baixa_gerente,'%d/%m/%Y'),
-                        DATE_FORMAT(comissoes_corretores_lancadas.data_baixa,'%d/%m/%Y')
-                    ) AS data_baixa_gerente,
-                       case when empresarial then
-                            (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-              else
-                      (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
-                    END AS valor_plano_contratado,
-                       comissoes_corretores_lancadas.valor AS comissao_esperada,
-                       if(comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor) AS comissao_recebida,
-                    comissoes_corretores_lancadas.id,
-                    comissoes_corretores_lancadas.comissoes_id,
-                    comissoes_corretores_lancadas.parcela,
-                    case when empresarial then
-                    (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-              else
-                    COALESCE((SELECT FORMAT(desconto_corretor, 2) FROM contratos WHERE contratos.id = comissoes.contrato_id AND comissoes_corretores_lancadas.id = (
-                            SELECT cc.id
-                    FROM comissoes_corretores_lancadas cc
-                    WHERE cc.comissoes_id = comissoes.id
-                            AND cc.valor != 0
-                    ORDER BY cc.id
-                    LIMIT 1
-                        )),0.00)
-                    END AS desconto
+SELECT
+    (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
+    DATE_FORMAT(contratos.created_at,'%d/%m/%Y') as created_at,
+    contratos.codigo_externo as codigo,
+    (SELECT nome FROM clientes WHERE id = ((SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))) as cliente,
+    comissoes_corretores_lancadas.parcela,
+    (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id) as valor_plano,
+    DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS vencimento,
+    DATE_FORMAT(comissoes_corretores_lancadas.data_baixa,'%d/%m/%Y') as data_baixa,
+    if(
+                (SELECT COUNT(*) FROM comissoes_corretores_configuracoes WHERE
+                        comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
+                        comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
+                        comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
+                        comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
+                        comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela) > 0 ,
+                (SELECT valor FROM comissoes_corretores_configuracoes WHERE
+                        comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
+                        comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
+                        comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
+                        comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
+                        comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela)
+        ,
+                (SELECT valor FROM comissoes_corretores_default WHERE
+                        comissoes_corretores_default.plano_id = comissoes.plano_id AND
+                        comissoes_corretores_default.administradora_id = comissoes.administradora_id AND
+                        comissoes_corretores_default.tabela_origens_id = comissoes.tabela_origens_id AND
+                        comissoes_corretores_default.parcela = comissoes_corretores_lancadas.parcela)
+        ) AS porcentagem,
 
-        FROM comissoes_corretores_lancadas
-        INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
-        INNER JOIN contratos ON comissoes.contrato_id = contratos.id
-        WHERE
-        comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1
-         AND MONTH(data_baixa_finalizado) = {$mes} AND comissoes.plano_id = {$plano}
-        ORDER BY comissoes.administradora_id
+    comissoes_corretores_lancadas.valor AS valor,
+
+    (comissoes.plano_id) AS plano,
+    (SELECT if(quantidade_vidas >=1,quantidade_vidas,0) FROM clientes WHERE clientes.id = contratos.cliente_id) AS quantidade_vidas,
+    CASE
+        WHEN contratos.desconto_corretor IS NOT NULL THEN contratos.desconto_corretor
+        ELSE comissoes_corretores_lancadas.desconto
+        END AS desconto,
+
+
+    comissoes_corretores_lancadas.id,
+    comissoes_corretores_lancadas.comissoes_id,
+    contratos.id as contrato_id
+
+FROM comissoes_corretores_lancadas
+         INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+         INNER JOIN contratos ON comissoes.contrato_id = contratos.id
+WHERE
+        comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 AND
+        MONTH(data_baixa_finalizado) = {$mes} AND comissoes.plano_id = {$plano}
+ORDER BY comissoes.administradora_id
         ");
         } else {
             $dados = DB::select("
         SELECT
         (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
-        (comissoes.plano_id) AS plano,
-        comissoes_corretores_lancadas.data_antecipacao as data_antecipacao,
-            case when comissoes.empresarial then
-                               (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-                               ELSE
-                               (SELECT nome FROM clientes WHERE id = ((SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id)))
-                       END AS cliente,
-                       DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS data,
-                       if(
-                        comissoes_corretores_lancadas.data_baixa_gerente,
-                        DATE_FORMAT(comissoes_corretores_lancadas.data_baixa_gerente,'%d/%m/%Y'),
-                        DATE_FORMAT(comissoes_corretores_lancadas.data_baixa,'%d/%m/%Y')
-                    ) AS data_baixa_gerente,
+        DATE_FORMAT(contrato_empresarial.created_at,'%d/%m/%Y') as created_at,
+        contrato_empresarial.codigo_externo as codigo,
+        (contrato_empresarial.razao_social) as cliente,
+        comissoes_corretores_lancadas.parcela,
+        (contrato_empresarial.valor_plano) as valor_plano,
+        DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS vencimento,
+        DATE_FORMAT(comissoes_corretores_lancadas.data_baixa,'%d/%m/%Y') as data_baixa,
+           if(
+                (SELECT COUNT(*) FROM comissoes_corretores_configuracoes WHERE
+                        comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
+                        comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
+                        comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
+                        comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
+                        comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela) > 0 ,
+                (SELECT valor FROM comissoes_corretores_configuracoes WHERE
+                        comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
+                        comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
+                        comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
+                        comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
+                        comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela)
+        ,
+                (SELECT valor FROM comissoes_corretores_default WHERE
+                        comissoes_corretores_default.plano_id = comissoes.plano_id AND
+                        comissoes_corretores_default.administradora_id = comissoes.administradora_id AND
 
-                       case when empresarial then
-                            (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-              else
-                      (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
-                    END AS valor_plano_contratado,
-                       comissoes_corretores_lancadas.valor AS comissao_esperada,
-                       if(comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor) AS comissao_recebida,
-                    comissoes_corretores_lancadas.id,
-                    comissoes_corretores_lancadas.comissoes_id,
-                    comissoes_corretores_lancadas.parcela,
-                    case when empresarial then
-                    (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-              else
-                    COALESCE((SELECT FORMAT(desconto_corretor, 2) FROM contratos WHERE contratos.id = comissoes.contrato_id AND comissoes_corretores_lancadas.id = (
-                            SELECT cc.id
-                    FROM comissoes_corretores_lancadas cc
-                    WHERE cc.comissoes_id = comissoes.id
-                            AND cc.valor != 0
-                    ORDER BY cc.id
-                    LIMIT 1
-                        )),0.00)
-                    END AS desconto
+                        comissoes_corretores_default.parcela = comissoes_corretores_lancadas.parcela)
+        ) AS porcentagem,
+    if(comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor) AS valor,
+
+    (comissoes.plano_id) AS plano,
+    (quantidade_vidas) AS quantidade_vidas,
+    CASE
+        WHEN contrato_empresarial.desconto_corretor IS NOT NULL THEN contrato_empresarial.desconto_corretor
+        ELSE comissoes_corretores_lancadas.desconto
+        END AS desconto,
+    comissoes_corretores_lancadas.id,
+    comissoes_corretores_lancadas.comissoes_id,
+    contrato_empresarial.id as contrato_id
         FROM comissoes_corretores_lancadas
         INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
         INNER JOIN contrato_empresarial ON comissoes.contrato_empresarial_id = contrato_empresarial.id
         WHERE
         comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1
-         AND MONTH(data_baixa_finalizado) = {$mes}  AND comissoes.plano_id != 1 AND comissoes.plano_id != 3
-        ORDER BY comissoes.administradora_id
+        AND month(data_baixa_finalizado) = {$mes} AND valor != 0 AND comissoes.plano_id != 1 AND comissoes.plano_id != 3 ORDER BY comissoes.administradora_id
         ");
         }
 
@@ -4454,8 +4971,8 @@ SELECT
                         comissoes_corretores_default.tabela_origens_id = comissoes.tabela_origens_id AND
                         comissoes_corretores_default.parcela = comissoes_corretores_lancadas.parcela)
         ) AS porcentagem,
-    if(comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor) AS valor,
-
+    /*if(comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor) AS valor,*/
+        (comissoes_corretores_lancadas.valor) as valor,
     (comissoes.plano_id) AS plano,
     (SELECT if(quantidade_vidas >=1,quantidade_vidas,0) FROM clientes WHERE clientes.id = contratos.cliente_id) AS quantidade_vidas,
     CASE
@@ -4580,12 +5097,13 @@ SELECT
         if($request->mes) {
             $mes = $request->mes;
             $dados = DB::select("
+            select
             (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
-    DATE_FORMAT(contratos.created_at,'%d/%m/%Y') as created_at,
-    contratos.codigo_externo as codigo,
-    (SELECT nome FROM clientes WHERE id = ((SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))) as cliente,
+    DATE_FORMAT(contrato_empresarial.created_at,'%d/%m/%Y') as created_at,
+    contrato_empresarial.codigo_externo as codigo,
+    (contrato_empresarial.razao_social) as cliente,
     comissoes_corretores_lancadas.parcela,
-    (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id) as valor_plano,
+    (contrato_empresarial.valor_plano) as valor_plano,
     DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS vencimento,
     DATE_FORMAT(comissoes_corretores_lancadas.data_baixa,'%d/%m/%Y') as data_baixa,
     if(
@@ -4605,20 +5123,20 @@ SELECT
                 (SELECT valor FROM comissoes_corretores_default WHERE
                         comissoes_corretores_default.plano_id = comissoes.plano_id AND
                         comissoes_corretores_default.administradora_id = comissoes.administradora_id AND
-                        comissoes_corretores_default.tabela_origens_id = comissoes.tabela_origens_id AND
+
                         comissoes_corretores_default.parcela = comissoes_corretores_lancadas.parcela)
         ) AS porcentagem,
     if(comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor) AS valor,
 
     (comissoes.plano_id) AS plano,
-    (SELECT if(quantidade_vidas >=1,quantidade_vidas,0) FROM clientes WHERE clientes.id = contratos.cliente_id) AS quantidade_vidas,
+    (quantidade_vidas) AS quantidade_vidas,
     CASE
-        WHEN contratos.desconto_corretor IS NOT NULL THEN contratos.desconto_corretor
+        WHEN contrato_empresarial.desconto_corretor IS NOT NULL THEN contrato_empresarial.desconto_corretor
         ELSE comissoes_corretores_lancadas.desconto
         END AS desconto,
     comissoes_corretores_lancadas.id,
     comissoes_corretores_lancadas.comissoes_id,
-    contratos.id as contrato_id
+    contrato_empresarial.id as contrato_id
         FROM comissoes_corretores_lancadas
         INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
         INNER JOIN contrato_empresarial ON comissoes.contrato_empresarial_id = contrato_empresarial.id
@@ -4628,11 +5146,11 @@ SELECT
         ");
         } else {
             $dados = DB::select("
+            select
             (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
-    DATE_FORMAT(contratos.created_at,'%d/%m/%Y') as created_at,
-    contratos.codigo_externo as codigo,
-    (SELECT nome FROM clientes WHERE id = ((SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))) as cliente,
-    comissoes_corretores_lancadas.parcela,
+    DATE_FORMAT(contrato_empresarial.created_at,'%d/%m/%Y') as created_at,
+    contrato_empresarial.codigo_externo as codigo,
+    (contrato_empresarial.razao_social) as cliente,
     (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id) as valor_plano,
     DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS vencimento,
     DATE_FORMAT(comissoes_corretores_lancadas.data_baixa,'%d/%m/%Y') as data_baixa,
@@ -4682,47 +5200,184 @@ SELECT
         $mes = $request->mes;
         $dados = DB::select("
             select
-    (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS Admin,
-    DATE_FORMAT(contratos.created_at,'%d/%m/%Y') as Data,
-    contratos.codigo_externo as Codigo,
-    (SELECT nome FROM clientes WHERE id = ((SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))) as Cliente,
-    comissoes_corretores_lancadas.parcela as Parcela,
-    (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id) as Valor,
-    DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS Vencimento,
-    DATE_FORMAT(comissoes_corretores_lancadas.data_baixa,'%d/%m/%Y') as Baixa,
+                (administradoras.nome) as administradora,
+                case when comissoes.empresarial = 1 then
+                    DATE_FORMAT(contrato_empresarial.created_at,'%d/%m/%Y')
+                else
+                    DATE_FORMAT(contratos.created_at,'%d/%m/%Y')
+                end as data,
+                case when comissoes.empresarial = 1 then
+                    contrato_empresarial.codigo_externo
+                else
+                   contratos.codigo_externo
+                end as codigo_externo,
+                case when comissoes.empresarial = 1 then
+                    contrato_empresarial.razao_social
+                else
+                    (select nome from clientes where clientes.id = contratos.cliente_id)
+                end as cliente,
+    comissoes_corretores_lancadas.parcela,
+    users.name as corretor,
+    comissoes_corretores_lancadas.valor,
+    case when comissoes.empresarial = 1 then
+        contrato_empresarial.valor_plano
+    else
+        contratos.valor_plano
+    end as valor_plano,
+
     if(
                 (SELECT COUNT(*) FROM comissoes_corretores_configuracoes WHERE
                         comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
                         comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
-                        comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
+
                         comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
                         comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela) > 0 ,
                 (SELECT valor FROM comissoes_corretores_configuracoes WHERE
                         comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
                         comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
-                        comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
+
                         comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
                         comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela)
         ,
                 (SELECT valor FROM comissoes_corretores_default WHERE
                         comissoes_corretores_default.plano_id = comissoes.plano_id AND
                         comissoes_corretores_default.administradora_id = comissoes.administradora_id AND
-                        comissoes_corretores_default.tabela_origens_id = comissoes.tabela_origens_id AND
+
                         comissoes_corretores_default.parcela = comissoes_corretores_lancadas.parcela)
-        ) AS Porcentagem,
-    if(comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor) AS Pagar,
-    CASE
-        WHEN contratos.desconto_corretor IS NOT NULL THEN contratos.desconto_corretor
-        ELSE comissoes_corretores_lancadas.desconto
-        END AS Desconto
-FROM comissoes_corretores_lancadas
-    INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
-    INNER JOIN contratos ON comissoes.contrato_id = contratos.id
-WHERE
-    comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1
-  AND month(data_baixa_finalizado) = ${mes}
-    ORDER BY comissoes.administradora_id
+        ) AS porcentagem,
+        planos.nome as plano,
+        comissoes_corretores_lancadas.data_baixa_finalizado
+from comissoes_corretores_lancadas
+         inner join comissoes on comissoes.id = comissoes_corretores_lancadas.comissoes_id
+         inner join administradoras on administradoras.id = comissoes.administradora_id
+         inner join planos on planos.id = comissoes.plano_id
+         inner join users on users.id = comissoes.user_id
+         left join contratos on contratos.id = comissoes.contrato_id
+         left join contrato_empresarial on contrato_empresarial.id = comissoes.contrato_empresarial_id
+where comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 AND month(data_baixa_finalizado) = {$mes} and valor != 0
         ");
+
+
+        $total_empresarial_quantidade = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            ->where("status_apto_pagar",1)
+            ->where("finalizado",1)
+            ->where("valor","!=",0)
+            ->whereMonth("data_baixa_finalizado",$mes)
+            ->whereHas('comissao',function($query){
+                $query->where("plano_id","!=",1);
+                $query->where("plano_id","!=",3);
+            })->count();
+
+        $total_empresarial = DB::select("
+                SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_empresarial_valor FROM (
+                SELECT
+                    COALESCE(SUM(CASE WHEN comissoes_corretores_lancadas.valor_pago THEN valor_pago ELSE valor END), 0)
+                        AS total_plano1 FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+                ) AS plano1,
+                (
+                SELECT
+                    COALESCE(SUM(CASE WHEN comissoes_corretores_lancadas.valor_pago THEN valor_pago ELSE valor END), 0)
+                        AS total_plano3 FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id != 3 AND comissoes.plano_id != 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes}
+                ) AS plano3
+            ")[0]->total_empresarial_valor;
+
+
+
+
+        $total_individual_quantidade = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            ->where("status_apto_pagar",1)
+            ->where("finalizado",1)
+            ->where("valor","!=",0)
+            ->whereMonth("data_baixa_finalizado",$mes)
+            ->whereHas('comissao',function($query){
+                $query->where("plano_id",1);
+            })->count();
+
+
+        $total_coletivo_quantidade = ComissoesCorretoresLancadas
+            ::where("status_financeiro",1)
+            ->where("status_apto_pagar",1)
+            ->where("finalizado","=",1)
+            ->where("valor","!=",0)
+            ->whereMonth("data_baixa_finalizado",$mes)
+            ->whereHas('comissao',function($query){
+                $query->where("plano_id",3);
+            })->count();
+
+        $total_individual = DB::select("
+                SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_individual_valor FROM (
+                SELECT SUM(valor) AS total_plano1 FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+                ) AS plano1,
+                (
+                SELECT SUM(valor) AS total_plano3 FROM comissoes_corretores_lancadas
+                INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                WHERE comissoes.plano_id = 1 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_finalizado) = {$mes}
+                ) AS plano3;
+            ")[0]->total_individual_valor;
+
+
+
+
+        $total_coletivo = DB::select("
+            SELECT IFNULL(total_plano1, 0) - IFNULL(total_plano3, 0) AS total_coletivo_valor FROM (
+            SELECT
+                COALESCE(SUM(comissoes_corretores_lancadas.valor), 0)
+                    AS total_plano1
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.status_apto_pagar = 1 and month(data_baixa_finalizado) = {$mes}
+            ) AS plano1,
+            (
+            SELECT
+                COALESCE(SUM(comissoes_corretores_lancadas.valor), 0)
+                AS total_plano3
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            WHERE comissoes.plano_id = 3 AND comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes}
+            ) AS plano3
+        ")[0]->total_coletivo_valor;
+
+
+
+        $valores = DB::select("select
+            FORMAT(sum(valor_comissao),2,'de_DE') as comissao,
+            FORMAT(sum(valor_salario),2,'de_DE') as salario,
+            FORMAT(sum(valor_premiacao),2,'de_DE') as premiacao,
+            FORMAT(sum(valor_total),2,'de_DE') as total,
+            FORMAT(sum(valor_desconto),2,'de_DE') as desconto,
+            FORMAT(sum(valor_estorno),2,'de_DE') as estorno
+            from valores_corretores_lancados where month(data) = {$mes}");
+
+
+        return [
+            "valores" => $valores[0],
+            "data" => $dados,
+            "total_empresarial_quantidade" => $total_empresarial_quantidade,
+            "total_individual_quantidade" => $total_individual_quantidade,
+            "total_coletivo_quantidade" => $total_coletivo_quantidade,
+            "total_empresarial" => $total_empresarial,
+            "total_individual" => $total_individual,
+            "total_coletivo" => $total_coletivo
+        ];
+    }
+
+
+    public function salarioUserHistorico(Request $request)
+    {
+        $user = $request->user;
+
+        $user = User::where('name', 'like', '%' . $user . '%')->first()->id;
+        $dados = ValoresCorretoresLancados::where("user_id",$user)->whereMonth("data",$request->mes)->first();
+
+
         return response()->json($dados);
     }
 
@@ -5260,7 +5915,6 @@ WHERE
         $id = $request->id;
         $dados = DB::select("
                 SELECT
-
                 comissoes_corretores_lancadas.id,
                 comissoes_corretores_lancadas.parcela,
                 contratos.created_at AS data_criacao,
@@ -5277,33 +5931,49 @@ WHERE
                 (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
                 END AS valor_plano_contratado,
 
-                if(
-                    (SELECT COUNT(*) FROM comissoes_corretores_configuracoes WHERE
-                    comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
-                    comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
-                    comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
-                    comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
-                    comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela) > 0 ,
-                        (SELECT valor FROM comissoes_corretores_configuracoes WHERE
-                        comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
-                        comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
-                        comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
-                        comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
-                        comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela)
-                        ,
-                        (SELECT valor FROM comissoes_corretores_default WHERE
-                        comissoes_corretores_default.plano_id = comissoes.plano_id AND
-                        comissoes_corretores_default.administradora_id = comissoes.administradora_id AND
-                        comissoes_corretores_default.tabela_origens_id = comissoes.tabela_origens_id AND
-                        comissoes_corretores_default.parcela = comissoes_corretores_lancadas.parcela)
-                    )
-                AS porcentagem_parcela_corretor,
+
+
+               CASE
+                WHEN comissoes_corretores_lancadas.porcentagem_paga IS NOT NULL THEN
+                    comissoes_corretores_lancadas.porcentagem_paga
+                ELSE
+                    CASE
+                        WHEN (
+                                 SELECT COUNT(*) FROM comissoes_corretores_configuracoes
+                                 WHERE
+                                         comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
+                                         comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
+                                         comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
+                                         comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
+                                         comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela
+                             ) > 0 THEN
+                            (
+                                SELECT valor FROM comissoes_corretores_configuracoes
+                                WHERE
+                                        comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
+                                        comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
+                                        comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
+                                        comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
+                                        comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela
+                            )
+                        ELSE
+                            (
+                                SELECT valor FROM comissoes_corretores_default
+                                WHERE
+                                        comissoes_corretores_default.plano_id = comissoes.plano_id AND
+                                        comissoes_corretores_default.administradora_id = comissoes.administradora_id AND
+                                        comissoes_corretores_default.tabela_origens_id = comissoes.tabela_origens_id AND
+                                        comissoes_corretores_default.parcela = comissoes_corretores_lancadas.parcela
+                            )
+                        END
+                END AS porcentagem_parcela_corretor,
 
                 case when empresarial then
    				    (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
    	            ELSE
 				    (SELECT nome FROM clientes WHERE id = ((SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id)))
                 END AS cliente,
+
                 case when empresarial then
                 (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
                 else
@@ -5430,9 +6100,7 @@ WHERE
             else
             (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
             END AS valor_plano_contratado,
-
             desconto_corretor as desconto,
-
             DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS data,
             comissoes_corretores_lancadas.valor,
             contrato_empresarial.quantidade_vidas AS quantidade_vidas,
@@ -5447,14 +6115,12 @@ WHERE
                             (SELECT valor FROM comissoes_corretores_configuracoes WHERE
                             comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
                             comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
-
                             comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
                             comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela)
                             ,
                             (SELECT valor FROM comissoes_corretores_default WHERE
                             comissoes_corretores_default.plano_id = comissoes.plano_id AND
                             comissoes_corretores_default.administradora_id = comissoes.administradora_id AND
-
                             comissoes_corretores_default.parcela = comissoes_corretores_lancadas.parcela)
                         )
                     AS porcentagem_parcela_corretor,
@@ -5496,7 +6162,6 @@ WHERE
 
     public function finalizarPagamento(Request $request)
     {
-
         $mes = $request->mes;
         $ano = date("Y");
         $dia = date("d");
@@ -5563,7 +6228,9 @@ WHERE
                 $query->select('user_id')
                       ->from('valores_corretores_lancados')
                       ->whereMonth('data',$mes);
-            })->get();
+            })
+            ->orderBy("name")
+            ->get();
 
 
         return [
@@ -5582,37 +6249,25 @@ WHERE
     {
         $ano = $request->ano;
         $mes = $request->mes;
-
         $mes = FolhaMes::whereMonth("mes",$mes)->whereYear("mes",$ano)->where("status",0);
-
-
-
         if($mes->count() == 1) {
             $alt = $mes->first();
-
             $alt->status = 1;
             $alt->save();
-
             $dados = DB::table("comissoes_corretores_lancadas")
                 ->where('status_financeiro', 1)
                 ->where('status_apto_pagar',1)
                 ->where('status_comissao',1)
                 //->get();
                 ->update(['finalizado' => 1]);
-
-
-
-
             return true;
         } else {
             return "sem_mes";
         }
     }
 
-
-    public function criarPDFUser(Request $request)
+    public function criarPDFUserHistorico(Request $request)
     {
-
         $mes = $request->mes;
         $id = $request->user_id;
         $meses = [
@@ -5636,13 +6291,16 @@ WHERE
         $comissao = $dados->valor_comissao;
         $salario = $dados->valor_salario;
         $premiacao = $dados->valor_premiacao;
-        //$soma = $comissao + $salario + $premiacao;
 
         $total = $dados->valor_total;
         $desconto = $dados->valor_desconto;
         $estorno = $dados->valor_estorno;
-
-        $logo = 'data:image/png;base64,'.base64_encode(file_get_contents(public_path("storage/logo-accert.png")));
+        
+        $logo = "";
+        if(Corretora::first()->logo) {
+            $img_logo = Corretora::first()->logo;
+            $logo = 'data:image/png;base64,'.base64_encode(file_get_contents(public_path("storage/".$img_logo)));
+        }      
 
         $ids = explode("|",$request->ids);
 
@@ -5695,9 +6353,7 @@ WHERE
         comissoes.user_id = {$id} AND MONTH(data_baixa_finalizado) = {$mes} AND valor != 0 AND comissoes.plano_id = 1
         ORDER BY comissoes.administradora_id
         ");
-//
-//
-//
+
         $coletivo = DB::select("
         SELECT
         (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
@@ -5733,17 +6389,7 @@ WHERE
         comissoes.user_id = {$id} AND month(data_baixa_finalizado) = {$mes} AND valor != 0 AND comissoes.plano_id = 3
         ORDER BY comissoes.administradora_id
         ");
-        /*
-        FROM comissoes_corretores_lancadas
-        INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
-        INNER JOIN contratos ON comissoes.contrato_id = contratos.id
-        WHERE
-        comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 AND
-        comissoes.user_id = {$id} AND month(data_baixa_finalizado) = {$mes}  AND comissoes.plano_id = 3
-        ORDER BY comissoes.administradora_id
-        */
 
-//
         $empresarial = DB::select("
         SELECT
             (SELECT razao_social FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id) as cliente,
@@ -5761,48 +6407,263 @@ WHERE
             comissoes.user_id = {$id} AND month(data_baixa_finalizado) = {$mes} AND valor != 0 AND comissoes.plano_id != 1 AND comissoes.plano_id != 3 ORDER BY comissoes.administradora_id
         ");
 
-//        $estorno_table = DB::select("
-//            select
-//                (select nome from administradoras where administradoras.id = contratos.administradora_id) as administradora,
-//                (codigo_externo) as contrato,
-//                date_format((created_at),'%d/%m/%Y') as data,
-//                (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
-//                (valor_plano) as valor,
-//                (select sum(valor) from comissoes_corretores_lancadas where comissoes_id IN (select id from comissoes where comissoes.contrato_id = contratos.id) AND cancelados != 1) as total_estorno,
-//                (select SUBSTRING_INDEX(nome,' ',1) from planos where planos.id = contratos.plano_id) as plano
-//                from contratos where estorno = 1 and month(data_baixa_estorno) = {$request->mes}
-//                and exists(select * from clientes where clientes.id = contratos.cliente_id and clientes.user_id = {$request->user_id})
-//        ");
+
         $estorno_table = DB::select(
             "select
-        (select nome from administradoras where administradoras.id = contratos.administradora_id) as administradora,
-    (codigo_externo) as contrato,
-    date_format((created_at),'%d/%m/%Y') as data,
-    (select nome from clientes where clientes.id = contratos.cliente_id) as cliente,
-    (valor_plano) as valor,
-    (select sum(valor) from comissoes_corretores_lancadas where comissoes_id IN (select id from comissoes where comissoes.contrato_id = contratos.id) AND cancelados != 1) as total_estorno,
-    (select SUBSTRING_INDEX(nome,' ',1) from planos where planos.id = contratos.plano_id) as plano
-from contratos where estorno = 1 and month(data_baixa_estorno) = {$request->mes}
-    and exists(select * from clientes where clientes.id = contratos.cliente_id and clientes.user_id = {$request->user_id})
-union
-select
-('Hapvida') as administradora,
-    (codigo_externo) as contrato,
-    date_format((created_at),'%d/%m/%Y') as data,
-    (razao_social) as cliente,
-    (valor_plano) as valor,
-    (select sum(valor) from comissoes_corretores_lancadas where comissoes_id IN (select id from comissoes where comissoes.contrato_empresarial_id = contrato_empresarial.id) AND cancelados != 1) as total_estorno,
-
-    (select SUBSTRING_INDEX(nome,' ',1) from planos where planos.id = contrato_empresarial.plano_id) as plano
-    from contrato_empresarial where estorno = 1 and month(data_baixa_estorno) = {$request->mes} and user_id = {$request->user_id}"
+            (select nome from administradoras where administradoras.id = comissoes.administradora_id) as administradora,
+            case when comissoes.empresarial then
+                (select razao_social from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                else
+                (select nome from clientes where clientes.id = (select cliente_id from contratos where contratos.id = comissoes.contrato_id))
+            end as cliente,
+            (select SUBSTRING_INDEX(nome,' ',1) from planos where planos.id = comissoes.plano_id) as plano,
+            DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS data,
+            case when comissoes.empresarial then
+                (select valor_plano from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+            else
+                (select valor_plano from contratos where contratos.id = comissoes.contrato_id)
+            end as valor,
+            (comissoes_corretores_lancadas.valor) as total_estorno,
+            case when comissoes.empresarial then
+                (select codigo_externo from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+            else
+                (select codigo_externo from contratos where contratos.id = comissoes.contrato_id)
+            end as contrato,
+            (comissoes_corretores_lancadas.parcela) as parcela
+            from comissoes_corretores_lancadas inner join comissoes on comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            where comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes} and comissoes.user_id = {$id}"
         );
-
-
-
 
         $primeiroDia = date('d/m/Y', strtotime('2023-' . $mes . '-01'));
         $ultimoDia = date('t/m/Y', strtotime('2023-' . $mes . '-01'));
 
+        $pdf = PDF::loadView('admin.pages.gerente.pdf-folha-historico',[
+            "individual" => $individual,
+            "coletivo" => $coletivo,
+            "empresarial" => $empresarial,
+            "meses" => $mes_folha,
+            "salario" => $salario,
+            "premiacao" => $premiacao,
+            "comissao" => $comissao,
+            "total" => $total,
+            "logo" => $logo,
+            "primeiro_dia" => $primeiroDia,
+            "ultimo_dia" => $ultimoDia,
+            "user" => $user,
+            "desconto" => $desconto,
+            "estorno" => $estorno,
+            "estorno_table" => $estorno_table
+        ]);
+
+        
+        $nome = Str::slug($user,"_");
+        $mes_folha_nome = Str::slug($mes_folha);
+
+        
+        $nome_pdf = "folha_" . mb_convert_case($nome, MB_CASE_LOWER, "UTF-8") . "_" . $mes_folha_nome . "_" . date('d') . "_" . date('m') . "_" . date('s') . ".pdf";
+        $response = $pdf->stream($nome_pdf, ['Attachment' => false]);
+        $response->headers->set('Content-Disposition', 'inline; filename="' . $nome_pdf . '"');
+        return $response;
+
+
+
+    }
+
+
+
+
+
+
+
+
+    public function criarPDFUser(Request $request)
+    {
+
+        $mes = $request->mes;
+        $id = $request->user_id;
+        $meses = [
+            '01'=>"Janeiro",
+            '02'=>"Fevereiro",
+            '03'=>"Março",
+            '04'=>"Abril",
+            '05'=>"Maio",
+            '06'=>"Junho",
+            '07'=>"Julho",
+            '08'=>"Agosto",
+            '09'=>"Setembro",
+            '10'=>"Outubro",
+            '11'=>"Novembro",
+            '12'=>"Dezembro"
+        ];
+
+        $mes_folha = $meses[$mes];
+        $user = User::where("id",$request->user_id)->first()->name;
+        $dados = ValoresCorretoresLancados::whereMonth("data",$mes)->where("user_id",$request->user_id)->first();
+        $comissao = $dados->valor_comissao;
+        $salario = $dados->valor_salario;
+        $premiacao = $dados->valor_premiacao;
+
+        $total = $dados->valor_total;
+        $desconto = $dados->valor_desconto;
+        $estorno = $dados->valor_estorno;
+
+        
+        $logo = "";
+        if(Corretora::first()->logo) {
+            $img_logo = Corretora::first()->logo;
+            $logo = 'data:image/png;base64,'.base64_encode(file_get_contents(public_path("storage/".$img_logo)));
+        } 
+        
+
+
+        
+
+        $ids = explode("|",$request->ids);
+
+        DB::table("comissoes_corretores_lancadas")->whereIn('id', $ids)->update(['finalizado' => 1]);
+
+        $individual = DB::select("
+        SELECT
+
+        (comissoes_corretores_lancadas.data) as created_at,
+        (SELECT codigo_externo FROM contratos WHERE contratos.id = comissoes.contrato_id) as codigo_externo,
+            case when comissoes.empresarial then
+                               (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                               ELSE
+                               (SELECT nome FROM clientes WHERE id = ((SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id)))
+                       END AS cliente,
+                       DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS data,
+                       if(
+                        comissoes_corretores_lancadas.data_baixa_gerente,
+                        DATE_FORMAT(comissoes_corretores_lancadas.data_baixa_gerente,'%d/%m/%Y'),
+                        DATE_FORMAT(comissoes_corretores_lancadas.data_baixa,'%d/%m/%Y')
+                    ) AS data_baixa_gerente,
+
+                       case when empresarial then
+                            (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+              else
+                      (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
+                    END AS valor_plano_contratado,
+                       comissoes_corretores_lancadas.valor AS comissao,
+
+
+                    comissoes_corretores_lancadas.parcela,
+                    case when empresarial then
+                    (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+              else
+                    COALESCE((SELECT FORMAT(desconto_corretor, 2) FROM contratos WHERE contratos.id = comissoes.contrato_id AND comissoes_corretores_lancadas.id = (
+                            SELECT cc.id
+                    FROM comissoes_corretores_lancadas cc
+                    WHERE cc.comissoes_id = comissoes.id
+                            AND cc.valor != 0
+                    ORDER BY cc.id
+                    LIMIT 1
+                        )),0.00)
+                    END AS desconto
+
+        FROM comissoes_corretores_lancadas
+        INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+        INNER JOIN contratos ON comissoes.contrato_id = contratos.id
+        WHERE
+        comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 AND
+        comissoes.user_id = {$id} AND MONTH(data_baixa_finalizado) = {$mes} AND valor != 0 AND comissoes.plano_id = 1
+        ORDER BY comissoes.administradora_id
+        ");
+
+        $coletivo = DB::select("
+        SELECT
+        (SELECT nome FROM administradoras WHERE administradoras.id = comissoes.administradora_id) AS administradora,
+
+            case when comissoes.empresarial then
+                               (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                               ELSE
+                               (SELECT nome FROM clientes WHERE id = ((SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id)))
+                       END AS cliente,
+            (SELECT codigo_externo FROM contratos WHERE contratos.id = comissoes.contrato_id) as codigo_externo,
+            (comissoes_corretores_lancadas.data) as created_at,
+                       DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS data,
+                       if(
+                        comissoes_corretores_lancadas.data_baixa_gerente,
+                        DATE_FORMAT(comissoes_corretores_lancadas.data_baixa_gerente,'%d/%m/%Y'),
+                        DATE_FORMAT(comissoes_corretores_lancadas.data_baixa,'%d/%m/%Y')
+                    ) AS data_baixa_gerente,
+
+                    case when empresarial then
+                     (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+              else
+                    COALESCE((SELECT FORMAT(desconto_corretor, 2) FROM contratos WHERE contratos.id = comissoes.contrato_id AND comissoes_corretores_lancadas.id = (
+                            SELECT cc.id
+                    FROM comissoes_corretores_lancadas cc
+                    WHERE cc.comissoes_id = comissoes.id
+                            AND cc.valor != 0
+                    ORDER BY cc.id
+                    LIMIT 1
+                        )),0.00)
+                    END AS desconto,
+                       case when empresarial then
+                            (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+              else
+                      (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
+                    END AS valor_plano_contratado,
+                       comissoes_corretores_lancadas.valor AS comissao_esperada,
+                       if(comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor) AS comissao_recebida,
+
+                    comissoes_corretores_lancadas.parcela
+        FROM comissoes_corretores_lancadas
+        INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+        INNER JOIN contratos ON comissoes.contrato_id = contratos.id
+        WHERE
+        comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 AND
+        comissoes.user_id = {$id} AND month(data_baixa_finalizado) = {$mes} AND valor != 0 AND comissoes.plano_id = 3
+        ORDER BY comissoes.administradora_id
+        ");
+
+        $empresarial = DB::select("
+        SELECT
+            (SELECT razao_social FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id) as cliente,
+            (SELECT codigo_externo FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id) as codigo_externo,
+            DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS data,
+            (SELECT desconto_corretor FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id) as desconto,
+            (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id) as valor_plano_contratado,
+            comissoes_corretores_lancadas.valor AS comissao,
+            comissoes_corretores_lancadas.parcela
+            FROM comissoes_corretores_lancadas
+            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            INNER JOIN contrato_empresarial ON comissoes.contrato_empresarial_id = contrato_empresarial.id
+            WHERE
+            comissoes_corretores_lancadas.status_financeiro = 1 AND comissoes_corretores_lancadas.status_apto_pagar = 1 AND
+            comissoes.user_id = {$id} AND month(data_baixa_finalizado) = {$mes} AND valor != 0 AND comissoes.plano_id != 1 AND comissoes.plano_id != 3 ORDER BY comissoes.administradora_id
+        ");
+
+
+        $estorno_table = DB::select(
+            "select
+            (select nome from administradoras where administradoras.id = comissoes.administradora_id) as administradora,
+            case when comissoes.empresarial then
+                (select razao_social from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                else
+                (select nome from clientes where clientes.id = (select cliente_id from contratos where contratos.id = comissoes.contrato_id))
+            end as cliente,
+            (select SUBSTRING_INDEX(nome,' ',1) from planos where planos.id = comissoes.plano_id) as plano,
+            DATE_FORMAT(comissoes_corretores_lancadas.data,'%d/%m/%Y') AS data,
+            case when comissoes.empresarial then
+                (select valor_plano from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+            else
+                (select valor_plano from contratos where contratos.id = comissoes.contrato_id)
+            end as valor,
+            (comissoes_corretores_lancadas.valor) as total_estorno,
+            case when comissoes.empresarial then
+                (select codigo_externo from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+            else
+                (select codigo_externo from contratos where contratos.id = comissoes.contrato_id)
+            end as contrato,
+            (comissoes_corretores_lancadas.parcela) as parcela
+            from comissoes_corretores_lancadas inner join comissoes on comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            where comissoes_corretores_lancadas.estorno = 1 and month(data_baixa_estorno) = {$mes} and comissoes.user_id = {$id}"
+        );
+
+        $primeiroDia = date('d/m/Y', strtotime('2023-' . $mes . '-01'));
+        $ultimoDia = date('t/m/Y', strtotime('2023-' . $mes . '-01'));
 
         $pdf = PDF::loadView('admin.pages.gerente.pdf-folha',[
             "individual" => $individual,
@@ -5822,19 +6683,54 @@ select
             "estorno_table" => $estorno_table
         ]);
 
-        //$nome = preg_replace('/[^a-zA-Z0-9]/', '', iconv('UTF-8', 'ASCII//TRANSLIT', $user));
-        //$nome_minusculo =
-
+        
         $nome = Str::slug($user,"_");
         $mes_folha_nome = Str::slug($mes_folha);
 
-        ///$nome_pdf = "folha_".mb_convert_case($nome,MB_CASE_LOWER, "UTF-8")."_".$mes_folha_nome."_".date('d')."_".date('m')."_".date('s').".pdf";
-        //return $pdf->stream($nome_pdf,array('Attachment'=>0));
-
+        
         $nome_pdf = "folha_" . mb_convert_case($nome, MB_CASE_LOWER, "UTF-8") . "_" . $mes_folha_nome . "_" . date('d') . "_" . date('m') . "_" . date('s') . ".pdf";
         $response = $pdf->stream($nome_pdf, ['Attachment' => false]);
         $response->headers->set('Content-Disposition', 'inline; filename="' . $nome_pdf . '"');
         return $response;
+
+    }
+
+
+    public function geralEstornoMes(Request $request)
+    {
+        $mes = $request->mes;
+
+        $estorno = DB::select(
+            "select
+            (select nome from administradoras where administradoras.id = comissoes.administradora_id) as administradora,
+            case when comissoes.empresarial then
+                (select razao_social from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                else
+                (select nome from clientes where clientes.id = (select cliente_id from contratos where contratos.id = comissoes.contrato_id))
+            end as cliente,
+            (select SUBSTRING_INDEX(nome,' ',1) from planos where planos.id = comissoes.plano_id) as plano,
+            date_format(comissoes_corretores_lancadas.data,'%d/%m/%Y') as data,
+            (comissoes_corretores_lancadas.id) as id_lancadas,
+            case when comissoes.empresarial then
+                (select valor_plano from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+            else
+                (select valor_plano from contratos where contratos.id = comissoes.contrato_id)
+            end as valor,
+            (comissoes_corretores_lancadas.valor) as total_estorno,
+            case when comissoes.empresarial then
+                (select codigo_externo from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+            else
+                (select codigo_externo from contratos where contratos.id = comissoes.contrato_id)
+            end as contrato,
+            (comissoes.id) as id,
+            (comissoes_corretores_lancadas.parcela) as parcela
+            from comissoes_corretores_lancadas inner join comissoes on comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            where comissoes_corretores_lancadas.estorno = 1 and month(comissoes_corretores_lancadas.data_baixa_finalizado) = {$mes}"
+
+        );
+
+        return response()->json($estorno);
+
 
 
 
@@ -5843,6 +6739,77 @@ select
 
 
 
+
+
+    public function geralEstorno(Request $request)
+    {
+        $id = $request->id;
+        $mes = $request->mes;
+
+        $estorno = DB::select(
+            "select
+            (select nome from administradoras where administradoras.id = comissoes.administradora_id) as administradora,
+            case when comissoes.empresarial then
+                (select razao_social from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                else
+                (select nome from clientes where clientes.id = (select cliente_id from contratos where contratos.id = comissoes.contrato_id))
+            end as cliente,
+            (select SUBSTRING_INDEX(nome,' ',1) from planos where planos.id = comissoes.plano_id) as plano,
+            date_format(comissoes_corretores_lancadas.data,'%d/%m/%Y') as data,
+            (comissoes_corretores_lancadas.id) as id_lancadas,
+            case when comissoes.empresarial then
+                (select valor_plano from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+            else
+                (select valor_plano from contratos where contratos.id = comissoes.contrato_id)
+            end as valor,
+            (comissoes_corretores_lancadas.valor) as total_estorno,
+            case when comissoes.empresarial then
+                (select codigo_externo from contrato_empresarial where contrato_empresarial.id = comissoes.contrato_empresarial_id)
+            else
+                (select codigo_externo from contratos where contratos.id = comissoes.contrato_id)
+            end as contrato,
+            (comissoes.id) as id,
+            (comissoes_corretores_lancadas.parcela) as parcela
+            from comissoes_corretores_lancadas inner join comissoes on comissoes.id = comissoes_corretores_lancadas.comissoes_id
+            where comissoes_corretores_lancadas.estorno = 1 and comissoes.user_id = {$id}"
+
+        );
+
+        return response()->json($estorno);
+
+    }
+
+
+    public function estornoVoltar(Request $request)
+    {
+        $valor_estorno = 0;
+        $valor_total = 0;
+        $user_id = $request->user_id;
+        $mes = $request->mes;
+        $id = $request->id;
+
+        $valor = str_replace([".",","],["","."],$request->valor);
+        $va = ValoresCorretoresLancados::where("user_id",$user_id)->whereMonth("data",$mes)->first();
+
+        $valor_estorno = $va->valor_estorno - $valor;
+        $valor_total = $va->valor_total + $valor;
+
+        $va->valor_estorno = $valor_estorno;
+        $va->valor_total = $valor_total;
+
+
+
+        $va->save();
+        $co = ComissoesCorretoresLancadas::where("id",$id)->first();
+        $co->data_baixa_estorno = null;
+        $co->estorno = 0;
+        $co->save();
+
+        return [
+            "valor_estorno" => number_format($valor_estorno,2,",","."),
+            "valor_total" => number_format($valor_total,2,",",".")
+        ];
+    }
 
 
 
@@ -5881,107 +6848,128 @@ select
         return $dados;
     }
 
+    public function detalhePagos($id)
+    {
+        $comissao = Comissoes::find($id);
+        $dados = DB::select("
+            SELECT
+            comissoes_corretores_lancadas.parcela,
+            comissoes_corretores_lancadas.id AS id_corretor_comissao,
+            comissoes_corretora_lancadas.id AS id_corretora,
+            (SELECT NAME FROM users WHERE users.id = comissoes.user_id) AS nome_corretor,
+            (SELECT id FROM users WHERE users.id = comissoes.user_id) AS id_corretor,
+            if(comissoes_corretora_lancadas.valor_pago,comissoes_corretora_lancadas.valor_pago,0) AS valor_pago,
+            if(comissoes_corretora_lancadas.porcentagem_paga,comissoes_corretora_lancadas.porcentagem_paga,0) AS porcentagem_paga,
+            case when empresarial then
+                (SELECT codigo_externo FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+            else
+                (SELECT codigo_externo FROM contratos WHERE contratos.id = comissoes.contrato_id)
+           END AS codigo_externo,
+            comissoes_corretores_lancadas.data AS vencimento,
+            case when empresarial then
+                (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+            else
+                (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
+            END AS valor_plano_contratado,
+            comissoes_corretores_lancadas.data_baixa AS data_baixa,
+                (SELECT valor FROM comissoes_corretora_configuracoes  WHERE  plano_id = comissoes.plano_id AND  administradora_id = comissoes.administradora_id AND
+                tabela_origens_id = comissoes.tabela_origens_id AND parcela = comissoes_corretora_lancadas.parcela) AS porcentagem_parcela_corretora,
+                (SELECT id FROM comissoes_corretora_configuracoes WHERE  plano_id = comissoes.plano_id AND administradora_id = comissoes.administradora_id AND
+                tabela_origens_id = comissoes.tabela_origens_id AND parcela = comissoes_corretora_lancadas.parcela) AS porcentagem_parcela_corretora_id,
+                comissoes_corretora_lancadas.valor AS comissao_valor_corretora,
+                if(comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor_pago,0) as comissao_valor_pago_corretor,
+                if(comissoes_corretores_lancadas.porcentagem_paga,comissoes_corretores_lancadas.porcentagem_paga,0) as comissao_porcentagem_pago_corretor,
+                comissoes_corretores_lancadas.valor AS comissao_valor_corretor,
+                if(
+                        (SELECT COUNT(*) FROM comissoes_corretores_configuracoes WHERE
+                        comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
+                        comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
+                        comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
+                        comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
+                        comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela) > 0 ,
+                            (SELECT valor FROM comissoes_corretores_configuracoes WHERE
+                            comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
+                            comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
+                            comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
+                            comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
+                            comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela)
+                            ,
+                            (SELECT valor FROM comissoes_corretores_default WHERE
+                            comissoes_corretores_default.plano_id = comissoes.plano_id AND
+                            comissoes_corretores_default.administradora_id = comissoes.administradora_id AND
+                            comissoes_corretores_default.tabela_origens_id = comissoes.tabela_origens_id AND
+                            comissoes_corretores_default.parcela = comissoes_corretores_lancadas.parcela)
+                        )
+                    AS porcentagem_parcela_corretores,
+                    if(
+                            (SELECT COUNT(*) FROM comissoes_corretores_configuracoes WHERE
+                            comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
+                            comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
+                            comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
+                            comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
+                            comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela) > 0 ,
+                                (SELECT id FROM comissoes_corretores_configuracoes WHERE
+                                comissoes_corretores_configuracoes.plano_id = comissoes.plano_id AND
+                                comissoes_corretores_configuracoes.administradora_id = comissoes.administradora_id AND
+                                comissoes_corretores_configuracoes.tabela_origens_id = comissoes.tabela_origens_id AND
+                                comissoes_corretores_configuracoes.user_id = comissoes.user_id AND
+                                comissoes_corretores_configuracoes.parcela = comissoes_corretores_lancadas.parcela)
+                                ,
+                                (SELECT id FROM comissoes_corretores_default WHERE
+                                comissoes_corretores_default.plano_id = comissoes.plano_id AND
+                                comissoes_corretores_default.administradora_id = comissoes.administradora_id AND
+                                comissoes_corretores_default.tabela_origens_id = comissoes.tabela_origens_id AND
+                                comissoes_corretores_default.parcela = comissoes_corretores_lancadas.parcela)
+                            )
+                            AS porcentagem_parcela_corretor_id,
+                            case when empresarial then
+                                (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                            else
+                                (SELECT nome FROM clientes WHERE id = (SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))
+                            END AS cliente,
+                            case when empresarial then
+                                (SELECT cnpj FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
+                            else
+                                (SELECT cpf FROM clientes WHERE id = (SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))
+                            END AS cliente_cpf
+                            FROM comissoes_corretores_lancadas
+                            INNER JOIN comissoes_corretora_lancadas ON comissoes_corretora_lancadas.parcela = comissoes_corretores_lancadas.parcela
+                            INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
+                            WHERE comissoes_corretores_lancadas.comissoes_id = $id AND comissoes_corretora_lancadas.comissoes_id = $id AND comissoes_corretores_lancadas.status_financeiro = 1 AND
+                            comissoes_corretores_lancadas.status_gerente = 1
+                            AND
+                                (comissoes_corretores_lancadas.valor != 0 OR comissoes_corretora_lancadas.valor != 0)
+                            GROUP BY comissoes_corretores_lancadas.parcela
+                    ");
+
+            $desconto_corretora = 0;
+            $desconto_corretor = 0;
+            $comissao = Comissoes::find($id);
+            if($comissao->empresarial == 1) {
+                $id = $comissao->contrato_empresarial_id;           
+                $desconto_corretora = ContratoEmpresarial::find($id)->desconto_corretora;
+                $desconto_corretor = ContratoEmpresarial::find($id)->desconto_corretor;
+            } else {
+                $id = $comissao->contrato_id;
+                $desconto_corretora = Contrato::find($id)->desconto_corretora;
+                $desconto_corretor = Contrato::find($id)->desconto_corretor;
+            }            
+
+            return view('admin.pages.gerente.detalhe-pagos',[
+                'dados' => $dados,
+                "cliente" => isset($dados[0]->cliente) && !empty($dados[0]->cliente) ? $dados[0]->cliente : "",
+                "cpf" => isset($dados[0]->cliente_cpf) && !empty($dados[0]->cliente_cpf) ? $dados[0]->cliente_cpf : "",
+                "valor_plano" => isset($dados[0]->valor_plano_contratado) && !empty($dados[0]->valor_plano_contratado) ? $dados[0]->valor_plano_contratado : "",
+                "valor_corretora" => isset($dados[0]->comissao_valor_corretora) && !empty($dados[0]->comissao_valor_corretora) ? $dados[0]->comissao_valor_corretora : "",
+                "desconto_corretora" => $desconto_corretora,
+                "desconto_corretor" => $desconto_corretor
+            ]);
+    }
 
 
-    // public function comissao()
-    // {
-    //     $dados = DB::select(
-    //         "
-    //         SELECT
-	// 	    (SELECT nome FROM administradoras WHERE id = (SELECT administradora_id FROM contratos WHERE contratos.cliente_id = clientes.id)) AS administradora,
-    //         (SELECT NAME FROM users WHERE users.id = clientes.user_id) AS corretor,
-    //         (SELECT nome FROM planos WHERE id = (SELECT plano_id FROM contratos WHERE contratos.cliente_id = clientes.id)) AS plano,
-    //         (SELECT nome FROM tabela_origens WHERE id = (SELECT tabela_origens_id FROM contratos WHERE contratos.cliente_id = clientes.id)) AS tabela_origens,
-    //         nome,
-    //         (SELECT codigo_externo FROM contratos WHERE contratos.cliente_id = clientes.id) AS codigo_externo,
-    //         (
-    //         select COUNT(*) from `comissoes_corretores_lancadas` where `comissoes_corretores_lancadas`.`comissoes_id` =
-    //         (SELECT id FROM comissoes WHERE contrato_id = (SELECT id FROM contratos WHERE contratos.cliente_id = clientes.id))
-    //         and `status_financeiro` = 1 and `status_gerente` = 1
-    //         ) AS quantidade,
-    //         (SELECT id FROM comissoes WHERE contrato_id = (SELECT id FROM contratos WHERE contratos.cliente_id = clientes.id)) AS comissao
-    //         from `clientes`
-    //         where exists (select * from `contratos` where `clientes`.`id` = `contratos`.`cliente_id` AND
-    //         exists (select * from `comissoes` where `contratos`.`id` = `comissoes`.`contrato_id` AND
-    //         exists (select * from `comissoes_corretores_lancadas` where `comissoes`.`id` = `comissoes_corretores_lancadas`.`comissoes_id` and `status_financeiro` = 1 and `status_gerente` = 1)))"
-    //         );
-    //     return $dados;
-    // }
 
     public function detalhe($id)
     {
-
-
-//         $dados = DB::select("
-//         SELECT
-//         comissoes_corretores_lancadas.parcela,
-//         comissoes_corretores_lancadas.id AS id_corretor,
-// 		comissoes_corretora_lancadas.id AS id_corretora,
-//         (SELECT NAME FROM users WHERE users.id = comissoes.user_id) AS nome_corretor,
-//         (SELECT id FROM users WHERE users.id = comissoes.user_id) AS id_corretor,
-//         if(comissoes_corretora_lancadas.valor_pago,comissoes_corretora_lancadas.valor_pago,0) AS valor_pago,
-//         if(comissoes_corretora_lancadas.porcentagem_paga,comissoes_corretora_lancadas.porcentagem_paga,0) AS porcentagem_paga,
-//         case when empresarial then
-//             (SELECT codigo_externo FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-//         else
-//             (SELECT codigo_externo FROM contratos WHERE contratos.id = comissoes.contrato_id)
-//             END AS codigo_externo,
-//      comissoes_corretores_lancadas.data AS vencimento,
-//      case when empresarial then
-//  (SELECT valor_plano FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-//    else
-//    (SELECT valor_plano FROM contratos WHERE contratos.id = comissoes.contrato_id)
-//  END AS valor_plano_contratado,
-//   comissoes_corretora_lancadas.data_baixa AS data_baixa,
-//      (SELECT valor FROM comissoes_corretora_configuracoes  WHERE  plano_id = comissoes.plano_id AND  administradora_id = comissoes.administradora_id AND
-//       tabela_origens_id = comissoes.tabela_origens_id AND parcela = comissoes_corretora_lancadas.parcela) AS porcentagem_parcela_corretora,
-
-//      (SELECT id FROM comissoes_corretora_configuracoes WHERE  plano_id = comissoes.plano_id AND administradora_id = comissoes.administradora_id AND
-//      tabela_origens_id = comissoes.tabela_origens_id AND parcela = comissoes_corretora_lancadas.parcela) AS porcentagem_parcela_corretora_id,
-
-//      comissoes_corretora_lancadas.valor AS comissao_valor_corretora,
-
-//      if(comissoes_corretores_lancadas.valor_pago,comissoes_corretores_lancadas.valor_pago,0) as comissao_valor_pago_corretor,
-//      if(comissoes_corretores_lancadas.porcentagem_paga,comissoes_corretores_lancadas.porcentagem_paga,0) as comissao_porcentagem_pago_corretor,
-
-//          comissoes_corretores_lancadas.valor AS comissao_valor_corretor,
-
-//     (SELECT valor FROM comissoes_corretores_default
-//     WHERE
-//     plano_id = comissoes.plano_id AND
-//     administradora_id = comissoes.administradora_id AND
-//     tabela_origens_id = comissoes.tabela_origens_id AND
-//     parcela = comissoes_corretora_lancadas.parcela
-//     ) AS porcentagem_parcela_corretores,
-
-//     (SELECT id FROM comissoes_corretores_default
-//     WHERE
-//     plano_id = comissoes.plano_id AND
-//     administradora_id = comissoes.administradora_id AND
-//     tabela_origens_id = comissoes.tabela_origens_id AND
-//     parcela = comissoes_corretora_lancadas.parcela
-//     ) AS porcentagem_parcela_corretor_id,
-
-//     case when empresarial then
-//       (SELECT responsavel FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-//    else
-//       (SELECT nome FROM clientes WHERE id = (SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))
-//    END AS cliente,
-//    case when empresarial then
-//       (SELECT cnpj FROM contrato_empresarial WHERE contrato_empresarial.id = comissoes.contrato_empresarial_id)
-//    else
-//       (SELECT cpf FROM clientes WHERE id = (SELECT cliente_id FROM contratos WHERE contratos.id = comissoes.contrato_id))
-//    END AS cliente_cpf
-//    FROM comissoes_corretores_lancadas
-//    INNER JOIN comissoes_corretora_lancadas ON comissoes_corretora_lancadas.parcela = comissoes_corretores_lancadas.parcela
-//    INNER JOIN comissoes ON comissoes.id = comissoes_corretores_lancadas.comissoes_id
-//    WHERE comissoes_corretores_lancadas.comissoes_id = $id AND comissoes_corretora_lancadas.comissoes_id = $id AND comissoes_corretores_lancadas.status_financeiro = 1 AND
-//    comissoes_corretores_lancadas.status_gerente = 0
-//    AND
-//      (comissoes_corretores_lancadas.valor != 0 OR comissoes_corretora_lancadas.valor != 0)
-//    GROUP BY comissoes_corretores_lancadas.parcela
-//         ");
-
        $dados = DB::select("
        SELECT
        comissoes_corretores_lancadas.parcela,
@@ -6078,25 +7066,36 @@ comissoes_corretores_lancadas.data_baixa AS data_baixa,
   AND
     (comissoes_corretores_lancadas.valor != 0 OR comissoes_corretora_lancadas.valor != 0)
   GROUP BY comissoes_corretores_lancadas.parcela
-
        ");
 
+        $desconto_corretora = 0;
+        $desconto_corretor = 0;
+        $comissao = Comissoes::find($id);
 
+        if($comissao->empresarial == 1) {
 
+            $id = $comissao->contrato_empresarial_id;           
+            $desconto_corretora = ContratoEmpresarial::find($id)->desconto_corretora;
+            $desconto_corretor = ContratoEmpresarial::find($id)->desconto_corretor;
 
+        } else {
 
+            $id = $comissao->contrato_id;
+            $desconto_corretora = Contrato::find($id)->desconto_corretora;
+            $desconto_corretor = Contrato::find($id)->desconto_corretor;
 
-
-
-
-
+        }
 
         return view('admin.pages.gerente.detalhe',[
             "dados" => $dados,
             "cliente" => isset($dados[0]->cliente) && !empty($dados[0]->cliente) ? $dados[0]->cliente : "",
             "cpf" => isset($dados[0]->cliente_cpf) && !empty($dados[0]->cliente_cpf) ? $dados[0]->cliente_cpf : "",
             "valor_plano" => isset($dados[0]->valor_plano_contratado) && !empty($dados[0]->valor_plano_contratado) ? $dados[0]->valor_plano_contratado : "",
-            "valor_corretora" => isset($dados[0]->comissao_valor_corretora) && !empty($dados[0]->comissao_valor_corretora) ? $dados[0]->comissao_valor_corretora : ""
+            "valor_corretora" => isset($dados[0]->comissao_valor_corretora) && !empty($dados[0]->comissao_valor_corretora) ? $dados[0]->comissao_valor_corretora : "",
+            "desconto_corretora" => $desconto_corretora,
+            "desconto_corretor" => $desconto_corretor
+
+
         ]);
 
 
@@ -6167,6 +7166,7 @@ comissoes_corretores_lancadas.data_baixa AS data_baixa,
 
     public function mudarComissaoCorretor(Request $request)
     {
+
         if($request->acao == "porcentagem") {
 
             $valor_plano = floatval($request->valor_plano);
@@ -6201,7 +7201,7 @@ comissoes_corretores_lancadas.data_baixa AS data_baixa,
             $valor_plano = $request->valor_plano;
             $porcentagem = floor(($valor / $valor_plano) * 100);
             $alt = ComissoesCorretoresLancadas::where("id",$id)->first();
-            $alt->valor_pago = $valor;
+            $alt->valor = $valor;
 
             $alt->porcentagem_paga = $porcentagem;
             if($alt->save()) {
@@ -6222,13 +7222,14 @@ comissoes_corretores_lancadas.data_baixa AS data_baixa,
 
     public function mudarComissaoCorretorGerente(Request $request)
     {
-        return $request->all();
+
         $id = $request->id;
         $valor = str_replace([".",","],["","."],$request->valor);
         $valor_plano =  str_replace(["R$ ",".",","],["","","."],$request->valor_plano);
+
         $porcentagem = floor(($valor / $valor_plano) * 100);
         $alt = ComissoesCorretoresLancadas::where("id",$id)->first();
-        $alt->valor_pago = $valor;
+        $alt->valor = $valor;
         $alt->porcentagem_paga = $porcentagem;
         $alt->save();
         return [
@@ -6238,7 +7239,24 @@ comissoes_corretores_lancadas.data_baixa AS data_baixa,
 
     }
 
+    public function administradoraPagouComissaoPagos(Request $request)
+    {
+        $corretor = $request->corretor;
+        $corretora = $request->corretora;
 
+        $alt_corretor = ComissoesCorretoresLancadas::where("id",$corretor)->first();
+        $alt_corretor->status_gerente = 0;
+        $alt_corretor->data_baixa_gerente = null;
+        $alt_corretor->save();
+
+
+        $alt_corretora = ComissoesCorretoraLancadas::where("id",$corretora)->first();
+        $alt_corretora->status_gerente = 0;
+        $alt_corretora->data_baixa_gerente = null;
+        $alt_corretora->save();
+
+        return "sucesso";
+    }
 
 
 

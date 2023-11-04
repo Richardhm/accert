@@ -157,11 +157,11 @@ time, mark, audio, video {
 
                           <td style="text-align:center;font-size:0.875em;background-color:rgb(34,90,171);">Faixa Etária</td>
 
-                          <td style="text-align:center;font-size:0.875em;background-color:rgb(5,53,95);">APART</td>
-                          <td style="text-align:center;font-size:0.875em;background-color:rgb(5,53,95);">ENFER</td>
+                          <td style="text-align:center;font-size:0.875em;background-color:rgb(5,53,95);">APART {{$plano_id == 1 ? " 11820" : ""}}</td>
+                          <td style="text-align:center;font-size:0.875em;background-color:rgb(5,53,95);">ENFER {{$plano_id == 1 ? " 11819" : ""}}</td>
 
-                          <td style="text-align:center;font-size:0.875em;background-color:rgb(255,89,33);">APART</td>
-                          <td style="text-align:center;font-size:0.875em;background-color:rgb(255,89,33);">ENFER</td>
+                          <td style="text-align:center;font-size:0.875em;background-color:rgb(255,89,33);">APART {{$plano_id == 1 ? " 21070" : ""}}</td>
+                          <td style="text-align:center;font-size:0.875em;background-color:rgb(255,89,33);">ENFER {{$plano_id == 1 ? " 21068" : ""}}</td>
 
                       </tr>
                   </thead>
@@ -501,7 +501,9 @@ time, mark, audio, video {
       </div>
 
       <div style="display: inline-block;margin:0 0 3px 2px;">
-          <span style="margin-bottom:10x;font-size:1em;color:#FFF;">{{$telefone}}</span>
+          <span style="margin-bottom:10x;font-size:1em;color:#FFF;">
+              {{$telefone}}
+          </span>
       </div>
 
       </p>

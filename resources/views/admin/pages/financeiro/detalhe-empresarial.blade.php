@@ -15,6 +15,9 @@
 
 @section('content')
 
+
+
+
 <div class="modal fade" id="dataBaixaEmpresarialModal" tabindex="-1" role="dialog" aria-labelledby="dataBaixaEmpresarialLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -27,7 +30,6 @@
             <div class="modal-body">
                 <form action="" name="data_da_baixa_empresarial" id="data_da_baixa_empresarial" method="POST">
                     <input type="date" name="date_baixa_empresarial" id="date_baixa_empresarial" class="form-control form-control-sm">
-
                     <div id="error_data_baixa_empresarial">
                     </div>
             </div>
@@ -326,9 +328,11 @@
                     @php
                         $total_cliente = 0;
                         $total_comissao = 0;
+                        $ii=0;
                     @endphp
                     @foreach($dados->comissao->comissoesLancadas as $kk => $cr)
                             @php
+                                $ii++;
                                 if(!empty($cr->data_baixa)):
                                     $total_comissao += $cr->valor;
                                 else:
@@ -374,14 +378,21 @@
                                 {{$dados->codigo_externo}}
 
                             </td>
-                            <td style="font-size:0.875em;">{{date('d/m/Y',strtotime($cr->data))}}</td>
+                            <td style="font-size:0.875em;">
+                                @if($ii == 1)
+                                
+                                    {{date('d/m/Y',strtotime($dados->vencimento_boleto))}}  
+                                @else
+                                    {{date('d/m/Y',strtotime($cr->data))}}
+                                @endif
+                                
+                            
+                            </td>
                             <td style="font-size:0.875em;">
 
-                                @if($cr->parcela == 1)
-                                    <span style="margin-left:10px;">{{number_format($dados->valor_plano + 25,2,",",".")}}</span>
-                                @else
+
                                     <span style="margin-left:10px;">{{number_format($dados->valor_plano,2,",",".")}}</span>
-                                @endif
+
                             </td>
                             <td style="font-size:0.875em;">
                                 @if(empty($cr->data_baixa))
@@ -668,6 +679,7 @@
                         } else {
                             $("#error_data_baixa_empresarial").html('');
                         }
+
                     },
                     success:function(res) {
                         //console.log(res);

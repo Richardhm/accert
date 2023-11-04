@@ -4,16 +4,13 @@
 @section('content_header')
 	<h3 class="text-white">
 		<button class="estilo_btn_plus">
-			<i class="fas fa-plus"></i>	
+			<i class="fas fa-plus"></i>
 		</button>
-		
+
 	</h3>
 @stop
 
 @section('content')
-	
-	
-
 	<!--Modal-->
 	<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
@@ -27,8 +24,8 @@
       <div class="modal-body">
         <form action="" method="post" name="cadastrar_colaborador" enctype="multipart/form-data" class="invoice-repeater">
             @csrf
-        
-    	        
+
+
             <div class="form-row">
                 <div class="col-md-6 mb-3">
                     <label for="name">Nome*</label>
@@ -53,10 +50,10 @@
             <div class="form-group">
                 <label for="image">Foto:</label>
                 <input type="file" class="form-control" id="image" name="image">
-               
+
             </div>
-            
-            
+
+
             <div class="form-row">
                 <div class="col-md-9 mb-3">
                     <label for="endereco">Endereco:</label>
@@ -113,8 +110,8 @@
                         <option value="SP" {{old('estado') == "SP" ? 'selected' : ''}}>São Paulo</option>
                         <option value="SE" {{old('estado') == "SE" ? 'selected' : ''}}>Sergipe</option>
                         <option value="TO" {{old('estado') == "TO" ? 'selected' : ''}}>Tocantins</option>
-                    </select>        
-                    
+                    </select>
+
                 </div>
                 <div class="col-md-3 mb-3">
                     <label for="celular">Celular:</label>
@@ -138,37 +135,42 @@
                     @if($errors->has('email'))
                         <p class="alert alert-danger">{{$errors->first('email')}}</p>
                     @endif
-                </div>        
+                </div>
             </div>
-           	
+
             <div class="form-group">
-            	<label for="cargo">Cargo</label>
+            	<label for="cargo">Cargo:</label>
             	@foreach($cargos as $c)
             		<div class="d-flex">
             			<input type="radio" id="cargo_{{$c->nome}}" name="cargo" value="{{$c->id}}">{{$c->nome}}
             		</div>
             	@endforeach
             </div>
-
-
-
-            
             <button class="btn btn-primary btn-block" type="submit">Cadastrar</button>
            </form>
       </div>
-      
     </div>
   </div>
 </div>
-
-
-
 	<!--Fim Modal-->
 
 
+    <div style="background-color:#123449;margin:0 auto;" class="w-75 rounded p-1 text-white">
+        <table class="table table-sm listar_user" id="listar_usuarios">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th style="text-align:center;">Editar</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
 
 
-@stop 
+@stop
 
 
 @section('js')
@@ -184,16 +186,81 @@
                 }
             });
 
+            var tauser = $(".listar_user").DataTable({
+                dom: '<"d-flex justify-content-between"<"#title_individual">ftr><t><"d-flex justify-content-between"lp>',
+                "language": {
+                    "url": "{{asset('traducao/pt-BR.json')}}"
+                },
+                processing: true,
+                ajax: {
+                    "url":"{{ route('corretores.list') }}",
+                    "dataSrc": ""
+                },
+                "lengthMenu": [50,100,150,300],
+                "ordering": false,
+                "paging": true,
+                "searching": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                columns: [
+                    {data:"name",name:"name"},
+                    {data:"id",name:"id"}
+
+                ],
+                "columnDefs": [
+
+                    {
+
+                        "targets": 1,
+                        "createdCell": function (td, cellData, rowData, row, col) {
+                            let id = cellData
+                            $(td).html(`<div class='text-center text-white'>
+                                        <a href="/admin/corretotes/editar/${id}" class="text-white">
+                                            <i class='fas fa-eye div_info'></i>
+                                        </a>
+                                    </div>
+                                `);
+                        }
+                    }
+
+
+
+
+
+                ],
+                "initComplete": function( settings, json ) {
+                    $('.dataTables_filter input').addClass('texto-branco');
+                    $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
+
+                },
+                "drawCallback": function( settings ) {
+
+                },
+
+                footerCallback: function (row, data, start, end, display) {
+
+                }
+            });
+
+
+
+
+
+
+
+
+
+
 
 			let image = ""
             $("#image").on('change',function(e){
             	image = e.target.files;
             });
 
-
 			$("form[name='cadastrar_colaborador']").on('submit',function(e){
             	var fd = new FormData();
-		        fd.append('file',image[0]);		        
+		        fd.append('file',image[0]);
 		        fd.append('nome',$('#name').val());
 		        fd.append('endereco',$('#endereco').val());
 		        fd.append('numero',$('#numero').val());
@@ -238,24 +305,13 @@
 
 @stop
 
-
-
 @section('css')
-	
-		
-		<style>
-		
-		.estilo_btn_plus {background-color:rgba(0,0,0,1);box-shadow:rgba(255,255,255,0.8) 0.1em 0.2em 5px;border-radius: 5px;display: flex;align-items: center;}	
+    <style>
+        .estilo_btn_plus {background-color:rgba(0,0,0,1);box-shadow:rgba(255,255,255,0.8) 0.1em 0.2em 5px;border-radius: 5px;display: flex;align-items: center;}
+        .estilo_btn_plus i {color: #FFF !important;font-size: 0.7em;padding: 8px;}
+        .estilo_btn_plus:hover {background-color:rgba(255,255,255,0.8);box-shadow:rgba(0,0,0,1) 0.1em 0.2em 5px;}
+        .estilo_btn_plus:hover i {color: #000 !important;}
+        .texto-branco {color: #fff;}
 
-		.estilo_btn_plus i {color: #FFF !important;font-size: 0.7em;padding: 8px;}	
-
-		.estilo_btn_plus:hover {background-color:rgba(255,255,255,0.8);box-shadow:rgba(0,0,0,1) 0.1em 0.2em 5px;}
-		
-		.estilo_btn_plus:hover i {color: #000 !important;}
-
-
-		</style>
-
-
-	
-@stop 
+    </style>
+@stop

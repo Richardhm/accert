@@ -707,24 +707,10 @@
                             }
                             return false;
                         }
-
-
-
                     }
-
-
-
                 });
                 return false;
             });
-
-
-
-
-
-
-
-
 
 
             $("body").on('click','.pdf',function(){
