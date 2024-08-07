@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'Accert',
+    'title' => 'Vivaz',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -66,12 +66,12 @@ return [
     |
     */
 
-    'logo' => 'Accert',
-    'logo_img' => 'vendor/adminlte/dist/img/connectlife.png',
+    'logo' => 'Vivaz',
+    'logo_img' => '',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Accert',
+    'logo_img_alt' => 'Vivaz',
 
     /*
     |--------------------------------------------------------------------------
@@ -90,7 +90,7 @@ return [
         'enabled' => false,
         'img' => [
             'path' => 'vendor/adminlte/dist/img/connectlife.png',
-            'alt' => 'Accert',
+            'alt' => 'Vivaz',
             'class' => '',
             'width' => 50,
             'height' => 50,
