@@ -8,4 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Permission extends Model
 {
     use HasFactory;
+    public function corretoras()
+    {
+        return $this->belongsToMany(Corretora::class, 'permissao_corretora');
+    }
+
+
+
+
+
 }

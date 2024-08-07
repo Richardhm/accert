@@ -15,6 +15,41 @@
         </div>
     </div>
 
+    <div class="modal fade" id="jaExisteCodigoExterno" tabindex="-1" role="dialog" aria-labelledby="jaExisteCodigoExternoLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title text-center text-danger" id="jaExisteCodigoExternoLabel">
+                        Opsssss....
+                    </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5 class="text-center">
+                        Já Existe esse código externo cadastrado
+                        <br>
+                        <span>
+                            <i class="far fa-smile-wink fa-xl"></i>
+                        </span>
+                    </h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger btn-block" data-dismiss="modal">Fechar</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
     <div class="modal fade" id="mudarDataCriacao" tabindex="-1" role="dialog" aria-labelledby="mudarDataCriacaoLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -35,12 +70,33 @@
         </div>
     </div>
 
+    <div class="modal fade" id="mudarValorColetivo" tabindex="-1" role="dialog" aria-labelledby="mudarValorColetivoLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mudarValorColetivoLabel">Valor:</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="alvo_acomodacao">
+                <input type="text" value="" class="form-control" id="valor_correto">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-block mudar_valor_correto">Salvar Valor</button>
+
+            </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="modalDiferencaEntreValores" tabindex="-1" role="dialog" aria-labelledby="modalDiferencaEntreValoresLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalDiferencaEntreValoresLabel">Data de Cadastro:</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close close-modal" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -61,7 +117,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Salvar Valores</button>
+                <button type="button" class="btn btn-secondary salvar_valores">Salvar Valores</button>
 
             </div>
             </div>
@@ -87,7 +143,7 @@
 
                 <div style="flex-basis:13%;">
                     <div class="form-group">
-                        <span for="administradora" class="text-white">Usuarios:</span>
+                        <span for="administradora" class="text-white" style="font-size:0.78em;">Usuarios:</span>
                         <select name="usuario_coletivo_switch" required id="usuario_coletivo_switch" class="form-control  form-control-sm">
                             <option value="">-- Usuarios --</option>
                             @foreach($users as $u)
@@ -99,7 +155,7 @@
 
                 <div style="flex-basis:14%;margin:0% 1%;">
                     <div class="form-group">
-                        <span for="administradora" class="text-white">Administradora:</span>
+                        <span for="administradora" class="text-white" style="font-size:0.78em;">Administradora:</span>
                         <select required id="administradora_coletivo" class="form-control  form-control-sm">
                             <option value="">-- Administradora--</option>
                             @foreach($administradoras as $admin)
@@ -112,7 +168,7 @@
 
                 <div style="flex-basis:13%;margin-right: 1%;">
                     <div class="form-group">
-                        <span for="tabela_origem" class="text-white">Tabela Origem:</span>
+                        <span for="tabela_origem" class="text-white" style="font-size:0.78em;">Tabela Origem:</span>
                         <select required id="tabela_origem_coletivo" name="tabela_origem" class="form-control form-control-sm change_valores">
                             <option value="">--Tabela Origem--</option>
                             @foreach($cidades as $cc)
@@ -125,7 +181,7 @@
 
                 <div style="flex-basis:17%">
                     <div class="form-group">
-                        <span for="nome" class="text-white">Titular:</span>
+                        <span for="nome" class="text-white" style="font-size:0.78em;">Titular:</span>
                         <input type="text" id="nome_coletivo" name="nome_coletivo" required class="form-control form-control-sm" placeholder="Nome" value="">
                         <div class="errorcliente"></div>
                     </div>
@@ -133,7 +189,7 @@
 
                 <div style="flex-basis:11%;margin:0% 1%;">
                     <div class="form-group">
-                        <span for="cpf" class="text-white">CPF:</span>
+                        <span for="cpf" class="text-white" style="font-size:0.78em;">CPF:</span>
                         <input type="text" name="cpf_coletivo" id="cpf_coletivo" required class="form-control form-control-sm" value="{{old('cpf')}}" placeholder="XXX.XXXX.XXX-XX">
                         <div class="errorcpf"></div>
                         @if($errors->has('cpf'))
@@ -144,7 +200,7 @@
 
                 <div style="flex-basis:9%;margin-right:1%;">
                     <div class="form-group">
-                        <span for="data_nascimento" class="text-white">Data Nascimento:</span>
+                        <span for="data_nascimento" class="text-white" style="font-size:0.78em;">Data Nascimento:</span>
                         <input type="date" name="data_nascimento_coletivo" value="{{old('data_nascimento_coletivo')}}" id="data_nascimento_coletivo" class="form-control  form-control-sm">
                         <div class="errordatanascimento"></div>
                     </div>
@@ -152,19 +208,19 @@
 
                 <div style="flex-basis:15%;margin-right:1%;">
                     <div class="form-group">
-                        <span for="email" class="text-white">Email:</span>
+                        <span for="email" class="text-white" style="font-size:0.78em;">Email:</span>
                         <input type="email" name="email_coletivo" id="email_coletivo" placeholder="Email" class="form-control  form-control-sm" value="">
                         <div class="erroremail"></div>
                     </div>
                 </div>
 
                 <div style="flex-basis:5;margin-right: 1%;">
-                    <span for="celular" class="text-white">Celular:</span>
+                    <span for="celular" class="text-white" style="font-size:0.78em;">Celular:</span>
                     <input type="text" placeholder="Celular" class="form-control form-control-sm" name="celular" id="celular" />
                 </div>
 
                 <div style="flex-basis:5;">
-                    <span for="telefone" class="text-white">Telefone:</span>
+                    <span for="telefone" class="text-white" style="font-size:0.78em;">Telefone:</span>
                     <input type="text" placeholder="Telefone" class="form-control form-control-sm" name="telefone" id="telefone" />
                 </div>
 
@@ -174,41 +230,41 @@
             <!-- Segunda Linha -->
             <div class="d-flex">
 
-                <div style="flex-basis:8%;margin-right:1%;">
+                <div style="flex-basis:6%;margin-right:1%;">
                     <div class="form-group">
-                        <span for="cep" class="text-white">CEP:</span>
+                        <span for="cep" class="text-white" style="font-size:0.78em;">CEP:</span>
                         <input type="text" name="cep_coletivo" id="cep_coletivo" value="{{old('cep_coletivo')}}" placeholder="CEP" class="form-control  form-control-sm" value="">
                         <div class="errorcep"></div>
                     </div>
                 </div>
 
                 <div class="form-group" style="flex-basis:10%;margin-right:1%;">
-                    <span for="rua" class="text-white">Cidade:</span>
+                    <span for="rua" class="text-white" style="font-size:0.78em;">Cidade:</span>
                     <input type="text" name="cidade_origem_coletivo" id="cidade_origem_coletivo" value="{{old('cidade_origem_coletivo')}}" placeholder="Cidade" class="form-control  form-control-sm" value="">
                     <div class="errorlogradouro"></div>
                 </div>
 
-                <div class="form-group" style="flex-basis:13%;margin-right:1%;">
-                    <span for="bairro" class="text-white">Bairro:</span>
+                <div class="form-group" style="flex-basis:11%;margin-right:1%;">
+                    <span for="bairro" class="text-white" style="font-size:0.78em;">Bairro:</span>
                     <input type="text" name="bairro_coletivo" id="bairro_coletivo" value="{{old('bairro_coletivo')}}" placeholder="Bairro" class="form-control  form-control-sm" value="">
 
                 </div>
 
-                <div class="form-group" style="flex-basis:12%;margin-right:1%;">
-                    <span for="rua" class="text-white">Rua:</span>
+                <div class="form-group" style="flex-basis:11%;margin-right:1%;">
+                    <span for="rua" class="text-white" style="font-size:0.78em;">Rua:</span>
                     <input type="text" name="rua_coletivo" id="rua_coletivo" value="{{old('rua_coletivo')}}" placeholder="Logradouro(Rua)" class="form-control  form-control-sm" value="">
 
                 </div>
 
-                <div class="form-group" style="flex-basis:15%;">
-                    <span for="bairro" class="text-white">Complemento:</span>
+                <div class="form-group" style="flex-basis:12%;">
+                    <span for="bairro" class="text-white" style="font-size:0.78em;">Complemento:</span>
                     <input type="text" name="complemento_coletivo" id="complemento_coletivo" value="{{old('complemento_coletivo')}}" placeholder="Complemento(Opcional)" class="form-control  form-control-sm" value="">
 
                 </div>
 
 
-                <div class="form-group" style="flex-basis:5%;margin-left:1%;">
-                    <span for="uf" class="text-white">UF:</span>
+                <div class="form-group" style="flex-basis:3%;margin-left:1%;">
+                    <span for="uf" class="text-white" style="font-size:0.78em;">UF:</span>
                     <input type="text" name="uf_coletivo" id="uf_coletivo" value="{{old('uf_coletivo')}}" placeholder="UF" class="form-control  form-control-sm" value="">
 
                 </div>
@@ -216,9 +272,9 @@
 
 
 
-                <div style="flex-basis:10%;margin:0 1%;">
+                <div style="flex-basis:7%;margin:0 1%;">
                     <div class="form-group">
-                        <span for="codigo_externo" class="text-white">Codigo Externo:</span>
+                        <span for="codigo_externo" class="text-white" style="font-size:0.78em;">Codigo Externo:</span>
                         <input type="text" name="codigo_externo_coletivo" required id="codigo_externo_coletivo" value="{{old('codigo_externo_coletivo')}}" class="form-control  form-control-sm" placeholder="COD.">
 
                     </div>
@@ -226,7 +282,7 @@
 
                 <div style="flex-basis:10%;margin:0 1% 0 0">
                     <div class="form-group d-flex justify-content-center flex-column">
-                        <span class="text-white">Coparticipação:</span>
+                        <span class="text-white" style="font-size:0.78em;">Coparticipação:</span>
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-outline-light" id="coparticipacao_sim" style="padding:0.21rem 0.75rem;">
                                 <input type="radio" name="coparticipacao_coletivo" id="coparticipacao_radio_sim"  value="sim" {{old('coparticipacao_coletivo') == "sim" ? 'checked' : ''}}> Sim
@@ -242,7 +298,7 @@
 
                 <div style="flex-basis:10%;">
                     <div class="form-group  d-flex justify-content-center flex-column">
-                        <span for="odonto" class="text-white">Odonto:</span>
+                        <span for="odonto" class="text-white" style="font-size:0.78em;">Odonto:</span>
 
                         <div class="btn-group btn-group-toggle" data-toggle="buttons">
                             <label class="btn btn-outline-light" id="odonto_sim" style="padding:0.21rem 0.75rem;">
@@ -256,6 +312,19 @@
                         <div class='errorodonto'></div>
                     </div>
                 </div>
+
+                <div style="flex-basis:11%;margin-left:1%;">
+                    <div class="form-group">
+                        <span for="data_cadastro_coletivo" class="text-white" style="font-size:0.78em;">Data Cadastro (Plano):</span>
+                        <input type="date" name="data_cadastro_coletivo"  required id="data_cadastro_coletivo" value="{{old('data_cadastro_coletivo')}}" class="form-control  form-control-sm" id="data_cadastro_coletivo">
+
+                    </div>
+                </div>
+
+
+
+
+
 
 
             </div>
@@ -458,6 +527,7 @@
 
 
 
+
 @stop
 
 
@@ -498,6 +568,9 @@
                 return true;
             }
 
+            $(".close-modal").on('click',function(){
+                //alert("Olaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            });
 
 
 			function adicionaZero(numero){
@@ -535,6 +608,7 @@
             $('#valor_plano').mask("#.##0,00", {reverse: true});
             $('#valor_total').mask("#.##0,00", {reverse: true});
             $('#valor_boleto').mask("#.##0,00", {reverse: true});
+            $('#valor_correto').mask("#.##0,00", {reverse: true});
             $('#valor_plano_saude').mask("#.##0,00", {reverse: true});
 
             $('#valor_plano_saude').mask("#.##0,00", {reverse: true});
@@ -971,6 +1045,32 @@
                     return false;
                 }
 
+                if($("#data_cadastro_coletivo").val() == "") {
+                    toastr["error"]("Data Cadastro é campo obrigatório")
+                    toastr.options = {
+                        "closeButton": false,
+                        "debug": false,
+                        "newestOnTop": false,
+                        "progressBar": false,
+                        "positionClass": "toast-top-right",
+                        "preventDuplicates": false,
+                        "onclick": null,
+                        "showDuration": "300",
+                        "hideDuration": "1000",
+                        "timeOut": "5000",
+                        "extendedTimeOut": "1000",
+                        "showEasing": "swing",
+                        "hideEasing": "linear",
+                        "showMethod": "fadeIn",
+                        "hideMethod": "fadeOut"
+                    }
+                    return false;
+                 }
+
+
+
+
+
                 if(
                     $("#faixa-input-0-18_coletivo").val() == "" &&
                     $("#faixa-input-19-23_coletivo").val() == "" &&
@@ -1032,64 +1132,35 @@
                                 scrollTop:$(window).scrollTop() + $(window).height(),
                             },1500);
                         });
-                        $("body").find('.vigente').datepicker({
-                            onSelect: function() {
-                                var dateObject = $(this).datepicker('getDate');
-                                let dataFormatada = (dateObject.getFullYear() + "-" + adicionaZero(((dateObject.getMonth() + 1))) + "-" + adicionaZero((dateObject.getDate()))) ;
-                                $("form[name='cadastrar_pessoa_fisica_formulario_modal_coletivo']").find("#data_vigencia").attr("value",dataFormatada);
-                            }
+                        $("body").find('.vigente').on('change',function(){
+                            let data = $(this).val();
+                            $("form[name='cadastrar_pessoa_fisica_formulario_modal_coletivo']").find("#data_vigencia").attr("value",data);
                         });
 
-
-                //         // if(data.plano == "3" || data.plano == "4") {
-                //         //     if(data.uf == "GO") {
-                //         //         $("body").find('.vigente').datepicker({
-                //         //             beforeShowDay: function (d) {
-                //         //                 var day = d.getDate();
-                //         //                 return [day == 5 || day == 10 || day == 15];
-                //         //             }
-                //         //         })
-                //         //     } else if(data.uf == "MT") {
-                //         //         $("body").find('.vigente').datepicker({
-                //         //             beforeShowDay: function (d) {
-                //         //                 var day = d.getDate();
-                //         //                 return [day == 1 || day == 10 || day == 20];
-                //         //             }
-                //         //         })
-                //         //     } else {
-                //         //         $("body").find('.vigente').datepicker({
-                //         //             beforeShowDay: function (d) {
-                //         //                 var day = d.getDate();
-                //         //                 return [day == 5 || day == 10 || day == 15];
-                //         //             }
-                //         //         })
-                //         //     }
-                //         // } else {
-                //         //     $("body").find('.vigente').datepicker()
-                //         // }
                     }
                 });
                 return false;
             });
 
 			$('body').on('click','.valores-acomodacao',function(e){
-                if($("#created_at").val() == "") {
-                    $('#mudarDataCriacao').modal('show');
-                }
+                // if($("#created_at").val() == "") {
+                //     $('#mudarDataCriacao').modal('show');
+                // }
                 $(".valores-acomodacao").removeClass('destaque');
                 $(this).addClass('destaque');
                 let valor_plano = $(this).find('.valor_plano').text().replace("R$ ","");
                 let tipo = $(this).find('.tipo').text();
-                $("#valor").val(valor_plano);
+                //$("#valor").val(valor_plano);
                 $("#acomodacao").val(tipo);
                 if(!$(this).hasClass('destaque')) {
                     $('#data_vigencia').val('')
                     $('#data_boleto').val('');
                     $('#valor_adesao').val('');
                 }
-                $('body,html').animate({
-                    scrollTop:$(window).scrollTop() + $(window).height(),
-                },1500);
+                // $('body,html').animate({
+                //     scrollTop:$(window).scrollTop() + $(window).height(),
+                // },1500);
+
                 $("#btn_submit").html("<button type='submit' class='btn btn-block btn-light my-4 salvar_contrato'>Salvar Contrato</button>")
                 $('.valores-acomodacao').not('.destaque').each(function(i,e){
                     $(e).find('.vigente').val('')
@@ -1101,9 +1172,31 @@
                 }
             });
 
+            $("body").on('click','.editar_valor_coletivo',function(){
+                $("#mudarValorColetivo").modal('show');
+                let acomodacao = $(this).attr('data-btn-acomodacao');
+                $("#alvo_acomodacao").val(acomodacao);
 
-            $('#mudarDataCriacao').on('hidden.bs.modal', function (e) {
-                let valor = $("#data_criacao").val();
+            });
+
+            $("body").on('click','.mudar_valor_correto',function(){
+                let acomodacao = $("#alvo_acomodacao").val();
+                let valor = $("#valor_correto").val();
+                $("div[data-acomodacao='"+acomodacao+"']").find('.aqui_total_change').text(valor);
+                $("#valor").val(valor);
+                $("#valor_correto").val('');
+                $("#mudarValorColetivo").modal('hide');
+            });
+
+
+
+            // $('#mudarDataCriacao').on('hidden.bs.modal', function (e) {
+            //     let valor = $("#data_criacao").val();
+            //     $("#created_at").val(valor);
+            // });
+
+            $("#data_cadastro_coletivo").on('change',function(){
+                let valor = $(this).val();
                 $("#created_at").val(valor);
             });
 
@@ -1111,9 +1204,9 @@
                 return typeof i === 'string' ? i.replace(/[\$,]/g, '') * 1 : typeof i === 'number' ? i : 0;
             };
 
-            $('#modalDiferencaEntreValores').on('hidden.bs.modal', function (e) {
-                $('form[name="cadastrar_pessoa_fisica_formulario_modal_coletivo"]').submit();
-            });
+            // $('#modalDiferencaEntreValores').on('hidden.bs.modal', function (e) {
+            //     $('form[name="cadastrar_pessoa_fisica_formulario_modal_coletivo"]').submit();
+            // });
 
 
             $("#desconto_corretora_valores").change(function(){
@@ -1126,15 +1219,16 @@
                 $("#desconto_corretora").val(valor);
             });
 
-
-            $('form[name="cadastrar_pessoa_fisica_formulario_modal_coletivo"]').on('submit',function(){
-                var load = $(".ajax_load");
+            $('form[name="cadastrar_pessoa_fisica_formulario_modal_coletivo"]').on('submit',function(e){
+                e.preventDefault();
+                let valor_plano = $(".destaque").find('.valor_plano').text().replace("R$ ","").trim();
+                $("#valor").val(valor_plano);
+                let load = $(".ajax_load");
                 $.ajax({
                     url:"{{route('contratos.store')}}",
                     method:"POST",
                     data:$(this).serialize(),
                     beforeSend:function() {
-
                          if($("#data_vigencia").val() == "") {
                             toastr["error"]("Preencher o campo data vigencia")
                             toastr.options = {
@@ -1205,15 +1299,27 @@
                             let valor_t = $("#valor").val().replace(".","").replace(",",".");
                             let valor_a = $("#valor_adesao").val().replace(".","").replace(",",".");
                             let diferenca = valor_t - valor_a;
-                            let valor_difrenca = diferenca.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+                            let valor_difrenca = diferenca.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'});
                             $(".diferenca_entre_valores").text(valor_difrenca);
                             $('#modalDiferencaEntreValores').modal('show');
+
                             return false;
                         }
                         load.fadeIn(100).css("display", "flex");
                     },
                     success:function(res) {
+
+
+
                         load.fadeOut(300);
+
+                        if(res == "ja_existe") {
+                            $("#jaExisteCodigoExterno").modal('show');
+                            return false;
+                        }
+
+
+
                         if(res == "contratos") {
                             $(location).prop('href','/admin/contratos?ac=coletivo');
                             return true;
@@ -1227,61 +1333,18 @@
                     }
                 });
                 return false;
+
             });
 
-			function montarValores(data) {
-
-                $.ajax({
-                    url:"{{route('contratos.montarPlanos')}}",
-                    method:"POST",
-                    data: data,
-                    success(res) {
-                         console.log(res);
-                        // $("#resultado_coletivo").slideUp().html(res).delay(100).slideToggle(100,function(){
-                        //     $('body,html').animate({
-                        //         scrollTop:$(window).scrollTop() + $(window).height(),
-                        //     },1500);
-                        // });
-
-                        // $("body").find('.vigente').datepicker({
-                        //     onSelect: function() {
-                        //         var dateObject = $(this).datepicker('getDate');
-                        //         let dataFormatada = (dateObject.getFullYear() + "-" + adicionaZero(((dateObject.getMonth() + 1))) + "-" + adicionaZero((dateObject.getDate()))) ;
-                        //         $("form[name='cadastrar_pessoa_fisica_formulario_modal_coletivo']").find("#data_vigencia").attr("value",dataFormatada);
-                        //     }
-                        // });
+            $("body").on('click','.salvar_valores',function(){
+                $('form[name="cadastrar_pessoa_fisica_formulario_modal_coletivo"]').submit();
+            });
 
 
-                //         // if(data.plano == "3" || data.plano == "4") {
-                //         //     if(data.uf == "GO") {
-                //         //         $("body").find('.vigente').datepicker({
-                //         //             beforeShowDay: function (d) {
-                //         //                 var day = d.getDate();
-                //         //                 return [day == 5 || day == 10 || day == 15];
-                //         //             }
-                //         //         })
-                //         //     } else if(data.uf == "MT") {
-                //         //         $("body").find('.vigente').datepicker({
-                //         //             beforeShowDay: function (d) {
-                //         //                 var day = d.getDate();
-                //         //                 return [day == 1 || day == 10 || day == 20];
-                //         //             }
-                //         //         })
-                //         //     } else {
-                //         //         $("body").find('.vigente').datepicker({
-                //         //             beforeShowDay: function (d) {
-                //         //                 var day = d.getDate();
-                //         //                 return [day == 5 || day == 10 || day == 15];
-                //         //             }
-                //         //         })
-                //         //     }
-                //         // } else {
-                //         //     $("body").find('.vigente').datepicker()
-                //         // }
-                    }
-                });
-                return false;
-            }
+
+
+
+
 		});
 	</script>
 

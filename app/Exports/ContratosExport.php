@@ -100,7 +100,8 @@ class ContratosExport implements FromCollection, WithHeadings, WithMapping
             ->where('status_financeiro', 1)
             ->where('finalizado', 1)
             ->whereMonth('data_baixa_finalizado', '=', $this->mes)
-            ->groupBy('comissoes_id')
+            ->whereYear('data_baixa_finalizado','',2024)
+            //->groupBy('comissoes_id')
             ->orderByRaw('corretor,plano')
             ->get();
 

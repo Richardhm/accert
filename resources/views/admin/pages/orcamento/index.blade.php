@@ -355,8 +355,6 @@
                 }
             });
 
-
-
             let plus = $(".plus");
             let minus = $(".minus");
             $(plus).on('click',function(e){

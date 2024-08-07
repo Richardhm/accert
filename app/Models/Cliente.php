@@ -8,16 +8,22 @@ use Illuminate\Database\Eloquent\Model;
 class Cliente extends Model
 {
     use HasFactory;
-    protected $fillable = ["nome"];
+
+    protected $table = 'clientes';
+
+    public function contratos()
+    {
+        return $this->hasMany(Contrato::class,'cliente_id');
+    }
 
     public function contrato()
     {
-        return $this->hasOne(Contrato::class);
+        return $this->hasOne(Contrato::class,'cliente_id');
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'user_id');
     }
 
 

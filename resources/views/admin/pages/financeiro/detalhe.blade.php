@@ -4,8 +4,6 @@
 @section('content_top_nav_right')
     <!-- <li class="nav-item mostrar_comissao"><a href="" class="nav-link div_info text-white"><i class='fas fa-eye'></i></a></li> -->
     <li class="nav-item"><a class="nav-link text-white" href="{{route('orcamento.search.home')}}">Tabela de Preço</a></li>
-    <li class="nav-item"><a class="nav-link text-white" href="{{route('home.administrador.consultar')}}">Consultar</a></li>
-
     <a class="nav-link" data-widget="fullscreen" href="#" role="button"><i class="fas fa-expand-arrows-alt text-white"></i></a>
 @stop
 
@@ -203,7 +201,7 @@
 
             <div style="flex-basis:23%;margin:0 1%;">
                 <span class="text-white" style="font-size:0.81em;">Valor Contrato:</span>
-                <input type="text" name="valor_contrato" id="valor_contrato" value="R$ {{number_format($dados->valor_plano - 25,2,',','.')}}" class="form-control  form-control-sm" readonly>
+                <input type="text" name="valor_contrato" id="valor_contrato" value="R$ {{number_format($dados->valor_plano,2,',','.')}}" class="form-control  form-control-sm" readonly>
             </div>
 
             <div style="flex-basis:23%;">
@@ -283,6 +281,7 @@
                     @endphp
                     @foreach($dados->comissao->comissoesLancadas as $kk => $cr)
                             @php
+
                                 if(!empty($cr->data_baixa)):
                                     $total_comissao += $cr->valor;
                                 else:
@@ -298,11 +297,7 @@
                                 @endif
                             </td>
                             <td class="text-center" style="font-size:0.875em;">
-                                @if($cr->parcela == 1)
-                                    {{number_format($dados->valor_plano,2,',','.')}}
-                                @else
-                                    {{number_format($dados->valor_plano - 25,2,',','.')}}
-                                @endif
+                               {{$dados->codigo_externo}}
                             </td>
                             <td style="font-size:0.875em;">{{date('d/m/Y',strtotime($cr->data))}}</td>
                             <td style="font-size:0.875em;">
@@ -341,53 +336,6 @@
 
 
     </main>
-
-    @if($dependente == "")
-        <button class="btn btn-block btn-info btn-verificar-dependentes mt-2">Verificar Dependentes</button>
-    @elseif($dependente == 0)
-        <p class="alert alert-warning mt-2 text-center text-white">Este cliente não possui dependentes</p>
-    @else
-        <div class="mt-2">
-            <div class="card collapsed-card" style="background-color:#123449;">
-                <div class="card-header">
-                    <h3 class="card-title text-white">Dependentes</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
-                    </div>
-                </div>
-
-                <div class="card-body" style="display: none;">
-                    <table class="table">
-                        <thead>
-                            <tr class="text-white">
-                                <th>Nome</th>
-                                <th>Cpf</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($dados->clientes->dependentes as $dd)
-                                <tr class="text-white">
-                                    <td>{{$dd->nome}}</td>
-                                    <td>{{$dd->cpf}}</td>
-                                </tr>
-
-                            @endforeach
-                        </tbody>
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    @endif
-
-
-
-
-
-
 
     <a class="btn btn-block btn-lg mt-3 text-white back" style="background-color:#123449;">Voltar</a>
     <!-- <a href="" class="btn btn-block btn-lg mt-3 text-white" style="background-color:#123449;">Voltar</a> -->

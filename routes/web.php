@@ -21,14 +21,7 @@ Route::redirect('/', '/login');
 
 Route::middleware('auth')->prefix("admin")->group(function(){
 
-    Route::get("/info",function(){
-       print_r(phpinfo());
-    });
 
-//    Route::get("/cache-config",function(){
-//        \Artisan::call('config:cache');
-//        return 'Configurations cached successfully.';
-//    });
 
     Route::get("/reposicionar",function(){
         $comissoes = \Illuminate\Support\Facades\DB::select("
@@ -122,7 +115,27 @@ Route::middleware('auth')->prefix("admin")->group(function(){
     Route::post("/tabela_preco/cidade/resposta","App\Http\Controllers\Admin\HomeController@tabelaPrecoRespostaCidade")->name('tabela.preco.resposta.cidade');
     Route::get("/consultar","App\Http\Controllers\Admin\HomeController@consultar")->name('home.administrador.consultar');
     Route::post("/consultar","App\Http\Controllers\Admin\HomeController@consultarCarteirnha")->name('consultar.carteirinha');
+
+    Route::post("/dashboard/filtrar/user","App\Http\Controllers\Admin\HomeController@dashboardFiltrarUser")->name("dashboard.filtrar.user");
+
+    Route::post("/dashboard/semestre","App\Http\Controllers\Admin\HomeController@dashboardSemestre")->name("dashboard.semestre");
+    Route::post("/dashboard/mes","App\Http\Controllers\Admin\HomeController@dashboardMes")->name("dashboard.mes");
+
+
+
+
+    Route::post("/dashboard/ano","App\Http\Controllers\Admin\HomeController@dashboardAno")->name("dashboard.ano");
+    Route::post("/dashboard/ranking/semestral","App\Http\Controllers\Admin\HomeController@dashboardRankingSemestral")->name("dashboard.ranking.semestral");
+    Route::post("/dashboard/ranking/mes","App\Http\Controllers\Admin\HomeController@dashboardRankingmes")->name("dashboard.ranking.mes");
+    Route::post("/dashboard/tabela/ranking/mes","App\Http\Controllers\Admin\HomeController@dashboardTabelaRankingmes")->name("dashboard.tabela.ranking.mes");
+    Route::post("/dashboard/ranking/ano","App\Http\Controllers\Admin\HomeController@dashboardRankingano")->name("dashboard.ranking.ano");
+    Route::post("/dashboard/grafico/ano","App\Http\Controllers\Admin\HomeController@dashboardGraficoAno")->name("grafico.mudar.ano");
     /* Fim Home**/
+
+    /* Estrela */
+    Route::get("/estrela","App\Http\Controllers\Admin\EstrelaController@index");
+    /* Fim Estrela */
+
 
     /**Orçamentos  */
     Route::get('/orcamento',"App\Http\Controllers\Admin\OrcamentoController@index")->name('orcamento.index');
@@ -141,31 +154,14 @@ Route::middleware('auth')->prefix("admin")->group(function(){
     Route::post('/contratos/montarPlanosIndividual',"App\Http\Controllers\Admin\ContratoController@montarPlanosIndividual")->name('contratos.montarPlanosIndividual');
     Route::post('/contratos/empresarial',"App\Http\Controllers\Admin\ContratoController@storeEmpresarial")->name('contratos.storeEmpresarial');
     Route::get('/contratos/listarColetivoPorAdesao',"App\Http\Controllers\Admin\ContratoController@listarColetivoPorAdesao")->name('contratos.listarColetivoPorAdesao');
-    //Route::get('/contratos/listarindividual',"App\Http\Controllers\Admin\ContratoController@listarIndividual")->name('contratos.listarIndividual');
-    //Route::get('/contratos/listarempresas',"App\Http\Controllers\Admin\ContratoController@listarContratoEmpresarial")->name('contratos.listarEmpresarial');
     Route::get("/contratos/individual/em_geral_contrato","App\Http\Controllers\Admin\ContratoController@geralIndividualPendentes")->name('financeiro.individual.geralIndividualPendentes.contrato');
     Route::get("/contrato/individual/em_geral_contrato","App\Http\Controllers\Admin\ContratoController@geralIndividualPendentesCorretor")->name('financeiro.individual.geralIndividualPendentes.contrato.corretor');
     Route::get("/contratos/coletivo/em_geral_contrato","App\Http\Controllers\Admin\ContratoController@geralColetivoPendentes")->name('financeiro.individual.geralColetivoPendentes.contrato');
     Route::get("/contrato/coletivo/em_geral_contrato","App\Http\Controllers\Admin\ContratoController@geralColetivoPendentesCorretor")->name('financeiro.individual.geralColetivoPendentes.contrato.corretor');
     Route::get('/contratos/listarempresas/emgeral',"App\Http\Controllers\Admin\ContratoController@listarEmpresarialEmGeral")->name('contratos.listarEmpresarial.emgeral');
-    Route::get('/contratos/listarempresas/emanalise',"App\Http\Controllers\Admin\ContratoController@listarContratoEmAnalise")->name('contratos.listarEmpresarial.analise');
     Route::get('/contratos/empendentes/empresarial',"App\Http\Controllers\Admin\ContratoController@listarContratoEmpresaPendentes")->name('contratos.listarEmpresarial.listarContratoEmpresaPendentes');
-    
-    Route::get('/contratos/mudar/mes/empresarial',"App\Http\Controllers\Admin\ContratoController@mudarMesEmpresarial")->name('contratos.mudar.mes.empresarial');
-    
-    Route::get('/contratos/listarempresas/aguardando_primeiro_parcela',"App\Http\Controllers\Admin\ContratoController@listarContratoPrimeiraParcela")->name('contratos.listarEmpresarial.primeiraparcela');
-    Route::get('/contratos/listarempresas/aguardando_segunda_parcela',"App\Http\Controllers\Admin\ContratoController@listarContratoSegundaParcela")->name('contratos.listarEmpresarial.segundaparcela');
-    Route::get('/contratos/listarempresas/aguardando_terceira_parcela',"App\Http\Controllers\Admin\ContratoController@listarContratoTerceiraParcela")->name('contratos.listarEmpresarial.terceiraparcela');
-    Route::get('/contratos/listarempresas/aguardando_quarta_parcela',"App\Http\Controllers\Admin\ContratoController@listarContratoQuartaParcela")->name('contratos.listarEmpresarial.quartaparcela');
-    Route::get('/contratos/listarempresas/aguardando_quinta_parcela',"App\Http\Controllers\Admin\ContratoController@listarContratoQuintaParcela")->name('contratos.listarEmpresarial.quintaparcela');
-    Route::get('/contratos/listarempresas/aguardando_sexta_parcela',"App\Http\Controllers\Admin\ContratoController@listarContratoSextaParcela")->name('contratos.listarEmpresarial.sextaparcela');
-    Route::get('/contratos/listarempresas/finalizado',"App\Http\Controllers\Admin\ContratoController@listarContratoEmpresarialFinalizado")->name('contratos.listarEmpresarial.finalizado');
     Route::get('/contratos/listarempresas/cancelado',"App\Http\Controllers\Admin\ContratoController@listarContratoEmpresarialCancelado")->name('contratos.listarEmpresarial.cancelado');
-    Route::get('/contratos/listarempresas/atrasados',"App\Http\Controllers\Admin\ContratoController@listarContratoEmpresarialAtrasados")->name('contratos.listarEmpresarial.atrasados');
-    Route::post('/contratos/empresarial/quantidade',"App\Http\Controllers\Admin\ContratoController@empresarialQuantidade")->name('contratos.empresarial.quantidade');
-    Route::post('/contratos/mes/empresarial/quantidade',"App\Http\Controllers\Admin\ContratoController@empresarialQuantidadeMes")->name('contratos.empresarial.quantidade.mes');
     Route::post('/contratos/pegarEmpresarialPorUser',"App\Http\Controllers\Admin\ContratoController@listarEmpresarialPorUser")->name('contratos.listarEmpresarialPorUser');
-    Route::post('/contratos/descricao',"App\Http\Controllers\Admin\ContratoController@contratoInfo")->name('contratos.info');
     Route::get('/contratos/cadastrar/individual',"App\Http\Controllers\Admin\ContratoController@formCreate")->name('contratos.create');
     Route::get('/contrato/cadastrar/individual',"App\Http\Controllers\Admin\ContratoController@formContratoCreate")->name('contrato.create');
     Route::get('/financeiro/detalhes/empresarial/{id}',"App\Http\Controllers\Admin\FinanceiroController@detalheEmpresarial")->name('financeiro.empresarial.detalhe');
@@ -182,68 +178,45 @@ Route::middleware('auth')->prefix("admin")->group(function(){
 
     /**Financeiro*/
     Route::get('/financeiro',"App\Http\Controllers\Admin\FinanceiroController@index")->name('financeiro.index');
-    Route::get('/financeiro/coletivo/em_analise',"App\Http\Controllers\Admin\FinanceiroController@coletivoEmAnalise")->name('financeiro.coletivo.em_analise');
+    Route::post('/financeiro/cobranca',"App\Http\Controllers\Admin\FinanceiroController@uploadCobranca")->name('financeiro.cobranca');
+    Route::get("/financeiro/cobranca/individual/em_geral/{mes?}","App\Http\Controllers\Admin\FinanceiroController@geralIndividualPendentesCobranca")->name('financeiro.individual.geralIndividualPendentes.cobranca');
+    Route::get("/financeiro/individual/em_geral/{mes?}","App\Http\Controllers\Admin\FinanceiroController@geralIndividualPendentes")->name('financeiro.individual.geralIndividualPendentes');
+
     Route::get('/financeiro/coletivo/em_analise/corretor',"App\Http\Controllers\Admin\FinanceiroController@coletivoEmAnaliseCorretor")->name('financeiro.coletivo.em_analise.corretor');
     Route::get('/financeiro/coletivo/em_branco',"App\Http\Controllers\Admin\FinanceiroController@coletivoEmBranco")->name('financeiro.coletivo.em_branco');
     Route::get('/financeiro/coletivo/em_geral',"App\Http\Controllers\Admin\FinanceiroController@coletivoEmGeral")->name('financeiro.coletivo.em_geral');
     Route::get('/financeiro/coletivo/em_geral/corretor',"App\Http\Controllers\Admin\FinanceiroController@coletivoEmGeralCorretor")->name('financeiro.coletivo.em_geral.corretor');
     Route::get('/financeiro/empresarial/em_geral',"App\Http\Controllers\Admin\FinanceiroController@empresarialEmGeral")->name('financeiro.empresarial.em_geral');
-    Route::get('/financeiro/coletivo/emissao_boleto',"App\Http\Controllers\Admin\FinanceiroController@coletivoEmissaoBoleto")->name('financeiro.coletivo.emissao_boleto');
     Route::get('/financeiro/coletivo/emissao_boleto/corretor',"App\Http\Controllers\Admin\FinanceiroController@coletivoEmissaoBoletoCorretor")->name('financeiro.coletivo.emissao_boleto.corretor');
-    Route::get('/financeiro/coletivo/pagamento_adesao',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoAdesao")->name('financeiro.coletivo.pagamento_adesao');
     Route::get('/financeiro/coletivo/pagamento_adesao/corretor',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoAdesaoCorretor")->name('financeiro.coletivo.pagamento_adesao.corretor');
-    Route::get('/financeiro/coletivo/pagamento_vigencia',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoVigencia")->name('financeiro.coletivo.pagamento_vigencia');
     Route::get('/financeiro/coletivo/pagamento_vigencia/corretor',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoVigenciaCorretor")->name('financeiro.coletivo.pagamento_vigencia.corretor');
-    Route::get('/financeiro/coletivo/atrasado',"App\\Http\\Controllers\\Admin\\FinanceiroController@getAtrsadoColetivo")->name('financeiro.coletivo.atrasado');
-    Route::get('/financeiro/coletivo/pagamento_segunda_parcela',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoSegundaParcela")->name('financeiro.coletivo.pagamento_segunda_parcela');
     Route::get('/financeiro/coletivo/pagamento_segunda_parcela/corretor',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoSegundaParcelaCorretor")->name('financeiro.coletivo.pagamento_segunda_parcela.corretor');
-    Route::get('/financeiro/coletivo/pagamento_terceira_parcela',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoTerceiraParcela")->name('financeiro.coletivo.pagamento_terceira_parcela');
     Route::get('/financeiro/coletivo/pagamento_terceira_parcela/corretor',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoTerceiraParcelaCorretor")->name('financeiro.coletivo.pagamento_terceira_parcela.corretor');
-    Route::get('/financeiro/coletivo/pagamento_quarta_parcela',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoQuartaParcela")->name('financeiro.coletivo.pagamento_quarta_parcela');
     Route::get('/financeiro/coletivo/pagamento_quarta_parcela/corretor',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoQuartaParcelaCorretor")->name('financeiro.coletivo.pagamento_quarta_parcela.corretor');
-    Route::get('/financeiro/coletivo/pagamento_quinta_parcela',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoQuintaParcela")->name('financeiro.coletivo.pagamento_quinta_parcela');
     Route::get('/financeiro/coletivo/pagamento_quinta_parcela/corretor',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoQuintaParcelaCorretor")->name('financeiro.coletivo.pagamento_quinta_parcela.corretor');
-    Route::get('/financeiro/coletivo/pagamento_sexta_parcela',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoSextaParcela")->name('financeiro.coletivo.pagamento_sexta_parcela');
     Route::get('/financeiro/coletivo/pagamento_sexta_parcela/corretor',"App\Http\Controllers\Admin\FinanceiroController@coletivoPagamentoSextaParcelaCorretor")->name('financeiro.coletivo.pagamento_sexta_parcela.corretor');
-    Route::get('/financeiro/coletivo/pagamento_coletivo_finalizado',"App\Http\Controllers\Admin\FinanceiroController@coletivoFinalizado")->name('financeiro.coletivo.finalizado');
     Route::get('/financeiro/coletivo/pagamento_coletivo_finalizado/corretor',"App\Http\Controllers\Admin\FinanceiroController@coletivoFinalizadoCorretor")->name('financeiro.coletivo.finalizado.corretor');
-    Route::get('/financeiro/coletivo/pagamento_coletivo_cancelado',"App\Http\Controllers\Admin\FinanceiroController@coletivoCancelados")->name('financeiro.coletivo.cancelado');
     Route::get('/financeiro/coletivo/pagamento_coletivo_cancelado/corretor',"App\Http\Controllers\Admin\FinanceiroController@coletivoCanceladosCorretor")->name('financeiro.coletivo.cancelado.corretor');
     Route::get("/financeiro/todososcontratos/em_geral_todos_os_planos","App\Http\Controllers\Admin\FinanceiroController@geralTodosContratosPendentes")->name('financeiro.todos.geralTodosContratosPendentes');
-    Route::get("/financeiro/individual/em_geral/{mes?}","App\Http\Controllers\Admin\FinanceiroController@geralIndividualPendentes")->name('financeiro.individual.geralIndividualPendentes');
-    Route::get("/financeiro/individual/mudar_ano/{ano}/{mes?}","App\Http\Controllers\Admin\FinanceiroController@mudarAnoIndividual")->name('financeiro.individual.mudarano');
-    Route::get("/financeiro/individual/mudar_mes/{mes}/{ano?}","App\Http\Controllers\Admin\FinanceiroController@mudarMesIndividual")->name('financeiro.individual.mudarmes');
     Route::post('/financeiro/select/mes',"App\Http\Controllers\Admin\FinanceiroController@financeiroMontarSelect")->name('financeiro.montar.mes');
-    Route::post("/financeiro/corretor/filtragem/coletivo","App\Http\Controllers\Admin\FinanceiroController@financeiroCorretorFiltragemColetivo")->name('financeiro.corretor.filtragem.coletivo');
-    Route::post("/financeiro/corretor/filtragem/coletivo/administradora","App\Http\Controllers\Admin\FinanceiroController@financeiroCorretorFiltragemColetivoAdmin")->name('financeiro.corretor.filtragem.coletivo.administradora');
-    Route::get("/financeiro/coletivo/mudar_ano/{ano}/{mes?}","App\Http\Controllers\Admin\FinanceiroController@mudarAnoColetivo")->name('financeiro.coletivo.mudarano');
-    Route::get("/financeiro/coletivo/mudar_mes/{mes}/{ano?}","App\Http\Controllers\Admin\FinanceiroController@mudarMesColetivo")->name('financeiro.coletivo.mudarmes');
-    Route::get('/financeiro/individual/em_analise',"App\Http\Controllers\Admin\FinanceiroController@emAnaliseIndividual")->name('financeiro.individual.em_analise');
     Route::get('/financeiro/individual/em_analise/corretor',"App\Http\Controllers\Admin\FinanceiroController@emAnaliseIndividualCorretor")->name('financeiro.individual.em_analise.corretor');
     Route::post('/financeiro/sincronizar',"App\Http\Controllers\Admin\FinanceiroController@sincronizarDados")->name('financeiro.sincronizar');
     Route::post('/financeiro/sincronizar/coletivo',"App\Http\Controllers\Admin\FinanceiroController@sincronizarDadosColetivo")->name('financeiro.sincronizar.coletivo');
     Route::post('/financeiro/atualizar_dados',"App\Http\Controllers\Admin\FinanceiroController@atualizarDados")->name('financeiro.atualizar.dados');
     Route::post('/financeiro/sincronizar_baixas',"App\Http\Controllers\Admin\FinanceiroController@sincronizarBaixas")->name('financeiro.sincronizar.baixas');
     Route::post('/financeiro/sincronizar_baixas/ja_existente',"App\Http\Controllers\Admin\FinanceiroController@sincronizarBaixasJaExiste")->name('financeiro.sincronizar.baixas.jaexiste');
+    Route::post('/financeiro/sincronizar/cancelados',"App\Http\Controllers\Admin\FinanceiroController@sincronizarCancelados")->name('financeiro.sincronizar.cancelados');
     Route::get('/financeiro/detalhes/{id}',"App\Http\Controllers\Admin\FinanceiroController@detalhesContrato")->name('financeiro.detalhes.contrato');
     Route::get('/financeiro/detalhes/coletivo/{id}',"App\Http\Controllers\Admin\FinanceiroController@detalhesContratoColetivo")->name('financeiro.detalhes.contrato.coletivo');
     Route::post('/financeiro/changeclienteuser',"App\Http\Controllers\Admin\FinanceiroController@changeclienteuser")->name('change.cliente.user');
     Route::post('/financeiro/verificardependentes','App\Http\Controllers\Admin\FinanceiroController@verificardependentesuser')->name('verificar.dependentes.user');
-    Route::get('/financeiro/individual/pagamento_primeira_parcela/{id?}/{mes?}',"App\Http\Controllers\Admin\FinanceiroController@individualPagamentoPrimeiraParcela")->name('financeiro.individual.pagamento_primeira_parcela');
     Route::get('/financeiro/individual/pagamento_primeira_parcela/corretor',"App\Http\Controllers\Admin\FinanceiroController@individualPagamentoPrimeiraParcelaCorretor")->name('financeiro.individual.pagamento_primeira_parcela.corretor');
-    Route::get('/financeiro/individual/pagamento_segunda_parcela/{id?}/{mes?}',"App\Http\Controllers\Admin\FinanceiroController@individualPagamentoSegundaParcela")->name('financeiro.individual.pagamento_segunda_parcela');
     Route::get('/financeiro/individual/pagamento_segunda_parcela/corretor',"App\Http\Controllers\Admin\FinanceiroController@individualPagamentoSegundaParcelaCorretor")->name('financeiro.individual.pagamento_segunda_parcela.corretor');
-    Route::get('/financeiro/individual/pagamento_terceira_parcela/{id?}/{mes?}',"App\Http\Controllers\Admin\FinanceiroController@individualPagamentoTerceiraParcela")->name('financeiro.individual.pagamento_terceira_parcela');
     Route::get('/financeiro/individual/pagamento_terceira_parcela/corretor',"App\Http\Controllers\Admin\FinanceiroController@individualPagamentoTerceiraParcelaCorretor")->name('financeiro.individual.pagamento_terceira_parcela.corretor');
-    Route::get('/financeiro/individual/pagamento_quarta_parcela/{id?}/{mes?}',"App\Http\Controllers\Admin\FinanceiroController@individualPagamentoQuartaParcela")->name('financeiro.individual.pagamento_quarta_parcela');
     Route::get('/financeiro/individual/pagamento_quarta_parcela/corretor',"App\Http\Controllers\Admin\FinanceiroController@individualPagamentoQuartaParcelaCorretor")->name('financeiro.individual.pagamento_quarta_parcela.corretor');
-    Route::get('/financeiro/individual/pagamento_quinta_parcela/{id?}/{mes?}',"App\Http\Controllers\Admin\FinanceiroController@individualPagamentoQuintaParcela")->name('financeiro.individual.pagamento_quinta_parcela');
     Route::get('/financeiro/individual/pagamento_quinta_parcela/corretor',"App\Http\Controllers\Admin\FinanceiroController@individualPagamentoQuintaParcelaCorretor")->name('financeiro.individual.pagamento_quinta_parcela.corretor');
-    Route::get('/financeiro/individual/pagamento_sexta_parcela/{id?}/{mes?}',"App\Http\Controllers\Admin\FinanceiroController@individualPagamentoSextaParcela")->name('financeiro.individual.pagamento_sexta_parcela');
     Route::get('/financeiro/individual/pagamento_sexta_parcela/corretor',"App\Http\Controllers\Admin\FinanceiroController@individualPagamentoSextaParcelaCorretor")->name('financeiro.individual.pagamento_sexta_parcela.corretor');
-    Route::get('/financeiro/individual/finalizado',"App\Http\Controllers\Admin\FinanceiroController@individualFinalizado")->name('financeiro.individual.finalizado');
     Route::get('/financeiro/individual/finalizado/corretor',"App\Http\Controllers\Admin\FinanceiroController@individualFinalizadoCorretor")->name('financeiro.individual.finalizado.corretor');
-    Route::get('/financeiro/individual/pagamento_individual_cancelado/{id?}/{mes?}',"App\Http\Controllers\Admin\FinanceiroController@individualCancelados")->name('financeiro.individual.cancelado');
     Route::get('/financeiro/coletivo/pagamento_individual_cancelado/corretor',"App\Http\Controllers\Admin\FinanceiroController@individualCanceladosCorretor")->name('financeiro.individual.cancelado.corretor');
     Route::post('/financeiro/mudarEstadosColetivo',"App\Http\Controllers\Admin\FinanceiroController@mudarEstadosColetivo")->name('financeiro.mudarStatusColetivo');
     Route::post('/financeiro/mudarEstadosIndividual',"App\Http\Controllers\Admin\FinanceiroController@mudarEstadosIndividual")->name('financeiro.mudarStatusIndividual');
@@ -263,8 +236,6 @@ Route::middleware('auth')->prefix("admin")->group(function(){
     Route::post('/financeiro/excluir/individual',"App\Http\Controllers\Admin\FinanceiroController@excluirClienteIndividual")->name('financeiro.excluir.cliente.individual');
     Route::get('/financeiro/zerar/tabela',"App\Http\Controllers\Admin\FinanceiroController@zerarTabelaFinanceiro")->name('financeiro.zerar.financeiro');
     Route::post('/financeiro/excluir/empresarial',"App\Http\Controllers\Admin\FinanceiroController@excluirClienteEmpresarial")->name('financeiro.excluir.cliente.empresarial');
-    Route::post('/financeiro/quantidade/corretor',"App\Http\Controllers\Admin\FinanceiroController@quantidadeCorretor")->name('financeiro.corretor.quantidade');
-    Route::get('/financeiro/geral/atrsado/{id?}/{mes?}',"App\Http\Controllers\Admin\FinanceiroController@getAtrasados")->name('financeiro.individual.atrasado');
     Route::get('/financeiro/geral/atrasado/corretor',"App\Http\Controllers\Admin\FinanceiroController@getAtrasadosCorretor")->name('financeiro.individual.atrasado.corretor');
     /**Fim Financeiro*/
 
@@ -286,45 +257,31 @@ Route::middleware('auth')->prefix("admin")->group(function(){
     Route::post('/gerente/pegartodos',"App\Http\Controllers\Admin\GerenteController@pegarTodososDados")->name('gerente.todos.valores.usuario');
     Route::get('/gerente/listagem',"App\Http\Controllers\Admin\GerenteController@listagem")->name('gerente.listagem.em_geral');
     Route::get('/gerente/concluidos',"App\Http\Controllers\Admin\GerenteController@concluidos")->name('gerente.listagem.concluidos');
-
-
-
     Route::get('/gerente/comissao/{id}',"App\Http\Controllers\Admin\GerenteController@listarComissao")->name('gerente.comissao.listar');
     Route::get('/gerente/detalhe/{id_contrato}',"App\Http\Controllers\Admin\GerenteController@detalhe")->name('gerente.listagem.detalhe');
     Route::get('/gerente/pagos/detalhe/{id_contrato}',"App\Http\Controllers\Admin\GerenteController@detalhePagos")->name('gerente.pagos.listagem.detalhe');
-    
     Route::post('/gerente/informacoes/corretor',"App\Http\Controllers\Admin\GerenteController@infoCorretor")->name('gerente.informacoes.quantidade.corretor');
+    Route::post('/gerente/pegar/todos/mes/corrente',"App\Http\Controllers\Admin\GerenteController@pegarTodosMesCorrente")->name('gerente.pegar.todos.mes.corrente');
     Route::post('/gerente/historico/informacoes/corretor',"App\Http\Controllers\Admin\GerenteController@infoCorretorHistorico")->name('gerente.historico.informacoes.corretor');
-
-
     Route::get('/gerente/listar/comissao',"App\Http\Controllers\Admin\GerenteController@listarUserComissoesAll")->name('gerente.listagem.comissao');
     Route::get('/gerente/listagem/comissao_mes_atual/{id}',"App\Http\Controllers\Admin\GerenteController@comissaoMesAtual")->name('gerente.listagem.comissao_mes_atual');
     Route::get('/gerente/listagem/recebidas/coletivo/{id}',"App\Http\Controllers\Admin\GerenteController@recebidasColetivo")->name('gerente.listagem.recebidas.coletivo');
     Route::get('/gerente/listagem/zerar/tabelas',"App\Http\Controllers\Admin\GerenteController@zerarTabelas")->name('gerente.listagem.zerar.tabelas');
-
-
-
-
-
-
-
     Route::post('/gerente/mudar/para_a_nao_pago',"App\Http\Controllers\Admin\GerenteController@mudarStatusParaNaoPago")->name('gerente.mudar.para_a_nao_pago');
-    Route::get('/gerente/comissao/confirmadas/{id}/{mes?}',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadas")->name('gerente.listagem.confirmadas');
+    Route::get('/gerente/comissao/confirmadas/{id}/{mes?}/{ano?}',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadas")->name('gerente.listagem.confirmadas');
     Route::get('/gerente/estorno/coletivo/{id}',"App\Http\Controllers\Admin\GerenteController@estornoColetivo")->name('gerente.estorno.coletivo');
     Route::get('/gerente/estorno/empresarial/{id}',"App\Http\Controllers\Admin\GerenteController@estornoEmpresarial")->name('gerente.estorno.empresarial');
-
     Route::get('/gerente/geral/estorno/{id}',"App\Http\Controllers\Admin\GerenteController@geralEstorno")->name('gerente.geral.estorno.listar');
     Route::get('/gerente/mes/geral/estorno/{mes}',"App\Http\Controllers\Admin\GerenteController@geralEstornoMes")->name('gerente.mes.geral.estorno.listar');
-    
     Route::post('/gerente/estorno/valor/voltar',"App\Http\Controllers\Admin\GerenteController@estornoVoltar")->name('gerente.estorno.valor.voltar');
     Route::post('/gerente/mes/especifico/comissao/confirmadas',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadasMesEspecifico")->name('gerente.listagem.confirmadas.especifica');
-    Route::get('/gerente/mes/fechados/confirmados/{mes}/{plano}',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadasMesFechado")->name('gerente.mes.fechados.confirmados');
+    Route::get('/gerente/mes/fechados/confirmados/{ano}/{mes}/{plano}',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadasMesFechado")->name('gerente.mes.fechados.confirmados');
     Route::post('/gerente/totalizar/mes',"App\Http\Controllers\Admin\GerenteController@totalizarMes")->name('totalizar.mes.gerente');
     Route::post('/gerente/contrato/estorno',"App\Http\Controllers\Admin\GerenteController@contratoEstorno")->name('gerente.contrato.estorno');
     Route::post('/gerente/salario/historico',"App\Http\Controllers\Admin\GerenteController@salarioUserHistorico")->name('gerente.salario.user.historico');
     Route::get('/gerente/search/historico',"App\Http\Controllers\Admin\GerenteController@gerenteBuscarHistorico")->name('gerente.buscar.historico');
-    Route::get('/gerente/comissao/coletivo/confirmadas/{id?}/{mes?}',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadasColetivo")->name('gerente.listagem.coletivo.confirmadas');
-    Route::get('/gerente/comissao/empresarial/confirmadas/{id}/{mes?}',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadasEmpresarial")->name('gerente.listagem.empresarial.confirmadas');
+    Route::get('/gerente/comissao/coletivo/confirmadas/{id?}/{mes?}/{ano?}',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadasColetivo")->name('gerente.listagem.coletivo.confirmadas');
+    Route::get('/gerente/comissao/empresarial/confirmadas/{id}/{mes?}/{ano?}',"App\Http\Controllers\Admin\GerenteController@comissaoListagemConfirmadasEmpresarial")->name('gerente.listagem.empresarial.confirmadas');
     Route::get('/gerente/listagem/empresarial/recebidas/{id}',"App\Http\Controllers\Admin\GerenteController@recebidoEmpresarial")->name('gerente.listagem.empresarial.recebidas');
     Route::get('/gerente/listagem/comissao_mes_diferente/{id}',"App\Http\Controllers\Admin\GerenteController@comissaoMesDiferente")->name('gerente.listagem.comissao_mes_diferente');
     Route::get('/gerente/coletivo/listar/{id}',"App\Http\Controllers\Admin\GerenteController@coletivoAReceber")->name('gerente.listagem.coletivo.areceber');
@@ -337,13 +294,10 @@ Route::middleware('auth')->prefix("admin")->group(function(){
     Route::post('/gerente/mudarcomisao/corretor/pago',"App\Http\Controllers\Admin\GerenteController@mudarComissaoCorretorGerente")->name('gerente.mudar.valor.pago');
     Route::post('/gerente/administradorapagou/comissao',"App\Http\Controllers\Admin\GerenteController@administradoraPagouComissao")->name('gerente.administradorapagoucomissao');
     Route::post('/gerente/pagos/administradorapagou/comissao',"App\Http\Controllers\Admin\GerenteController@administradoraPagouComissaoPagos")->name('gerente.administradorapagoucomissao.pagos');
-
     Route::post('/gerente/finalizar/pagamento',"App\Http\Controllers\Admin\GerenteController@finalizarPagamento")->name('gerente.finalizar.pagamento');
     Route::post('/gerente/mes/encerrar',"App\Http\Controllers\Admin\GerenteController@pagamentoMesFinalizado")->name('gerente.pagamento.mes.finalizado');
     Route::get('/gerente/finalizar/criarpdf',"App\Http\Controllers\Admin\GerenteController@criarPDFUser")->name('gerente.finalizar.criarpdf');
-
     Route::get('/gerente/historico/finalizar/criarpdf',"App\Http\Controllers\Admin\GerenteController@criarPDFUserHistorico")->name('gerente.historico.finalizar.criarpdf');
-
     Route::post('/gerente/montar/mes/tabela/modal',"App\Http\Controllers\Admin\GerenteController@montarTabelaMesModal")->name('montar.tabela.mes.modal');
     Route::get('/gerente/listarcontratosemgeral',"App\Http\Controllers\Admin\GerenteController@listarcontratos")->name('gerente.listarcontratos.geral');
     Route::get('/gerente/contrato/{id}',"App\Http\Controllers\Admin\GerenteController@listarcontratosDetalhe")->name('gerente.contrato.detalhe');
@@ -352,10 +306,8 @@ Route::middleware('auth')->prefix("admin")->group(function(){
     Route::get('/gerente/all/ver/{id_estagio}',"App\Http\Controllers\Admin\GerenteController@showDetalhesDadosTodosAll")->name('gerente.contrato.show.detalhes.todos.visualizar');
     Route::get('/gerente/all/todos/show/{estagio}',"App\Http\Controllers\Admin\GerenteController@showTodosDetalheCard")->name('gerente.contrato.show.detalhes.todos');
     Route::post('/gerente/antecipar/parcela',"App\Http\Controllers\Admin\GerenteController@aptarPagamento")->name('gerente.aptar.pagamento');
-    
     Route::post('/gerente/folha_mes/inserir',"App\Http\Controllers\Admin\GerenteController@cadastrarFolhaMes")->name('gerente.cadastrar.folha_mes');
     Route::post('/gerente/historico/folha_mes/inserir',"App\Http\Controllers\Admin\GerenteController@cadastrarHistoricoFolhaMes")->name('gerente.historico.cadastrar.folha_mes');
-
     Route::get('/gerente/tabelas/vazias',"App\Http\Controllers\Admin\GerenteController@tabelaVazia")->name('gerente.tabelas.vazias');
     Route::get('/listar/gerente/cadastrados',"App\Http\Controllers\Admin\GerenteController@listarGerenteCadastrados")->name('listar.gerente.cadastrados');
     Route::post('/gerente/geral/folha/mes/especifica',"App\Http\Controllers\Admin\GerenteController@geralFolhaMesEspecifica")->name('geral.folha.mes.especifica');
@@ -369,6 +321,7 @@ Route::middleware('auth')->prefix("admin")->group(function(){
 
         /* Corretora **/
         Route::get('/corretora',"App\Http\Controllers\Admin\CorretoraController@index")->name('corretora.index');
+        Route::post('/corretora/mudar/valor/tabela',"App\Http\Controllers\Admin\CorretoraController@mudarValorTabela")->name('corretora.mudar.valor.tabela');
         Route::post('/corretora',"App\Http\Controllers\Admin\CorretoraController@store")->name('corretora.store');
         Route::post('/store/pdf/corretora',"App\Http\Controllers\Admin\CorretoraController@storePdf")->name('corretora.store.pdf');
         Route::post('/cadastrar/comissao/corretor/coletivo',"App\Http\Controllers\Admin\CorretoraController@cadastrarComissaoCorretorColetivo")->name('cadastrar.comissao.corretor.coletivo');
@@ -376,15 +329,30 @@ Route::middleware('auth')->prefix("admin")->group(function(){
         Route::post('/corretora/cadastrar/planos/hap',"App\Http\Controllers\Admin\CorretoraController@cadastrarPlanosHap")->name('corretora.cadastrar.planos.hap');
         Route::post('/corretora/verificar/planos/hap',"App\Http\Controllers\Admin\CorretoraController@verificarPlanosHap")->name('corretora.verificar.planos.hap');
         Route::post('/corretore/verificar/comissao/trocar/cidade',"App\Http\Controllers\Admin\CorretoraController@verificarComissaoTrocarCidade")->name('verificar.comissao.trocar.cidade');
+
         Route::post('/corretora/store/comissao',"App\Http\Controllers\Admin\CorretoraController@storeCorretora")->name("corretora.store.comissao");
 
+        Route::post('/corretora/mudar/valor/comissao/especifica','App\Http\Controllers\Admin\CorretoraController@mudarValorComissaoEspecifica')->name('mudar.valor.comissao.especifica');
+        Route::post('/corretora/remover/comissao/corretora/configuracoes','App\Http\Controllers\Admin\CorretoraController@removeComissaoCorretoraConfiguracoes')->name('remove.comissao.corretora.configuracoes');
+
+
+        Route::post('/corretora/valor/corretor/comissao',"App\Http\Controllers\Admin\CorretoraController@corretoraValorCorretorComissao")->name('corretora.valor.corretor.comissao');
+
+
         Route::post('/corretora/cadastrar/comissao/corretor',"App\Http\Controllers\Admin\CorretoraController@storeCorretor")->name('corretora.cadastrar.comissao.corretor');
+
         Route::post('/corretora/alterar/comissao/corretor',"App\Http\Controllers\Admin\CorretoraController@showAlterarCorretor")->name('show.corretor.alterar.comissao');
         Route::post('/corretora/alterar/comissao/corretora',"App\Http\Controllers\Admin\CorretoraController@alterarCorretora")->name('corretora.alterar.comissao.corretor');
         Route::post('/corretor/alterar/comissao/valores',"App\Http\Controllers\Admin\CorretoraController@alterarCorretor")->name('corretor.alterar.comissao.valores');
 
         Route::post('/corretora/lista/cidade',"App\Http\Controllers\Admin\CorretoraController@corretoraListaCidade")->name('corretora.lista.cidade');
         Route::post('/corretora/inserir/cadastro/corretor',"App\Http\Controllers\Admin\CorretoraController@cadastrarCorretorComissao")->name('corretora.cadastrar.corretor.comissao');
+
+        Route::post('/corretora/planos/administradoras',"App\Http\Controllers\Admin\CorretoraController@administradoraPlanosCadastrar")->name('administradora.planos.cadastrar');
+        Route::post('/corretora/verificar/planos/administradoras',"App\Http\Controllers\Admin\CorretoraController@administradoraPlanosVerificar")->name('administradora.planos.verificar');
+        Route::post('/corretora/select/planos/administradoras',"App\Http\Controllers\Admin\CorretoraController@planosAdministradoraSelect")->name('planos.administradora.select');
+
+
 
         Route::post('/corretora/verificar/comissao',"App\Http\Controllers\Admin\CorretoraController@corretoraVerificarComissao")->name('corretora.verificar.comissao');
         Route::post('/corretora/planos/cadastrar',"App\Http\Controllers\Admin\CorretoraController@corretoresCadastrarPlanos")->name('corretores.cadastrar.planos');
@@ -394,8 +362,13 @@ Route::middleware('auth')->prefix("admin")->group(function(){
         Route::post('/corretora/mudar/logo',"App\Http\Controllers\Admin\CorretoraController@corretoraMudarLogo")->name("corretora.mudar.logo");
         Route::post('/corretora/cidades/verificar',"App\Http\Controllers\Admin\CorretoraController@corretoraVerificarCorretoraCidades")->name('verificar.corretora.cidades');
 
-        Route::post('/corretora/criar/tabelas/cadastro/dinamicamente','App\Http\Controllers\Admin\CorretoraController@corretoraCriarTabelasCadastroDinamicamente')
-            ->name('corretora.criar.tabelas.cadastro.dinamicamente');
+        Route::post('/corretora/criar/tabelas/cadastro/dinamicamente','App\Http\Controllers\Admin\CorretoraController@corretoraCriarTabelasCadastroDinamicamente')->name('corretora.criar.tabelas.cadastro.dinamicamente');
+        Route::post('/corretora/jaexiste/criar/tabelas/cadastro/dinamicamente','App\Http\Controllers\Admin\CorretoraController@corretoraJaExisteCriarTabelasCadastroDinamicamente')->name('corretora.jaexiste.criar.tabelas.cadastro.dinamicamente');
+
+        Route::post('/corretora/pegar/cidade/corretore/planos',"App\Http\Controllers\Admin\CorretoraController@corretoraPegarCidadeCorretorePlanos")->name('pegar.cidade.corretore.plano');
+        Route::post('/corretora/planos/comissao/corretor',"App\Http\Controllers\Admin\CorretoraController@corretoraPlanosComissaoCorretor")->name('corretora.planos.comissao.corretor');
+        Route::post('/corretora/excluir/comissao/corretor',"App\Http\Controllers\Admin\CorretoraController@corretoraExcluirComissaoCorretor")->name('corretora.excluir.comissao.corretor');
+        Route::post('corretora/plus/all/planos/alterar',"App\Http\Controllers\Admin\CorretoraController@corretoraPlusAllPlanosAlterar")->name('corretora.plus.all.planos.alterar');
 
         /* Fim  Corretora **/
 
@@ -425,19 +398,40 @@ Route::middleware('auth')->prefix("admin")->group(function(){
         Route::post("/tabela","App\Http\Controllers\Admin\TabelaController@store")->name("store.tabela");
         Route::post("/tabelas/pegar/cidades/administradoras","App\Http\Controllers\Admin\TabelaController@pegarCidadeAdministradora")->name("cidades.administradoras.pegar");
         Route::post("/tabela/orcamento/alterar","App\Http\Controllers\Admin\TabelaController@edit")->name("tabela.edit.valor");
+        Route::post("/tabela/verificar/valores","App\Http\Controllers\Admin\TabelaController@verificarValoresTabela")->name("verificar.valores.tabela");
+        Route::post("/tabela/cadastrar/valores","App\Http\Controllers\Admin\TabelaController@cadastrarValoresTabela")->name("cadastrar.valores.tabela");
+
+        Route::get("/tabela/coparticipacao/{plano}/{cidade}","App\Http\Controllers\Admin\TabelaController@verCoparticipacao")->name('tabela.coparticipacao.plano.cidade');
+        Route::post("/tabela/store/coparticipacao","App\Http\Controllers\Admin\TabelaController@storeCoparticipacao")->name('tabela.store.coparticipacao');
+
         /** Fim Tabela de Preços */
 
         /****Corretor*****/
         Route::get("/corretores","App\Http\Controllers\Admin\CorretorController@index")->name('corretor.index');
         Route::get("/corretores/active_inative","App\Http\Controllers\Admin\CorretorController@activeInative")->name('corretor.active_inative');
         Route::post("/corretores","App\Http\Controllers\Admin\CorretorController@store")->name('corretores.store');
+        Route::post("/corretores/alterar","App\Http\Controllers\Admin\CorretorController@editUser")->name('corretores.alterar');
         Route::post("/corretores/mudar/active_inative","App\Http\Controllers\Admin\CorretorController@mudarActiveInative")->name('corretores.active.inative');
-        Route::get('/corretotes/editar/{id}',"App\Http\Controllers\Admin\CorretorController@editarUser")->name('corretores.editar');
+        Route::post('/corretotes/editar',"App\Http\Controllers\Admin\CorretorController@editarUser")->name('corretores.editar');
         Route::post('/corretotes/edit',"App\Http\Controllers\Admin\CorretorController@editarUserForm")->name('corretores.edit');
         Route::get('/corretores/listar/user',"App\Http\Controllers\Admin\CorretorController@listUser")->name('corretores.list');
         /****Fim Corretor*****/
 
     /*************************************************************Fim Configurações****************************************************************/
+
+    Route::get("/vendedores","App\Http\Controllers\Admin\VendedorController@index")->name("vendedores.index");
+    Route::post("/vendedores","App\Http\Controllers\Admin\VendedorController@filtrar")->name("vendedores.filtrar");
+    Route::post("/dashboard/usuario/mes","App\Http\Controllers\Admin\VendedorController@dashboardMesUsuario")->name("dashboard.mes.usuario");
+    Route::post("/dashboard/usuario/semestre","App\Http\Controllers\Admin\VendedorController@dashboardSemestreUsuario")->name("dashboard.semestre.usuario");
+    Route::post("/dashboard/usuario/ano","App\Http\Controllers\Admin\VendedorController@dashboardAnoUsuario")->name("dashboard.ano.usuario");
+    Route::post("/dashboard/tabela/usuario/ano","App\Http\Controllers\Admin\VendedorController@dashboardTabelaAnoUsuario")
+        ->name("dashboard.tabela.ano.usuario");
+    Route::post("/dashboard/vendedor/grafico/ano","App\Http\Controllers\Admin\VendedorController@dashboardVendedorGraficoAno")->name("grafico.dashboard.mudar.ano");
+
+
+    Route::get("/cobranca","App\Http\Controllers\Admin\CobrancaController@index")->name('cobranca.index');
+
+
 
 });
 

@@ -226,7 +226,7 @@
                     </div>
                    <div class="d-flex justify-content-center align-items-center" style="flex-basis:70%;">
                       <div class="d-flex flex-column text-center">
-                        <span style="font-size:1.1em;" style="background-color:rgba(0,0,0,0.9)">Individual</span>
+                        <span style="font-size:1.1em;" style="background-color:rgba(0,0,0,0.9)">{{$ambulatorial[$a]->plano}}</span>
                         <span>Ambulatorial/<span id="plano_com_sem_odonto">{{$ambulatorial[$a]->titulos}}</span></span>
                       </div>
                     </div>

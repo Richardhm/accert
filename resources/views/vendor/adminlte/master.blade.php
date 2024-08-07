@@ -107,6 +107,22 @@
     {{-- Custom Scripts --}}
     @yield('adminlte_js')
 
+    <script>
+        $(function(){
+            $(".nav-mobile-custom").on('click',function(){
+                if($("aside.bg-escuro").hasClass('ds-none')) {
+                    $("body").addClass('sidebar-mini');
+                    $("aside.bg-escuro").removeClass('ds-none').addClass('main-sidebar')
+                } else {
+                    $("body").removeClass('sidebar-mini');
+                    $("aside.bg-escuro").addClass('ds-none').removeClass('main-sidebar')
+                }
+                
+                return false;
+            });
+        });
+    </script>
+
 </body>
 
 </html>

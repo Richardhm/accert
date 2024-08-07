@@ -31,8 +31,8 @@
             <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="dataBaixaModalLabel">Data Da Baixa?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
@@ -98,18 +98,12 @@
         </div>
     </div>
 
-
-
     <input type="hidden" id="excluir_cliente" value="{{$dados->clientes->id}}">
 
     <input type="hidden" id="data_cliente" value="{{$dados->clientes->id}}">
     <input type="hidden" id="data_contrato" value="{{$dados->id}}">
 
     <input type="hidden" id="data_financeiro" value="{{$dados->financeiro_id}}">
-
-
-
-
 
     <main class="container_full_cards">
 
@@ -154,7 +148,7 @@
 
             <div style="flex-basis:30%;">
                 <span class="text-white" style="font-size:0.81em;">Codigo Externo:</span>
-                <input type="text" name="codigo_externo" id="codigo_externo_individual" value="{{$dados->codigo_externo}}" class="form-control form-control-sm" readonly>
+                <input type="text" name="codigo_externo" id="codigo_externo" value="{{$dados->codigo_externo}}" class="form-control form-control-sm" readonly>
             </div>
 
         </div>
@@ -328,6 +322,7 @@
                         <th style="font-size:0.875em;">Vencimento</th>
                         <th style="font-size:0.875em;">Valor</th>
                         <th style="font-size:0.875em;">Baixa</th>
+                        <th style="font-size:0.875em;">Pagar</th>
                         <th style="font-size:0.875em;margin-left:10px;text-align:center;" align="center">Atrasado</th>
 
                     </tr>
@@ -374,14 +369,7 @@
 
                             </td>
                             <td style="font-size:0.875em;">
-                                @if($cr->parcela == 1)
-                                    {{date('d/m/Y',strtotime($dados->data_boleto))}}
-                                @elseif($cr->parcela == 2)
-                                    {{date('d/m/Y',strtotime($dados->data_vigencia))}}    
-                                @else
-                                    {{date('d/m/Y',strtotime($cr->data))}}
-                                @endif
-                           
+                                {{date('d/m/Y',strtotime($cr->data))}}
                             </td>
                             <td style="font-size:0.875em;">
 
@@ -402,6 +390,17 @@
                                 @else
                                     <span style="margin-left:20px;">{{date('d/m/Y',strtotime($cr->data_baixa))}}</span>
                                 @endif
+
+
+                            <td>
+                                <input type="date" name="date" class="date" data-parcela="{{$cr->parcela}}">
+                            </td>
+
+
+
+
+
+
 
                             <td style="font-size:0.875em;text-align:center;">{{$cr->quantidade_dias}}</td>
 
@@ -452,22 +451,27 @@
 
                 @case(6)
                     <button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>
-	                <button class="btn btn-success w-50 pagamento_terceira_parcela next">Pagar 3º Parcela</button>
+	                <button class="btn btn-success w-50 pagamento_terceira_parcela next">Pagar 2º Parcela</button>
                 @break
 
                 @case(7)
                     <button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>
-	                <button class="btn btn-success w-50 pagamento_quarta_parcela next">Pagar 4º Parcela</button>
+	                <button class="btn btn-success w-50 pagamento_quarta_parcela next">Pagar 3º Parcela</button>
                 @break
 
                 @case(8)
                     <button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>
-	                <button class="btn btn-success w-50 pagamento_quinta_parcela next">Pagar 5º Parcela</button>
+	                <button class="btn btn-success w-50 pagamento_quinta_parcela next">Pagar 4º Parcela</button>
                 @break
 
                 @case(9)
                     <button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>
-	                <button class="btn btn-success w-50 pagamento_quinta_parcela next">Pagar 6º Parcela</button>
+	                <button class="btn btn-success w-50 pagamento_sexta_parcela next">Pagar 5º Parcela</button>
+                @break
+
+                @case(10)
+                    <button class="btn btn-danger w-50 mr-2 cancelar">Cancelar</button>
+	                <button class="btn btn-success w-50 pagamento_sexta_parcela next">Pagar 6º Parcela</button>
                 @break
 
 
@@ -480,7 +484,8 @@
         </div>
     </div>
 
-    <a class="btn btn-block btn-lg mt-3 text-white back" style="background-color:#123449;">Voltar</a>
+    <!-- <a class="btn btn-block btn-lg mt-3 text-white back" style="background-color:#123449;">Voltar</a> -->
+    <a class="btn btn-block btn-lg mt-3 text-white back" style="background-color:#123449;" href="http://localhost:8000/admin/financeiro#suaTabela">Voltar</a>
     <!-- <a href="" class="btn btn-block btn-lg mt-3 text-white" style="background-color:#123449;">Voltar</a> -->
 @stop
 
@@ -546,33 +551,49 @@
 
 
            $("body").on('click','.next',function(){
+
+                let datas = $(".date");
+
+                datas.each(function(k,v){
+                   console.log(v);
+                });
+
+
+
+
+                // $("#date").val().each(function(k,v){
+                //
+                //     console.log(v);
+                //
+                // });
+
+
+
                 //if($("#data_cliente").val() && $("#data_contrato").val()) {
-                    let id_cliente = $("#data_cliente").val();
-                    let id_contrato = $("#data_contrato").val();
-
-                    let financeiro = $("#data_financeiro").val();
-
-                    if(financeiro == 1 || financeiro == 2) {
-                        Swal.fire({
-                        title: 'Você tem certeza que deseja realizar essa operação?',
-                        showDenyButton: true,
-                        confirmButtonText: 'Sim',
-                        denyButtonText: `Cancelar`,
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                $.ajax({
-                                    url:"{{route('financeiro.mudarStatusColetivo')}}",
-                                    data:"id_cliente="+id_cliente+"&id_contrato="+id_contrato,
-                                    method:"POST",
-                                    success:function(res) {
-                                        window.location.href = "/admin/financeiro?ac=coletivo";
-                                    }
-                                })
-                            }
-                        })
-                    } else {
-                        $('#dataBaixaModal').modal('show');
-                    }
+                {{--    let id_cliente = $("#data_cliente").val();--}}
+                {{--    let id_contrato = $("#data_contrato").val();--}}
+                {{--    let financeiro = $("#data_financeiro").val();--}}
+                {{--    if(financeiro == 1 || financeiro == 2) {--}}
+                {{--        Swal.fire({--}}
+                {{--            title: 'Você tem certeza que deseja realizar essa operação?',--}}
+                {{--            showDenyButton: true,--}}
+                {{--            confirmButtonText: 'Sim',--}}
+                {{--            denyButtonText: `Cancelar`,--}}
+                {{--        }).then((result) => {--}}
+                {{--            if (result.isConfirmed) {--}}
+                {{--                $.ajax({--}}
+                {{--                    url:"{{route('financeiro.mudarStatusColetivo')}}",--}}
+                {{--                    data:"id_cliente="+id_cliente+"&id_contrato="+id_contrato,--}}
+                {{--                    method:"POST",--}}
+                {{--                    success:function(res) {--}}
+                {{--                        window.location.href = "/admin/financeiro?ac=coletivo";--}}
+                {{--                    }--}}
+                {{--                })--}}
+                {{--            }--}}
+                {{--        })--}}
+                {{--    } else {--}}
+                {{--        $('#dataBaixaModal').modal('show');--}}
+                {{--    }--}}
 
 
                     // $.ajax({
@@ -631,6 +652,9 @@
 
 
             $("form[name='data_da_baixa']").on('submit',function(){
+
+                let cliente = $("#cliente").val().trim().toLowerCase().replace(/\s+/g, '+');
+
                 let id_cliente = $("#data_cliente").val();
                 let id_contrato = $("#data_contrato").val();
                 $.ajax({
@@ -652,7 +676,7 @@
                     },
                     success:function(res) {
 
-                        window.location.href = "/admin/financeiro?ac=coletivo";
+                        window.location.href = "/admin/financeiro?ac=coletivo&"+cliente;
                         // $(".coletivo_quantidade_em_analise").html(res.qtd_coletivo_em_analise);
                         // $(".coletivo_quantidade_emissao_boleto").html(res.qtd_coletivo_emissao_boleto);
                         // $(".coletivo_quantidade_pagamento_adesao").html(res.qtd_coletivo_pg_adesao);
@@ -696,8 +720,11 @@
                 $("#bairro").removeAttr('readonly').addClass('editar_campo');
                 $("#rua").removeAttr('readonly').addClass('editar_campo');
                 $("#complemento").removeAttr('readonly').addClass('editar_campo');
-                 $("#desconto_corretora").removeAttr('readonly').addClass('editar_campo');
+                $("#desconto_corretora").removeAttr('readonly').addClass('editar_campo');
                 $("#desconto_corretor").removeAttr('readonly').addClass('editar_campo');
+
+                $("#codigo_externo").removeAttr('readonly').addClass('editar_campo');
+
             }
 
 
@@ -718,6 +745,7 @@
                 $("#complemento").attr('readonly',true).removeClass('editar_campo')
                 $("#desconto_corretora").attr('readonly',true).removeClass('editar_campo')
                 $("#desconto_corretor").attr('readonly',true).removeClass('editar_campo')
+                $("#codigo_externo").attr('readonly',true).removeClass('editar_campo');
 
             }
 
@@ -730,9 +758,10 @@
                     url:"{{route('financeiro.editar.campoIndividualmente')}}",
                     method:"POST",
                     data:"alvo="+alvo+"&valor="+valor+"&id_cliente="+id_cliente,
-                    // success:function(res) {
-                    //     table.ajax.reload();
-                    // }
+                    success:function(res) {
+                        console.log(res);
+                        //table.ajax.reload();
+                    }
                 });
             });
 

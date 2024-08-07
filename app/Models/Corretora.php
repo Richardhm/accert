@@ -32,5 +32,9 @@ class Corretora extends Model
             "cor"
         ];
 
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'permissao_corretora');
+    }
 
 }

@@ -15,10 +15,10 @@
             <div style="width:90%;position:relative;left:0;float:left;">
                 <p>COMPOSIÇÃO SALARIAL</p>
                 <p>Vendedor: {{$user}}</p>
-                <p>Referência: {{$meses}} / 2023</p>
+                <p>Referência: {{$meses}} / 2024</p>
             </div>
 
-            @if($logo && $logo != '') 
+            @if($logo && $logo != '')
 
                 <div style="width:10%;position:relative;right:0;top:0;margin-bottom:5px;float:right;background-color:#A9A9A9;padding:2px;border-radius:5px;">
                     <img src="{{$logo}}" alt="Logo" id="Logo" style="width:100%;height:100%;" />
@@ -103,7 +103,7 @@
             $i_estorno = 0;
         @endphp
 
-        @if(count($individual) >= 1)
+        @if(count($individual) >= 1 && $boolean_individual)
 
 
 
@@ -121,8 +121,10 @@
                     <td>Cliente</td>
                     <td>Parcela</td>
                     <td align="center">Valor</td>
+                    @if($tipo == "corretora")
                     <td align="center">Desconto</td>
                     <td align="right">Comissão</td>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -141,21 +143,20 @@
                         <td style="width:8%;">{{date('d/m/Y',strtotime($dd->created_at))}}</td>
                         <td style="font-size:0.6em;width:35%;">{{mb_convert_case($dd->cliente,MB_CASE_UPPER,"UTF-8")}}</td>
                         <td style="width:7%;">Parcela {{$dd->parcela}}</td>
-                        <td style="width:7%;" align="center">{{number_format($dd->valor_plano_contratado,2,",",".")}}</td>
+                        <td style="width:15%;" align="center">{{number_format($dd->valor_plano_contratado,2,",",".")}}</td>
+                        @if($tipo == "corretora")
                         <td style="width:8%;" align="center">{{$dd->desconto}}</td>
                         <td style="width:5%;" align="right">{{$dd->comissao != null ? number_format($dd->comissao,2,",",".") : 0}}</td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>
 
             <tfoot style="border-top:1px solid black;">
                 <tr>
-                    <td colspan="6"></td>
-                    <td align="center">
-                        @php
-                            echo number_format($total_valor_individual,2,",",".");
-                        @endphp
-                    </td>
+                    <td colspan="7"></td>
+
+                    @if($tipo == "corretora")
                     <td align="center">
                         @php
                             echo number_format($total_desconto_individual,2,",",".");
@@ -167,11 +168,12 @@
                            echo number_format($total_comissao_individual,2,",",".");
                         @endphp
                     </td>
+                    @endif
                 </tr>
             </tfoot>
         </table>
         @endif
-        @if(count($coletivo) >= 1)
+        @if(count($coletivo) >= 1 && $boolean_coletivo)
             @php
                 $contrato_coletivo = $coletivo[0]->codigo_externo;
                 $contrato_coletivo_total = 0;
@@ -190,8 +192,10 @@
                     <td>Cliente</td>
                     <td>Parcela</td>
                     <td align="center">Valor</td>
+                    @if($tipo == "corretora")
                     <td align="center">Desconto</td>
                     <td align="right">Comissão</td>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -221,12 +225,8 @@
                         <td style="width:8%;">{{date('d/m/Y',strtotime($d->created_at))}}</td>
                         <td style="font-size:0.6em;width:35%;">{{mb_convert_case($d->cliente,MB_CASE_UPPER,"UTF-8")}}</td>
                         <td style="width:7%;">Parcela {{$d->parcela}}</td>
-                        <td style="width:7%;" align="center">
-                            @php
-                                $contrato_coletivo_plano += $d->valor_plano_contratado;
-                                echo number_format($d->valor_plano_contratado,2,",",".");
-                            @endphp
-                        </td>
+                        <td style="width:15%;" align="center">{{number_format($d->valor_plano_contratado,2,",",".")}}</td>
+                        @if($tipo == "corretora")
                         <td style="width:8%;" align="center">
                             @php
                                 $contrato_coletivo_total += $d->desconto;
@@ -234,29 +234,30 @@
                             @endphp
                         </td>
                         <td style="width:5%;" align="right">{{number_format($d->comissao_esperada,2,",",".")}}</td>
+                        @endif
                     </tr>
                     @php $status=0;@endphp
                 @endforeach
             </tbody>
             <tfoot style="border-top:1px solid black;">
                 <tr>
-                    <td colspan="6"></td>
-                    <td align="center">
-                        @php echo number_format($contrato_coletivo_plano,2,",",".");@endphp
-                    </td>
+                    <td colspan="7"></td>
+
+                    @if($tipo == "corretora")
                     <td align="center">
                         @php echo number_format($contrato_coletivo_total,2,",",".");@endphp
                     </td>
                     <td align="right">
                         @php echo number_format($total_comissao_coletivo,2,",",".") ?? '';@endphp
                     </td>
+                    @endif
                 </tr>
             </tfoot>
         </table>
 
         @endif
 
-        @if(count($empresarial) >= 1)
+        @if(count($empresarial) >= 1 && $boolean_empresarial)
         <div style="width:95%;border-bottom:1px solid black;margin:0 auto;background-color:rgb(231,230,230);font-weight:bold;padding:5px 0;">Empresarial</div>
         <table style="width:95%;margin:0 auto;">
             <thead style="border-bottom:1px solid black;">
@@ -268,8 +269,10 @@
                     <td>Cliente</td>
                     <td align="center">Parcela</td>
                     <td >Valor</td>
+                    @if($tipo == "corretora")
                     <td>Desconto</td>
                     <td align="center">Comissão</td>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -289,21 +292,19 @@
                         <td style="width:30%;">{{mb_convert_case($e->cliente,MB_CASE_UPPER,"UTF-8")}}</td>
                         <td style="width:8%;"  align="center">Parcela {{$e->parcela}}</td>
                         <td style="width:8%;">{{$e->valor_plano_contratado}}</td>
+                        @if($tipo == "corretora")
                         <td style="width:8%;">{{number_format($e->desconto,2,",",".")}}</td>
                         <td style="width:8%;" align="center">{{number_format($e->comissao,2,",",".")}}</td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>
             <tfoot style="border-top:1px solid black;">
                 <tr>
-                    <td colspan="6"></td>
+                    <td colspan="7"></td>
 
-                    <td>
-                        @php
-                                echo number_format($total_plano_empresarial,2,",",".") ?? '';
-                        @endphp
-                    </td>
 
+                    @if($tipo == "corretora")
                     <td>
                         @php
                             echo number_format($total_desconto_empresarial,2,",",".") ?? '';
@@ -315,14 +316,14 @@
                             echo number_format($total_comissao_empresarial,2,",",".") ?? '';
                         @endphp
                     </td>
-
+                    @endif
 
                 </tr>
             </tfoot>
         </table>
         @endif
 
-        @if($estorno_table)
+        @if($estorno_table && $estorno != 0)
             <div style="width:95%;border-bottom:1px solid black;margin:0 auto;background-color:rgb(231,230,230);font-weight:bold;padding:5px 0;">Estorno</div>
             <table style="width:95%;margin:0 auto;">
                 <thead style="border-bottom:1px solid black;">

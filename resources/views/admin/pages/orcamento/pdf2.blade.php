@@ -89,38 +89,7 @@ time, mark, audio, video {
       $link = "";
     @endphp
 
-    @switch($administradoras)
 
-      @case(1)
-        @php
-          $link = "https://www.allcare.com.br/segunda-via-boleto";
-        @endphp
-      @break
-
-      @case(2)
-        @php
-          $link = "https://agsi.alteronline.com.br:8443/portal/public/login.jsf";
-        @endphp
-      @break
-
-      @case(3)
-        @php
-          $link = "https://sinf.accessadm.net/sinfsp/QBoleto002/quali_boleto.aspx";
-        @endphp
-      @break
-
-      @case(4)
-        @php
-          $link = "https://www.hapvida.com.br/site/boletos";
-        @endphp
-      @break
-
-      @default
-        @php
-          $link = "https://www.hapvida.com.br/site/boletos";
-        @endphp
-
-    @endswitch
 
     <!-----HEADER------>
     <div class="header" style="height:231px;">
@@ -268,6 +237,39 @@ time, mark, audio, video {
                       <td style="{{$quantidade % 2 == 0 ? 'text-align:center;background-color:white;color:rgb(255,89,33);font-weight:bold;' : 'text-align:center;background: rgb(185,185,185);color:rgb(255,89,33);font-weight:bold;'}}">{{isset($total_apartamento_sem_coparticipacao) ? number_format($total_apartamento_sem_coparticipacao,2,",",".") : 0}}</td>
                       <td style="{{$quantidade % 2 == 0 ? 'text-align:center;background-color:white;color:rgb(255,89,33);font-weight:bold;' : 'text-align:center;background: rgb(185,185,185);color:rgb(255,89,33);font-weight:bold;'}}">{{isset($total_enfermaria_sem_coparticipacao) ? number_format($total_enfermaria_sem_coparticipacao,2,",",".") : 0}}</td>
                     </tr>
+                    @if($plano == "Individual" || $plano == "Super Simples")
+                        <tr>
+                            <td style="background-color:rgb(255,89,33);color:#FFF;font-weight:bold;">Desc. 15% / 3 meses</td>
+                            <td style="background-color:rgb(255,89,33);color:#FFF;text-align:center;font-weight:bold;">
+                                @php
+                                    $desconto_total_apartamento_coparticipacao = $total_apartamento_coparticipacao * 0.85;
+
+                                @endphp
+                                {{number_format($desconto_total_apartamento_coparticipacao,2,",",".")}}
+                            </td>
+                            <td style="background-color:rgb(255,89,33);color:#FFF;text-align:center;font-weight:bold;">
+                                @php
+                                    $desconto_total_enfermaria_coparticipacao = $total_enfermaria_coparticipacao * 0.85;
+                                @endphp
+                                {{number_format($desconto_total_enfermaria_coparticipacao,2,",",".")}}
+                            </td>
+                            <td style="background-color:rgb(255,89,33);color:#FFF;text-align:center;font-weight:bold;">
+                                @php
+                                    $desconto_total_apartamento_sem_coparticipacao = $total_apartamento_sem_coparticipacao * 0.85;
+                                @endphp
+                                {{number_format($desconto_total_apartamento_sem_coparticipacao,2,",",".")}}
+                            </td>
+                            <td style="background-color:rgb(255,89,33);color:#FFF;text-align:center;font-weight:bold;">
+                                @php
+                                    $desconto_total_enfermaria_sem_coparticipacao = $total_enfermaria_sem_coparticipacao * 0.85;
+                                @endphp
+                                {{number_format($desconto_total_enfermaria_sem_coparticipacao,2,",",".")}}
+                            </td>
+                        </tr>
+                    @endif
+
+
+
                   </tfoot>
                   </table>
             </div>
@@ -322,8 +324,6 @@ time, mark, audio, video {
 
     <!--Coluna 01-->
     <div style="width:52%;float:left;">
-
-
 
         <div style="height:50px;">
           <p style="border:2px solid rgb(251,183,25);color:rgb(251,183,25);border-radius:50%;width:45px;margin-left:10px;float:left;height:45px;text-align:center;position:absolute;">
@@ -551,7 +551,7 @@ time, mark, audio, video {
           <span><span style="margin-bottom:10x;font-size:1.2em;color:#FFF">accertplanosdesaude</span></span>
         </p>
         <p>
-          <span><img src="{{$icone_zap_footer}}" /></span>
+          <span><img src="{{$icone_zap_footer}}"  /></span>
           <span><span style="margin-bottom:10x;font-size:1.2em;color:#FFF">https://www.accertsaude.com.br</span></span>
         </p>
     </div>
@@ -567,8 +567,6 @@ time, mark, audio, video {
             {{$telefone}}
           </div>
         </p>
-
-
 
     </div>
     <div style="width:33%;display:inline-block;">

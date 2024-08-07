@@ -1,21 +1,20 @@
-@extends('adminlte::page')
-@section('title', 'Editar')
-@section('content')
-
-    <div class="row">
-
-        <div class="col-12">
-
+<div class="d-flex" style="flex-direction:column;flex-basis:100%;">
+    <!--Linha 01-->
+    <div>
+        <div>
             <div class="card card-widget widget-user shadow">
 
-                <div class="widget-user-header bg-navy">
-                    <h3 class="widget-user-username">{{$user->name}}</h3>
-                    <h5 class="widget-user-desc">{{ucfirst($user->cargo->nome)}}</h5>
+                <div class="widget-user-header" style="background-color:#123449;">
+                    <h3 class="widget-user-username text-white">{{$user->name}}</h3>
+                    <h5 class="widget-user-desc text-white">{{ucfirst($user->cargo->nome)}}</h5>
                 </div>
 
-                <div class="widget-user-image">
-                    <img class="img-circle elevation-2 imagem-logo" src="{{asset("storage/".$user->image)}}" alt="User Avatar">
-                </div>
+                
+                @if(file_exists("storage/".$user->image))
+                    <div class="widget-user-image" style="max-width:90px;max-height:90px;height:90px;width:90px;">
+                        <img id="userImage" class="img-circle elevation-2 imagem-logo" style="width:100%;height:100%;" src="{{asset("storage/".$user->image)}}" alt="User Avatar">
+                    </div>   
+                @endif
 
                 <div class="card-footer">
                     <div class="row">
@@ -29,7 +28,7 @@
 
                         <div class="col-sm-4 border-right">
                             <div class="description-block">
-                                <h5 class="description-header">{{$posicao_qtd_vidas->posicao}}</h5>
+                                <h5 class="description-header">{{$posicao}}</h5>
                                 <span class="description-text">Posição</span>
                             </div>
 
@@ -37,7 +36,7 @@
 
                         <div class="col-sm-4">
                             <div class="description-block">
-                                <h5 class="description-header">{{$posicao_qtd_vidas->quantidade_vidas}}</h5>
+                                <h5 class="description-header">{{$quantidade_vidas}}</h5>
                                 <span class="description-text">Vidas</span>
                             </div>
 
@@ -48,74 +47,61 @@
                 </div>
             </div>
         </div>
-
     </div>
+    <!--FIM Linha 01-->
 
 
-    <div class="row">
 
+    <!--Linha 02-->
+
+    <div class="d-flex" style="justify-content: space-between;">
 
         @foreach($administradoras as $dd)
+            
+                <div style="background-color:white;border-radius:5px;">
 
-            <div class="col-md-3 col-sm-6 col-12">
-                <div class="info-box">
+                    <img src="{{asset($dd->logo)}}" class="card-img-top" alt="{{ $dd->admin }}" style="width: 40%;max-height:60px;">
 
-                    <img src="{{asset($dd->logo)}}" class="card-img-top" alt="{{ $dd->admin }}" style="width: 60%;max-width:60%;max-height:60px;">
-
-                    <div class="info-box-content">
+                    <div>
                         <span class="info-box-text">Total</span>
                         <span class="info-box-number" style="font-size:0.7em;">{{number_format($dd->total,2,",",".")}}</span>
                     </div>
 
-                    <div class="info-box-content">
+                    <div>
                         <span class="info-box-text">Vidas</span>
                         <span class="info-box-number text-center" style="font-size:0.7em;">{{$dd->quantidade_vidas}}</span>
                     </div>
                 </div>
-            </div>
-
+            
         @endforeach
-
-
-
-
-
-
-
-
     </div>
 
+    <!--FIM Linha 02-->
 
 
-
-
-
-
-    <div class="row">
-        <div class="col-12">
-            <form action="" method="post" name="editar_colaborador" class="border border-white rounded p-1 bg-navy disabled">
-
-
-
+    <!--Linha 03-->
+    <div class="mt-2">
+        
+            <form action="" method="post" name="editar_colaborador" class="border border-white rounded p-1 disabled" style="background-color:#123449;color:#FFF;">
 
                 @csrf
                 <div class="form-row">
                     <div class="col-md-6 mb-3">
                         <label for="name">Nome*</label>
-                        <input type="text" class="form-control" id="name" name="name" placeholder="Nome" value="{{$user->name}}">
+                        <input type="text" class="form-control" id="name_editar" name="name_editar" placeholder="Nome" value="{{$user->name}}">
 
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label for="cpf">CPF:</label>
-                        <input type="text" class="form-control" id="cpf" name="cpf" placeholder="CPF" value="{{$user->cpf}}">
+                        <input type="text" class="form-control" id="cpf_editar" name="cpf_editar" placeholder="CPF" value="{{$user->cpf}}">
 
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="image">Foto:</label>
-                    <input type="file" class="form-control" id="image" name="image">
+                    <input type="file" class="form-control" id="image_editar" name="image_editar">
 
                 </div>
 
@@ -123,22 +109,22 @@
                 <div class="form-row">
                     <div class="col-md-5 mb-3">
                         <label for="endereco">Endereco:</label>
-                        <input type="text" class="form-control" id="endereco" name="endereco" placeholder="Endereco" value="{{old('endereco')}}">
+                        <input type="text" class="form-control" id="endereco_editar" name="endereco_editar" placeholder="Endereco" value="{{old('endereco')}}">
 
                     </div>
                     <div class="col-md-1 mb-3">
                         <label for="numero">Numero:</label>
-                        <input type="text" class="form-control" id="numero" name="numero" placeholder="Nº" value="{{$user->numero}}">
+                        <input type="text" class="form-control" id="numero_editar" name="numero_editar" placeholder="Nº" value="{{$user->numero}}">
 
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="cidade">Cidade:</label>
-                        <input type="text" class="form-control" id="cidade" name="cidade" placeholder="Cidade" value="{{$user->cidade}}">
+                        <input type="text" class="form-control" id="cidade_editar" name="cidade_editar" placeholder="Cidade" value="{{$user->cidade}}">
 
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="estado" class="control-label">Estado:</label>
-                        <select id="estado" name="estado" class="form-control select2-single">
+                        <select id="estado_editar" name="estado_editar" class="form-control select2-single">
                             <option value="">Escolha o estado</option>
                             <option value="AC" {{$user->estado == "AC" ? 'selected' : ''}}>Acre</option>
                             <option value="AL" {{$user->estado == "AL" ? 'selected' : ''}}>Alagoas</option>
@@ -181,18 +167,18 @@
 
                     <div class="col-md-4 mb-3">
                         <label for="celular">Celular:</label>
-                        <input type="text" class="form-control" id="celular" name="celular" placeholder="(XX) X XXXXX-XXXX" value="{{$user->celular}}">
+                        <input type="text" class="form-control" id="celular_editar" name="celular_editar" placeholder="(XX) X XXXXX-XXXX" value="{{$user->celular}}">
 
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <label for="password">Senha:*</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Senha" value="">
+                        <input type="password" class="form-control" id="password_editar" name="password_editar" placeholder="Senha" value="">
 
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="email">Email:*</label>
-                        <input type="text" class="form-control" id="email" name="email" placeholder="Email" value="{{$user->email}}">
+                        <input type="text" class="form-control" id="email_editar" name="email_editar" placeholder="Email" value="{{$user->email}}">
 
                     </div>
 
@@ -202,137 +188,124 @@
 
 
 
-                <div class="form-row">
-                    <div class="col-8">
+
+                <div class="d-flex justify-content-between">
+                    <div class="w-25">
                         <label for="cargo">Cargo</label>
                         <div class="d-flex">
+                            <select name="cargo_editar" id="cargo_editar" class="form-control">
                             @foreach($cargos as $c)
-                                <label for="cargo_{{$c->nome}}" class="mr-3">
-                                    <input type="radio" id="cargo_{{$c->nome}}" name="cargo" value="{{$c->id}}" {{$c->id == $user->cargo_id ? 'checked' : ''}}  >{{$c->nome}}
-                                </label>
+                                <option id="cargo_{{$c->nome}}" name="cargo_{{$c->nome}}" value="{{$c->id}}" {{$user->cargo_id == $c->id ? 'selected' : ''}}>{{$c->nome}}</option>
                             @endforeach
+                            </select>
                         </div>
                     </div>
-                    <div class="col-4">
+
+                    <div class="w-25">
+
+                         <label for="tipo">Tipo</label>
+                        <div class="d-flex">
+                            <select name="tipo_editar" id="tipo_editar" class="form-control">
+                                <option value="">--Escolher--</option>
+                                <option id="tipo_clt" name="tipo_clt" value="1" {{$user->tipo == 1 ? 'selected' : ''}}>CLT</option>
+                                <option id="tipo_parceiro" name="tipo_parceiro" value="2" {{$user->tipo == 2 ? 'selected' : ''}}>Parceiro</option>
+                            
+                            </select>
+                        </div>
+
+
+
+                    </div>
+
+                    <div class="w-25">
                         <label for="">Ativado/Desativado</label>
-                        <select name="ativo_desativo" id="ativo_desativo" class="form-control">
+                        <select name="ativo_desativo_editar" id="ativo_desativo_editar" class="form-control">
                             <option value="">--Escolher--</option>
                             <option value="1" {{$user->ativo == 1 ? 'selected' : ''}}>Ativado</option>
                             <option value="0" {{$user->ativo == 0 ? 'selected' : ''}}>Desativado</option>
                         </select>
                     </div>
 
+
+
+
+
+
                 </div>
-                <button class="btn btn-primary btn-block mt-2 btn_primary">Editar</button>
+
+                <div class="border-top mt-2">
+                    <h4>Importante: Vincular Codigo Corretor com Cidade clicar no botão ao lado <i id="adicionarCampo" class="fas fa-plus"></i></h4>
+                    <div id="camposDinamicos">
+                        @if($comissao != null)
+                            @foreach($comissao as $cc)
+                                <div div class='row'>
+                                    <div class='col-2'>
+                                        <input type="text" name="codigo_vendedor[]" value="{{ $cc->codigo_vendedor }}" class="form-control">
+                                    </div>
+                                    <div class='col-2'>
+                                        <select name="codigo_cidade[]" class="form-control">
+                                            <option value="">Selecione uma cidade</option>
+                                            @foreach ($cidades as $cidadeOrigem)
+                                                <option value="{{ $cidadeOrigem->id }}" {{ $cidadeOrigem->id == $cc->tabela_origens_id ? 'selected' : '' }} data-codigo="{{ $cidadeOrigem->codigo_cidade }}">{{ $cidadeOrigem->nome }} - {{ $cidadeOrigem->codigo_cidade }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <button type="button" class="removerCampo">Remover</button>
+                                </div>
+
+                            @endforeach
+                        @endif
+                    </div>
+                    
+                </div>
+
+                <button class="btn btn-primary btn-block mt-2 btn_primary editar_user">Editar</button>
                 <input type="hidden" id="id" name="id" value="{{$user->id}}">
             </form>
-
-        </div>
-
-
-
-
-
-
-
-
-
     </div>
+    <!--FIM Linha 03-->
+</div>
 
-
-
-
-
-
-
-
-
-
-
-
-@stop
-
-@section('css')
-    <style>
-        .medal {
-            width: 100px; /* Largura da medalha */
-            height: 100px; /* Altura da medalha */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px; /* Tamanho da fonte do número */
-            font-weight: bold; /* Pode ajustar o peso da fonte conforme necessário */
-            border-radius: 50%; /* Bordas arredondadas para um visual de medalha */
-            position: relative; /* Para posicionar a estrela */
-        }
-
-        .position {
-            z-index: 1; /* Coloca o número acima da medalha */
-        }
-
-        .gold {
-            background-color: #FFD700; /* Cor da medalha de Ouro */
-            color: #000; /* Cor do número */
-        }
-
-        .silver {
-            background-color: #C0C0C0; /* Cor da medalha de Prata */
-            color: #000; /* Cor do número */
-        }
-
-        .bronze {
-            background-color: #CD7F32; /* Cor da medalha de Bronze */
-            color: #FFF; /* Cor do número */
-        }
-    </style>
-@stop
-
-@section('js')
-    <script>
-        $(function(){
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            let image = ""
-            $("#image").on('change',function(e){
-                image = e.target.files;
-            });
-
-           $(".btn_primary").on('click',function(){
-               var fd = new FormData();
-               fd.append('file',image[0]);
-               fd.append('nome',$('#name').val());
-               fd.append('id',$('#id').val());
-               fd.append('endereco',$('#endereco').val());
-               fd.append('numero',$('#numero').val());
-               fd.append('cidade',$('#cidade').val());
-               fd.append('estado',$('#estado').val());
-               fd.append('celular',$('#celular').val());
-               fd.append('password',$('#password').val());
-               fd.append('email',$('#email').val());
-               fd.append('cargo',$('input[name="cargo"]:checked').attr('checked',true).val());
-               fd.append('cpf',$("#cpf").val());
-               fd.append('status',$("#ativo_desativo").val());
-               $.ajax({
-                   url:"{{route('corretores.edit')}}",
-                   method:"POST",
-                   data:fd,
-                   contentType: false,
-                   processData: false,
-                   success:function(res){
-
-                       $(".imagem-logo").attr("src","/storage/"+res.image);
-
-                   }
-               });
-
-
-
-                return false;
-           });
+<script>
+    $(document).ready(function() {
+        let cidades = @json($cidades);
+        
+        $("#adicionarCampo").click(function() {
+            let novoCampo = `
+                <div class='row'>
+                    <div class='col-2'>
+                        <input type="text" name="codigo_vendedor[]" class="form-control">
+                    </div> 
+                    <div class='col-2'>
+                        <select name="codigo_cidade[]" class="form-control">
+                            <option value="">Selecione uma cidade</option>
+                            ${cidades.map(cidade => `<option value="${cidade.id}" data-codigo="${cidade.codigo_cidade}">${cidade.nome} - ${cidade.codigo_cidade}</option>`).join('')}
+                        </select>
+                        
+                    </div>
+                    <i class="fas fa-times removerCampo"></i>
+                </div>
+            `;
+            $("#camposDinamicos").append(novoCampo);
         });
-    </script>
-@stop
+
+        $("#camposDinamicos").on("click", ".removerCampo", function() {
+            $(this).parent().remove();
+        });
+
+
+
+
+    });    
+</script>    
+
+
+    
+
+
+
+
+
+
+
+    

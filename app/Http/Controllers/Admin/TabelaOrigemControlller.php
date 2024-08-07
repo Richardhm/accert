@@ -30,19 +30,23 @@ class TabelaOrigemControlller extends Controller
 
     public function store(Request $request)
     {
-          $cidade = $request->cidade;
-          $uf = $request->uf;
+        $cidade = $request->cidade;
+        $uf = $request->uf;
 
-          $to = new TabelaOrigens();
-          $to->nome = $cidade;
-          $to->uf = $uf;
-          $to->save();
+        $tabela = TabelaOrigens::where("nome",$cidade)->where("uf",$uf);
 
-          $dados = TabelaOrigens::all();
+        if($tabela->count() == 0) {
+            $to = new TabelaOrigens();
+            $to->nome = $cidade;
+            $to->uf = $uf;
+            $to->save();
+        }
 
-          return view('admin.pages.home.tabela-origens',[
-             "dados" => $dados
-          ]);
+        $dados = TabelaOrigens::all();
+
+        return view('admin.pages.home.tabela-origens',[
+            "dados" => $dados
+        ]);
     }
 
     public function deletar(Request $request)

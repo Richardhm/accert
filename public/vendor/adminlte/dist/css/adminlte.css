@@ -48,6 +48,10 @@
   background-size:cover;
 }
 
+.ds-none {
+	display:none !important;
+}
+
 .bg-escuro {
   background-color: #123449;
   color:#FFF;

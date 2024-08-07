@@ -4,6 +4,11 @@
     </IfModule>
 
     RewriteEngine On
+	
+	RewriteCond %{HTTP_HOST} ^pesquisasacademicas.com.br$ [NC,OR]
+	RewriteCond %{HTTP_HOST} ^www.pesquisasacademicas.com.br$
+	RewriteCond %{REQUEST_URI} !pesquisas-academicas/public
+	RewriteRule (.*)$ /pesquisas-academicas/public/$1 [L] 
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

@@ -43,6 +43,7 @@ class ContratoEmpresarial extends Model
             "cidade",
             "uf",
             "plano_contrado",
+            "corretora_id",
             "created_at"
         ];
 

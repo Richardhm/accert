@@ -42,6 +42,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function clientes()
+    {
+        return $this->hasMany(Cliente::class, 'user_id');
+    }
+
     public function cargo()
     {
         return $this->belongsTo(Cargo::class);

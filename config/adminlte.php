@@ -110,7 +110,7 @@ return [
     */
 
     'preloader' => [
-        'enabled' => true,
+        'enabled' => false,
         'img' => [
             'path' => 'vendor/adminlte/dist/img/connectlife.png',
             'alt' => 'Accert',
@@ -190,13 +190,13 @@ return [
     |
     */
 
-    'classes_body' => 'sidebar-mini bg-fundo',
+    'classes_body' => 'bg-fundo',
     'classes_brand' => 'bg-logo',
     'classes_brand_text' => '',
     'classes_content_wrapper' => 'bg-fundo',
     'classes_content_header' => '',
     'classes_content' => '',
-    'classes_sidebar' => 'bg-escuro elevation-4',
+    'classes_sidebar' => 'ds-none bg-escuro elevation-4',
     'classes_sidebar_nav' => 'nav-child-indent',
     'classes_topnav' => 'bg-escuro',
     'classes_topnav_nav' => 'navbar-expand',
@@ -303,12 +303,43 @@ return [
             'classes'  => 'text-white financeiro_adminlte',
         ],
         [
-            'text'        => 'Orçamento',
+            'text'    => 'Vendedores',
+            'icon'    => 'fas fa-users',
+            'url'    => '/admin/vendedores',
+            'icon_color' => 'white',
+            'classes'  => 'text-white financeiro_adminlte',
+        ],
+        [
+            "text" => "Estrela",
+            "url" => "admin/estrela",
+            "icon" => "fas fa-star",
+            "icon_color" => 'white',
+            "classes" => "text-white financeiro_adminlte",
+            'can' => 'comissao'
+        ],
+        [
+            "text" => "Cobranca",
+            "url" => "admin/cobranca",
+            "icon" => "fas fa-money-bill",
+            "icon_color" => 'white',
+            "classes" => "text-white financeiro_adminlte",
+            'can' => 'financeiro'
+        ],
+        [
+            'text'        => 'Orçamento - Accert',
             'url'         => 'admin/orcamento',
             'icon'        => 'fas fa-money-bill',
             'icon_color' => 'white',
             'classes'  => 'text-white',
-            'can'       => ''
+            'can'       => 'orcamento_accert'
+        ],
+        [
+            'text'        => 'Orçamento - Innove',
+            'url'         => 'admin/orcamento',
+            'icon'        => 'fas fa-money-bill',
+            'icon_color' => 'white',
+            'classes'  => 'text-white',
+            'can'       => 'orcamento_innove'
         ],
 
         [
@@ -330,13 +361,27 @@ return [
         ],
 
         [
-            "text" => "Financeiro",
+            "text" => "Financeiro - Accert",
             "url" => "admin/financeiro",
             "icon" => "fas fa-coins",
             'icon_color' => 'white',
             'classes' => 'text-white financeiro_adminlte',
-            'can'       => 'financeiro'
+            'can'       => 'financeiro_accert'
         ],
+
+        [
+            "text" => "Financeiro - Innove",
+            "url" => "admin/financeiro",
+            "icon" => "fas fa-coins",
+            'icon_color' => 'white',
+            'classes' => 'text-white financeiro_adminlte',
+            'can'       => 'financeiro_innove'
+        ],
+
+
+
+
+
 
         [
             "text" => "Gerente",
@@ -347,14 +392,16 @@ return [
             'can' => 'comissao'
         ],
 
-        // [
-        //     'text' => 'Tabela de Preços',
-        //     'url'  => 'admin/tabela',
-        //     'icon' => 'fas fa-money-bill',
-        //     'classes' => 'text-white financeiro_adminlte',
-        //     'can' => 'financeiro',
-        //     'active' => ['tabela',"http://localhost:8000/admin/tabela/*"]
-        // ],
+
+
+        [
+            'text' => 'Tabela de Preços',
+            'url'  => 'admin/tabela',
+            'icon' => 'fas fa-money-bill',
+            'classes' => 'text-white financeiro_adminlte',
+            'can' => 'tabela_preco',
+            'active' => ['tabela',"http://localhost:8000/admin/tabela/*"]
+        ],
 
         // [
         //     'text' => 'Corretores',
@@ -518,6 +565,7 @@ return [
         'Datatables' => [
             'active' => false,
             'files' => [
+
                 [
                     'type' => 'js',
                     'asset' => false,
@@ -536,6 +584,29 @@ return [
                     'location' => '/vendor/datatables/dataTables.dateTime.min.js',
                 ],
 
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '/vendor/datatables/dataTables.buttons.min.js',
+                ],
+
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '/vendor/datatables/jszip.min.js',
+                ],
+
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '/vendor/datatables/buttons.html5.min.js',
+                ],
+
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '/vendor/datatables/jquery-deparam.min.js',
+                ],
 
                 [
                     'type' => 'css',
@@ -548,21 +619,21 @@ return [
         'Select2' => [
             'active' => false,
             'files' => [
-                // [
-                //     'type' => 'js',
-                //     'asset' => false,
-                //     'location' => '/vendor/select2/js/select2.min.js',
-                // ],
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '/vendor/select2/js/select2.min.js',
+                ],
                 [
                     'type' => 'css',
                     'asset' => false,
                     'location' => '/vendor/select2/css/select2.min.css',
                 ],
-                [
-                    'type' => 'css',
-                    'asset' => false,
-                    'location' => '/vendor/select2-bootstrap4-theme/select2-bootstrap4.min.css',
-                ],
+                // [
+                //     'type' => 'css',
+                //     'asset' => false,
+                //     'location' => '/vendor/select2-bootstrap4-theme/select2-bootstrap4.min.css',
+                // ],
             ],
         ],
         'Chartjs' => [
@@ -575,7 +646,7 @@ return [
                 ],
             ],
         ],
-        
+
         'Toastr' => [
             'active' => false,
             'files' => [
@@ -626,7 +697,7 @@ return [
                     'asset' => true,
                     'location' => '/vendor/carousel/slick.min.js',
                 ],
-               
+
 
             ]
         ],

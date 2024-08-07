@@ -51,6 +51,24 @@ class Comissoes extends Model
             ");
     }
 
+    public function lancadas() 
+    {
+        return $this->hasMany(ComissoesCorretoresLancadas::class)->selectRaw("
+            id,
+            comissoes_id,
+            parcela,
+            data,
+            valor,
+            status_financeiro,
+            status_gerente,
+            data_baixa,
+            data_baixa_gerente,
+            valor_pago,
+            cancelados,
+            if(DATEDIFF(data_baixa,DATA) >= 1,DATEDIFF(data_baixa,DATA),0) AS quantidade_dias
+            ")->whereRaw('DATA < CURDATE()');
+    }
+
     public function cancelado()
     {
         return $this->belongsTo(Cancelado::class,"id","comissoes_id");

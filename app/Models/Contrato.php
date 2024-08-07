@@ -23,7 +23,8 @@ class Contrato extends Model
         "data_baixa",
         "valor_plano",
         "desconto_corretora",
-        "desconto_corretor"
+        "desconto_corretor",
+        "created_at"
     ];
 
 

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/accert.iml" filepath="$PROJECT_DIR$/.idea/accert.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/vivaz.iml" filepath="$PROJECT_DIR$/.idea/vivaz.iml" />
     </modules>
   </component>
 </project>
