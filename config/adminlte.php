@@ -310,6 +310,13 @@ return [
             'classes'  => 'text-white financeiro_adminlte',
         ],
         [
+            'text'    => 'Ranking',
+            'icon'    => 'fas fa-users',
+            'url'    => '/admin/ranking',
+            'icon_color' => 'white',
+            'classes'  => 'text-white financeiro_adminlte',
+        ],
+        [
             "text" => "Estrela",
             "url" => "admin/estrela",
             "icon" => "fas fa-star",

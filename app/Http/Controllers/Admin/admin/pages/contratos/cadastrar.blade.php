@@ -956,6 +956,8 @@
                 }
             });
 
+
+
             $("#cep_individual").change(function(){
                 let   cep = $(this).val().replace("-","");
                 const url = `https://viacep.com.br/ws/${cep}/json`;

@@ -16,6 +16,10 @@ trait UserACLTrait
                 $query->where('corretora_id', $this->corretora_id);
             }])->first();
 
+
+
+
+
         foreach ($permissions->cargo->permissions as $p) {
             $permissionsArray[] = $p->name;
         }
@@ -25,9 +29,12 @@ trait UserACLTrait
             $query->where('corretoras.id', auth()->user()->corretora_id);
         })->get();
 
+
+
         foreach ($corretoraPermissions as $p) {
             $permissionsArray[] = $p->name;
         }
+
 
         return $permissionsArray;
     }

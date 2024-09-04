@@ -124,12 +124,17 @@ Route::middleware('auth')->prefix("admin")->group(function(){
 
 
 
+
     Route::post("/dashboard/ano","App\Http\Controllers\Admin\HomeController@dashboardAno")->name("dashboard.ano");
     Route::post("/dashboard/ranking/semestral","App\Http\Controllers\Admin\HomeController@dashboardRankingSemestral")->name("dashboard.ranking.semestral");
     Route::post("/dashboard/ranking/mes","App\Http\Controllers\Admin\HomeController@dashboardRankingmes")->name("dashboard.ranking.mes");
     Route::post("/dashboard/tabela/ranking/mes","App\Http\Controllers\Admin\HomeController@dashboardTabelaRankingmes")->name("dashboard.tabela.ranking.mes");
     Route::post("/dashboard/ranking/ano","App\Http\Controllers\Admin\HomeController@dashboardRankingano")->name("dashboard.ranking.ano");
     Route::post("/dashboard/grafico/ano","App\Http\Controllers\Admin\HomeController@dashboardGraficoAno")->name("grafico.mudar.ano");
+    Route::post('/ranking/cadastrar-concessionaria', [\App\Http\Controllers\Admin\RankingController::class, 'cadastrarConcessionaria'])->name('cadastrar.concessionaria');
+
+
+
     /* Fim Home**/
 
     /* Estrela */
@@ -239,6 +244,12 @@ Route::middleware('auth')->prefix("admin")->group(function(){
     Route::get('/financeiro/geral/atrasado/corretor',"App\Http\Controllers\Admin\FinanceiroController@getAtrasadosCorretor")->name('financeiro.individual.atrasado.corretor');
     /**Fim Financeiro*/
 
+
+
+
+
+
+
     /***Comissões*****/
     Route::get('/comissao',"App\Http\Controllers\Admin\ComissoesController@index")->name('comissao.index');
     Route::get('/comissao/listarindividual',"App\Http\Controllers\Admin\ComissoesController@listarComissoes")->name('comissao.listar');
@@ -319,6 +330,15 @@ Route::middleware('auth')->prefix("admin")->group(function(){
 
     /****************************************************************Configurações******************************************************************/
 
+        /*Ranking*/
+        Route::get('/ranking',"App\Http\Controllers\Admin\RankingController@index")->name('ranking.index');
+        Route::get('/dashboard/filtragem',"App\Http\Controllers\Admin\RankingController@filtragem")->name('ranking.filtragem');
+
+        Route::get('/hapvida',"App\Http\Controllers\Admin\HapvidaController@index")->name('hapvida');
+
+
+
+
         /* Corretora **/
         Route::get('/corretora',"App\Http\Controllers\Admin\CorretoraController@index")->name('corretora.index');
         Route::post('/corretora/mudar/valor/tabela',"App\Http\Controllers\Admin\CorretoraController@mudarValorTabela")->name('corretora.mudar.valor.tabela');
@@ -334,6 +354,8 @@ Route::middleware('auth')->prefix("admin")->group(function(){
 
         Route::post('/corretora/mudar/valor/comissao/especifica','App\Http\Controllers\Admin\CorretoraController@mudarValorComissaoEspecifica')->name('mudar.valor.comissao.especifica');
         Route::post('/corretora/remover/comissao/corretora/configuracoes','App\Http\Controllers\Admin\CorretoraController@removeComissaoCorretoraConfiguracoes')->name('remove.comissao.corretora.configuracoes');
+
+
 
 
         Route::post('/corretora/valor/corretor/comissao',"App\Http\Controllers\Admin\CorretoraController@corretoraValorCorretorComissao")->name('corretora.valor.corretor.comissao');

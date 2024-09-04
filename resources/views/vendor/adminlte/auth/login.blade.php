@@ -26,12 +26,12 @@
     <form action="{{ $login_url }}" method="post">
         @csrf
         <fieldset style="border-bottom:1px solid #FFF;border-left:1px solid #FFF;border-right:1px solid #FFF;padding:10px;border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;">
-        
+
         <div class="input-group mb-3">
             <input type="email" name="email" class="form-control-person @error('email') is-invalid @enderror"
                    value="{{ old('email') }}" placeholder="{{ __('adminlte::adminlte.email') }}" autofocus>
 
-            
+
 
             @error('email')
                 <span class="invalid-feedback" role="alert">
@@ -68,15 +68,15 @@
                 </button>
             </div>
         </div>
-        
-        
+
+
         <!-- <div class="form-group">
-            
+
             <input type="email" class="form-control-person" placeholder="Email">
 
         </div>
         <div class="form-group">
-            
+
             <input type="password" class="form-control-person" placeholder="Senha">
 
         </div>

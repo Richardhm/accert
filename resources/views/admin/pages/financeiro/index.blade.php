@@ -193,6 +193,16 @@
         </div>
     </div>
 
+    <div style="display:flex;justify-content: center;">
+        @if(auth()->user()->can('listar_todos_accert') || auth()->user()->can('listar_todos_innove'))
+            <button data-corretora="1" style="background-color:#123449;border:none;color:#FFF;padding:15px;border-radius:5px;margin-right:5px;">Accert</button>
+            <button data-corretora="2" style="background-color:#123449;border:none;color:#FFF;padding:15px;border-radius:5px;margin-right:5px;">Innove</button>
+            <button data-corretora="0" style="background-color:#123449;border:none;color:#FFF;padding:15px;border-radius:5px;">Vivaz</button>
+        @endif
+    </div>
+
+
+
     <div>
         <ul class="list_abas">
             <li data-id="aba_individual" class="ativo">Individual</li>
@@ -846,63 +856,13 @@
                 $('.next').attr('data-contrato','');
                 $('tr').removeClass('textoforte');
                 if($(this).attr('data-id') == "aba_individual") {
-
                     inicializarIndividual();
-
-
-
-                    // $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
-                    // table.ajax.url("{{ route('financeiro.zerar.financeiro') }}").load();
-
-                    // $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
-                    // tableempresarial.ajax.url('{{route("financeiro.zerar.financeiro")}}').load();
-
-
-
-                    //$("#mudar_mes_table_coletivo").val("00");
-                    //$("#select_usuario").val('todos');
-                    //$("#select_coletivo_administradoras").val('todos');
-
-                    //$("#select_usuario").trigger('change');
-
-
-
                 } else if($(this).attr('data-id') == "aba_coletivo") {
-
-
-
-
-
-
-                    // $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
-                    // table_individual.ajax.url("{{ route('financeiro.zerar.financeiro') }}").load();
-
-                    // $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
-                    // tableempresarial.ajax.url('{{route("financeiro.zerar.financeiro")}}').load();
-
                     inicializarColetivo();
-
-                    //
-
                     $('#mudar_mes_table').find('option').eq(0).prop('selected', true);
-
-
-                    // $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
-                    // table.ajax.url("{{ route('financeiro.coletivo.em_geral') }}").load();
-
                 } else {
-
                     inicializarEmpresarial();
-                    // $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
-                    // table.ajax.url("{{ route('financeiro.zerar.financeiro') }}").load();
-
-                    // $('#title_individual').html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Listagem</h4>");
-                    // table_individual.ajax.url("{{ route('financeiro.zerar.financeiro') }}").load();
-
-                    // $("#title_empresarial").html("<h4 style='font-size:1em;margin-top:10px;margin-left:5px;'>Contratos</h4>");
-                    // tableempresarial.ajax.url('{{route("contratos.listarEmpresarial.listarContratoEmpresaPendentes")}}').load();
-
-                }
+               }
                 $("#cliente_id_alvo").val('');
                 $("#cliente_id_alvo_individual").val('');
                 $("#all_pendentes_individual").removeClass('textoforte-list');
@@ -916,8 +876,8 @@
 
 
             var table;
-            function inicializarColetivo() {
-
+            function inicializarColetivo(corretora_id = 1) {
+                console.log(corretora_id);
                 if ($.fn.DataTable.isDataTable('.listardados')) {
                     $('.listardados').DataTable().destroy();
                 }
@@ -968,7 +928,9 @@
                     },
                     ajax: {
                         "url":"{{ route('financeiro.coletivo.em_geral') }}",
-                        "dataSrc": ""
+                        data: function (d) {
+                            d.corretora_id = corretora_id;
+                        }
                     },
                     "lengthMenu": [1000,2000],
                     "ordering": false,
@@ -1125,7 +1087,6 @@
             $('.dataTables_filter input').on('input', function() {
 
                 if ($(this).val() === '') {
-
                     inicializarColetivo();
                 }
             });
@@ -1157,7 +1118,7 @@
                 $(this).closest('tr').addClass('textoforte');
             });
 
-            function inicializarIndividual() {
+            function inicializarIndividual(corretora_id = 1) {
 
                 if($.fn.DataTable.isDataTable('.listarindividual')) {
                     $('.listarindividual').DataTable().destroy();
@@ -1198,7 +1159,10 @@
                     processing: true,
                     ajax: {
                         "url":"{{ route('financeiro.individual.geralIndividualPendentes') }}",
-                        "dataSrc": ""
+                        data: function (d) {
+                            d.corretora_id = corretora_id;
+                        }
+
                     },
                     "lengthMenu": [500,1000],
                     "ordering": false,
@@ -1384,7 +1348,9 @@
                     }
                 });
             }
-            inicializarIndividual();
+
+
+            inicializarIndividual(1);
 
             var table_individual = $('#tabela_individual').DataTable();
             $('#tabela_individual').on('click', 'tbody tr', function () {
@@ -1396,7 +1362,7 @@
 
 
             var tableempresarial;
-            function inicializarEmpresarial() {
+            function inicializarEmpresarial(corretora_id = 1) {
 
                 if($.fn.DataTable.isDataTable('.listarempresarial')) {
                     $('.listarempresarial').DataTable().destroy();
@@ -1424,7 +1390,9 @@
                     },
                     ajax: {
                         "url":"{{ route('contratos.listarEmpresarial.listarContratoEmpresaPendentes') }}",
-                        "dataSrc": ""
+                        data: function (d) {
+                            d.corretora_id = corretora_id;
+                        }
                     },
                     "lengthMenu": [1000,2000,3000],
                     "ordering": false,
@@ -1520,11 +1488,6 @@
                         anosUnicos.forEach(function(ano) {
                             selectAno.append('<option value="' + ano + '">' + ano + '</option>');
                         });
-
-
-
-
-
                     },
                     "drawCallback":function(settings) {
 
@@ -1540,9 +1503,30 @@
                         $(".total_por_page_empresarial").html(total_br);
                     }
                 });
-
-
             }
+
+
+            $('button[data-corretora]').on('click', function() {
+                let corretora_id = $(this).data('corretora');
+
+
+                if($("#janela_atual").val() == "aba_individual") {
+                    inicializarIndividual(corretora_id);
+                } else if($("#janela_atual").val() == "aba_coletivo") {
+                    inicializarColetivo(corretora_id);
+                } else {
+                    inicializarEmpresarial(corretora_id);
+                }
+
+
+
+            });
+
+
+
+
+
+
 
             function inicializarSemCarteirinha() {
                 var tasemcarteirinha = $(".table_sem_carteirinha").DataTable({
@@ -3970,16 +3954,6 @@
                 }
             });
             var contar = 0;
-
-
-            if($("#janela_atual").val() == "aba_coletivo") {
-
-                table.on( 'xhr', function (e, settings, json) {
-                    $('#title_coletivo_por_adesao_table').html("<h4 style='font-size:1em;margin-top:10px;'>Contratos</h4>");
-                    table.ajax.url("{{ route('financeiro.coletivo.em_geral') }}").load();
-                    table.off( 'xhr' );
-                });
-            }
 
 
         });

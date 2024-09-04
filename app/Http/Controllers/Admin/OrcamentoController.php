@@ -1010,8 +1010,32 @@ class OrcamentoController extends Controller
             ]);
 
 
-            $pdf = PDF::loadHTML($view);
-            return $pdf->stream("teste.pdf");
+//            $pdf = PDF::loadHTML($view);
+//            return $pdf->stream("teste.pdf");
+
+            $pdfPath = storage_path('app/temp/temp.pdf');
+            PDF::loadHTML($view)->save($pdfPath);
+
+
+            $imagick = new \Imagick();
+            $imagick->setResolution(300, 300); // Ajuste a resolução para 300 DPI (ou a resolução desejada)
+            $imagick->readImage($pdfPath);
+            $imagick->setImageFormat('png');
+
+            $imagick->writeImage(storage_path("app/temp/{$nome_img}.png"));
+            $imagick->clear();
+            $imagick->destroy();
+            // Retornar a imagem ou fazer qualquer outra operação necessária
+            // Exemplo de download da imagem
+            return response()
+                ->download(storage_path("app/temp/{$nome_img}.png"))
+                ->deleteFileAfterSend(true);
+
+
+
+
+
+
 
         }
 

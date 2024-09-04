@@ -223,6 +223,7 @@ class HomeController extends Controller
 
     public function index()
     {
+
         $mesAtualN = date('n');
         $mes_atual = date("m");
         $ano_atual = date("Y");
@@ -393,9 +394,10 @@ class HomeController extends Controller
           ");
 
         // Cache key
-        $cacheKey = 'dashboard_data_now_' . date('Ym');
+        $cacheKey = 'dashboard_data_now_home_' . date('Ym');
         // Consultas otimizadas usando Cache
-        $data = Cache::remember($cacheKey, now()->addHour(), function () use ($startDate,$ano_atual ,$endDate,$semestreAtual,$mesInicialSemestre,$mesFinalSemestre,$anoAtual) {
+        //now()->addHour()
+        $data = Cache::remember($cacheKey, 0, function () use ($startDate,$ano_atual ,$endDate,$semestreAtual,$mesInicialSemestre,$mesFinalSemestre,$anoAtual) {
             return [
                 'total_coletivo_quantidade_vidas' => Cliente::select("*")
                     ->join('contratos','contratos.cliente_id','=','clientes.id')

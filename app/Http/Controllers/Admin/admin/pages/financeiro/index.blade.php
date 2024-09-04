@@ -49,8 +49,6 @@
                         </div>
 
                         <div id="carteirinha_error"></div>
-
-
                         <input type="hidden" name="id_cliente" id="carteirinha_id_input" />
                         <input type="submit" value="Enviar" class="btn btn-block btn-info">
                     </form>
@@ -159,11 +157,16 @@
         </div>
     </div>
 
+
+
+
+
+
     <div>
         <ul class="list_abas">
             <li data-id="aba_individual" class="ativo">Individual</li>
             <li data-id="aba_coletivo">Coletivo</li>
-            <li data-id="aba_empresarial">Empresarial</li>
+            <li data-id="aba_empresarial">Empresarialssssssss</li>
             <!-- <li data-id="aba_sem_carteirinha">Sem Carteirinha</li>   -->
         </ul>
     </div>
@@ -324,20 +327,20 @@
                     <div style="background-color:#123449;color:#FFF;border-radius:5px;">
                         <table id="tabela_individual" class="table table-sm listarindividual w-100">
                             <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Cod.</th>
-                                <th>Corretor</th>
-                                <th>Cliente</th>
-                                <th>CPF</th>
-                                <th>Vidas</th>
-                                <th>Valor</th>
-                                <th>Venc.</th>
-                                <th>Atrasado</th>
-                                <th>Status</th>
-                                <th>Ver</th>
-                                <th>Atrasado</th>
-                            </tr>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Cod.</th>
+                                    <th>Corretor</th>
+                                    <th>Cliente</th>
+                                    <th>CPF</th>
+                                    <th>Vidas</th>
+                                    <th>Valor</th>
+                                    <th>Venc.</th>
+                                    <th>Atrasado</th>
+                                    <th>Status</th>
+                                    <th>Ver</th>
+                                    <th>Atrasado</th>
+                                </tr>
                             </thead>
                             <tbody></tbody>
 
@@ -1419,11 +1422,7 @@
                 $("#content_list_empresarial_begin").addClass('destaque_content_radius');
 
                 if(plano != "todos") {
-
-
                     tableempresarial.column(7).search(plano).draw();
-
-
                     if(mes) {
                         let mesAno = mes + '/' + new Date().getFullYear();
                         tableempresarial.column(0).search(mesAno,true,false).draw();
